@@ -9,7 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SetupRouteImport } from './routes/setup'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GerenciaRouteImport } from './routes/gerencia'
+import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
@@ -18,9 +22,29 @@ import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_auth
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GerenciaRoute = GerenciaRouteImport.update({
+  id: '/gerencia',
+  path: '/gerencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorretorRoute = CorretorRouteImport.update({
+  id: '/corretor',
+  path: '/corretor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -61,7 +85,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/corretor': typeof CorretorRoute
+  '/gerencia': typeof GerenciaRoute
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
@@ -70,7 +98,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/corretor': typeof CorretorRoute
+  '/gerencia': typeof GerenciaRoute
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
@@ -81,7 +113,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/corretor': typeof CorretorRoute
+  '/gerencia': typeof GerenciaRoute
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
@@ -92,7 +128,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/corretor'
+    | '/gerencia'
     | '/login'
+    | '/planos'
+    | '/setup'
     | '/app'
     | '/corretores'
     | '/empreendimentos'
@@ -101,7 +141,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/corretor'
+    | '/gerencia'
     | '/login'
+    | '/planos'
+    | '/setup'
     | '/app'
     | '/corretores'
     | '/empreendimentos'
@@ -111,7 +155,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/corretor'
+    | '/gerencia'
     | '/login'
+    | '/planos'
+    | '/setup'
     | '/_authenticated/app'
     | '/_authenticated/corretores'
     | '/_authenticated/empreendimentos'
@@ -122,16 +170,48 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  CorretorRoute: typeof CorretorRoute
+  GerenciaRoute: typeof GerenciaRoute
   LoginRoute: typeof LoginRoute
+  PlanosRoute: typeof PlanosRoute
+  SetupRoute: typeof SetupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gerencia': {
+      id: '/gerencia'
+      path: '/gerencia'
+      fullPath: '/gerencia'
+      preLoaderRoute: typeof GerenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corretor': {
+      id: '/corretor'
+      path: '/corretor'
+      fullPath: '/corretor'
+      preLoaderRoute: typeof CorretorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -209,8 +289,22 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  CorretorRoute: CorretorRoute,
+  GerenciaRoute: GerenciaRoute,
   LoginRoute: LoginRoute,
+  PlanosRoute: PlanosRoute,
+  SetupRoute: SetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
