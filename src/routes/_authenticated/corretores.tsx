@@ -1,0 +1,159 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState, type FormEvent } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Pencil, Plus } from "lucide-react";
+
+type Corretor = {
+  id: string;
+  nome: string;
+  creci: string | null;
+  telefone: string | null;
+  email: string | null;
+  empreendimento_id: string;
+  ordem_roleta: number;
+  ativo: boolean;
+  user_id: string | null;
+};
+type Emp = { id: string; nome: string };
+
+export const Route = createFileRoute("/_authenticated/corretores")({
+  component: CorretoresPage,
+  head: () => ({ meta: [{ title: "Corretores — Roleta Corretor" }] }),
+});
+
+function CorretoresPage() {
+  const { roles } = useAuth();
+  const canEdit = roles.some((r) => ["incorporadora", "gerente", "coordenador"].includes(r));
+  const [rows, setRows] = useState<Corretor[]>([]);
+  const [emps, setEmps] = useState<Emp[]>([]);
+  const [editing, setEditing] = useState<Partial<Corretor> | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    setLoading(true);
+    const [{ data: cs }, { data: es }] = await Promise.all([
+      supabase.from("corretores").select("*").order("ordem_roleta"),
+      supabase.from("empreendimentos").select("id,nome").eq("ativo", true).order("nome"),
+    ]);
+    setRows((cs as Corretor[]) ?? []);
+    setEmps((es as Emp[]) ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    if (!editing) return;
+    if (!editing.empreendimento_id) return toast.error("Selecione o empreendimento");
+
+    // tenta vincular ao user_id via e-mail
+    let user_id = editing.user_id ?? null;
+    if (editing.email && !user_id) {
+      const { data: prof } = await supabase.from("profiles").select("id").eq("email", editing.email).maybeSingle();
+      if (prof?.id) user_id = prof.id;
+    }
+
+    const payload = {
+      nome: editing.nome ?? "",
+      creci: editing.creci ?? null,
+      telefone: editing.telefone ?? null,
+      email: editing.email ?? null,
+      empreendimento_id: editing.empreendimento_id,
+      ordem_roleta: editing.ordem_roleta ?? 0,
+      ativo: editing.ativo ?? true,
+      user_id,
+    };
+    const { error } = editing.id
+      ? await supabase.from("corretores").update(payload).eq("id", editing.id)
+      : await supabase.from("corretores").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("Salvo");
+    setEditing(null);
+    load();
+  }
+
+  const empName = (id: string) => emps.find((e) => e.id === id)?.nome ?? "—";
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Corretores</h1>
+          <p className="text-sm text-muted-foreground">Equipe vinculada por e-mail à conta de acesso.</p>
+        </div>
+        {canEdit && (
+          <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditing({ ativo: true, ordem_roleta: rows.length })}>
+                <Plus className="mr-1 h-4 w-4" /> Novo
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{editing?.id ? "Editar" : "Novo"} corretor</DialogTitle></DialogHeader>
+              <form onSubmit={save} className="space-y-3">
+                <Field label="Nome"><Input required value={editing?.nome ?? ""} onChange={(e) => setEditing((s) => ({ ...s, nome: e.target.value }))} /></Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="CRECI"><Input value={editing?.creci ?? ""} onChange={(e) => setEditing((s) => ({ ...s, creci: e.target.value }))} /></Field>
+                  <Field label="Telefone"><Input value={editing?.telefone ?? ""} onChange={(e) => setEditing((s) => ({ ...s, telefone: e.target.value }))} /></Field>
+                </div>
+                <Field label="E-mail (vincula à conta de login)"><Input type="email" value={editing?.email ?? ""} onChange={(e) => setEditing((s) => ({ ...s, email: e.target.value }))} /></Field>
+                <Field label="Empreendimento">
+                  <Select value={editing?.empreendimento_id ?? ""} onValueChange={(v) => setEditing((s) => ({ ...s, empreendimento_id: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+                    <SelectContent>
+                      {emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
+                <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Empreendimento</TableHead>
+              <TableHead>Contato</TableHead>
+              <TableHead>Conta</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground">Carregando…</TableCell></TableRow>
+              : rows.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground">Nenhum corretor.</TableCell></TableRow>
+              : rows.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="text-xs text-muted-foreground">{r.ordem_roleta}</TableCell>
+                  <TableCell className="font-medium">{r.nome} {!r.ativo && <Badge variant="secondary" className="ml-1">inativo</Badge>}</TableCell>
+                  <TableCell className="text-sm">{empName(r.empreendimento_id)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{r.telefone ?? "—"}<br />{r.email ?? ""}</TableCell>
+                  <TableCell>{r.user_id ? <Badge>vinculado</Badge> : <Badge variant="outline">sem login</Badge>}</TableCell>
+                  <TableCell className="text-right">{canEdit && <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
+    </main>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
+}
