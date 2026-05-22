@@ -23,13 +23,28 @@ function AuthenticatedLayout() {
     );
   }
 
+  const isAdmin = roles.some((r) => ["incorporadora", "gerente", "coordenador"].includes(r));
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link to="/app" className="text-sm font-semibold tracking-wide">
-            Roleta Corretor
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link to="/app" className="text-sm font-semibold tracking-wide">
+              Roleta Corretor
+            </Link>
+            <nav className="hidden items-center gap-4 text-sm text-muted-foreground md:flex">
+              <Link to="/app" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Painel</Link>
+              <Link to="/roleta" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Roleta</Link>
+              {isAdmin && (
+                <>
+                  <Link to="/empreendimentos" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Empreendimentos</Link>
+                  <Link to="/corretores" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Corretores</Link>
+                  <Link to="/plantoes" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Plantões</Link>
+                </>
+              )}
+            </nav>
+          </div>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-muted-foreground sm:inline">
               {user?.email}
@@ -49,3 +64,4 @@ function AuthenticatedLayout() {
     </div>
   );
 }
+
