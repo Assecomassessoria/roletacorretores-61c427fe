@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Roleta Corretores Elite 4.0" },
+      { name: "description", content: "Automatize o dia-a-dia do seu stand de vendas, roleta automática, organização, pontualidade e zero conflitos, presença por Geolocalização, Wifi, QRcode e PIN." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Roleta Corretores Elite 4.0" },
+      { property: "og:description", content: "Automatize o dia-a-dia do seu stand de vendas, roleta automática, organização, pontualidade e zero conflitos, presença por Geolocalização, Wifi, QRcode e PIN." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Roleta Corretores Elite 4.0" },
+      { name: "twitter:description", content: "Automatize o dia-a-dia do seu stand de vendas, roleta automática, organização, pontualidade e zero conflitos, presença por Geolocalização, Wifi, QRcode e PIN." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779418589084-Gemini_Generated_Image_z7ekjtz7ekjtz7ek.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779418589084-Gemini_Generated_Image_z7ekjtz7ekjtz7ek.webp" },
     ],
     links: [
       {
