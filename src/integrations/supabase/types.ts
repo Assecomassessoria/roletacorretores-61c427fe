@@ -14,16 +14,390 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      atendimentos: {
+        Row: {
+          cliente_email: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          corretor_id: string
+          created_at: string
+          criado_por: string | null
+          empreendimento_id: string
+          finalizado_em: string | null
+          id: string
+          iniciado_em: string
+          observacoes: string | null
+          plantao_id: string | null
+          status: Database["public"]["Enums"]["atendimento_status"]
+        }
+        Insert: {
+          cliente_email?: string | null
+          cliente_nome: string
+          cliente_telefone?: string | null
+          corretor_id: string
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id: string
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          observacoes?: string | null
+          plantao_id?: string | null
+          status?: Database["public"]["Enums"]["atendimento_status"]
+        }
+        Update: {
+          cliente_email?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          corretor_id?: string
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id?: string
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          observacoes?: string | null
+          plantao_id?: string | null
+          status?: Database["public"]["Enums"]["atendimento_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimentos_corretor_id_fkey"
+            columns: ["corretor_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimentos_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimentos_plantao_id_fkey"
+            columns: ["plantao_id"]
+            isOneToOne: false
+            referencedRelation: "plantoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corretores: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          creci: string | null
+          email: string | null
+          empreendimento_id: string
+          id: string
+          nome: string
+          ordem_roleta: number
+          telefone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          creci?: string | null
+          email?: string | null
+          empreendimento_id: string
+          id?: string
+          nome: string
+          ordem_roleta?: number
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          creci?: string | null
+          email?: string | null
+          empreendimento_id?: string
+          id?: string
+          nome?: string
+          ordem_roleta?: number
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corretores_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_log: {
+        Row: {
+          assunto: string
+          created_at: string
+          destinatario: string
+          empreendimento_id: string | null
+          id: string
+          payload: Json | null
+          status: string
+        }
+        Insert: {
+          assunto: string
+          created_at?: string
+          destinatario: string
+          empreendimento_id?: string | null
+          id?: string
+          payload?: Json | null
+          status: string
+        }
+        Update: {
+          assunto?: string
+          created_at?: string
+          destinatario?: string
+          empreendimento_id?: string | null
+          id?: string
+          payload?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_log_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empreendimentos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          criado_por: string | null
+          endereco: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          nome: string
+          raio_metros: number
+          updated_at: string
+          wifi_ssid: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome: string
+          raio_metros?: number
+          updated_at?: string
+          wifi_ssid?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome?: string
+          raio_metros?: number
+          updated_at?: string
+          wifi_ssid?: string | null
+        }
+        Relationships: []
+      }
+      historico_semanal: {
+        Row: {
+          created_at: string
+          empreendimento_id: string
+          id: string
+          payload: Json
+          semana_fim: string
+          semana_inicio: string
+        }
+        Insert: {
+          created_at?: string
+          empreendimento_id: string
+          id?: string
+          payload: Json
+          semana_fim: string
+          semana_inicio: string
+        }
+        Update: {
+          created_at?: string
+          empreendimento_id?: string
+          id?: string
+          payload?: Json
+          semana_fim?: string
+          semana_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_semanal_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plantoes: {
+        Row: {
+          corretor_id: string
+          created_at: string
+          data: string
+          empreendimento_id: string
+          hora_fim: string
+          hora_inicio: string
+          id: string
+          presenca_confirmada_em: string | null
+          presenca_lat: number | null
+          presenca_lng: number | null
+          status: Database["public"]["Enums"]["plantao_status"]
+        }
+        Insert: {
+          corretor_id: string
+          created_at?: string
+          data: string
+          empreendimento_id: string
+          hora_fim: string
+          hora_inicio: string
+          id?: string
+          presenca_confirmada_em?: string | null
+          presenca_lat?: number | null
+          presenca_lng?: number | null
+          status?: Database["public"]["Enums"]["plantao_status"]
+        }
+        Update: {
+          corretor_id?: string
+          created_at?: string
+          data?: string
+          empreendimento_id?: string
+          hora_fim?: string
+          hora_inicio?: string
+          id?: string
+          presenca_confirmada_em?: string | null
+          presenca_lat?: number | null
+          presenca_lng?: number | null
+          status?: Database["public"]["Enums"]["plantao_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plantoes_corretor_id_fkey"
+            columns: ["corretor_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plantoes_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          empreendimento_id: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          empreendimento_id?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          empreendimento_id?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role_in_empreendimento: {
+        Args: {
+          _empreendimento_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "incorporadora" | "gerente" | "coordenador" | "corretor"
+      atendimento_status:
+        | "aberto"
+        | "em_negociacao"
+        | "fechado"
+        | "perdido"
+        | "transferido"
+      plantao_status: "agendado" | "em_andamento" | "concluido" | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +524,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["incorporadora", "gerente", "coordenador", "corretor"],
+      atendimento_status: [
+        "aberto",
+        "em_negociacao",
+        "fechado",
+        "perdido",
+        "transferido",
+      ],
+      plantao_status: ["agendado", "em_andamento", "concluido", "cancelado"],
+    },
   },
 } as const
