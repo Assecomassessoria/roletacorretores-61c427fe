@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ChevronRight, Headphones, Mail, Phone, Sparkles, User, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
