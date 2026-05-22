@@ -103,7 +103,7 @@ function RoletaPage() {
           presenca_confirmada_em: new Date().toISOString(),
           presenca_lat: pos.coords.latitude,
           presenca_lng: pos.coords.longitude,
-          status: "presente",
+          status: "em_andamento",
         }).eq("id", plantao.id);
         setBusy(false);
         if (error) return toast.error(error.message);
