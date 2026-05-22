@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
+import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
+import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
+import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 
 const LoginRoute = LoginRouteImport.update({
@@ -28,6 +32,27 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
+  id: '/roleta',
+  path: '/roleta',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
+  id: '/plantoes',
+  path: '/plantoes',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedEmpreendimentosRoute =
+  AuthenticatedEmpreendimentosRouteImport.update({
+    id: '/empreendimentos',
+    path: '/empreendimentos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
+  id: '/corretores',
+  path: '/corretores',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -38,11 +63,19 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AuthenticatedAppRoute
+  '/corretores': typeof AuthenticatedCorretoresRoute
+  '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/plantoes': typeof AuthenticatedPlantoesRoute
+  '/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AuthenticatedAppRoute
+  '/corretores': typeof AuthenticatedCorretoresRoute
+  '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/plantoes': typeof AuthenticatedPlantoesRoute
+  '/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +83,40 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
+  '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
+  '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/app'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/app'
+    | '/corretores'
+    | '/empreendimentos'
+    | '/plantoes'
+    | '/roleta'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/app'
-  id: '__root__' | '/' | '/_authenticated' | '/login' | '/_authenticated/app'
+  to:
+    | '/'
+    | '/login'
+    | '/app'
+    | '/corretores'
+    | '/empreendimentos'
+    | '/plantoes'
+    | '/roleta'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/app'
+    | '/_authenticated/corretores'
+    | '/_authenticated/empreendimentos'
+    | '/_authenticated/plantoes'
+    | '/_authenticated/roleta'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +148,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/roleta': {
+      id: '/_authenticated/roleta'
+      path: '/roleta'
+      fullPath: '/roleta'
+      preLoaderRoute: typeof AuthenticatedRoletaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/plantoes': {
+      id: '/_authenticated/plantoes'
+      path: '/plantoes'
+      fullPath: '/plantoes'
+      preLoaderRoute: typeof AuthenticatedPlantoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/empreendimentos': {
+      id: '/_authenticated/empreendimentos'
+      path: '/empreendimentos'
+      fullPath: '/empreendimentos'
+      preLoaderRoute: typeof AuthenticatedEmpreendimentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/corretores': {
+      id: '/_authenticated/corretores'
+      path: '/corretores'
+      fullPath: '/corretores'
+      preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -100,10 +188,18 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedCorretoresRoute: typeof AuthenticatedCorretoresRoute
+  AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
+  AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
+  AuthenticatedRoletaRoute: typeof AuthenticatedRoletaRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedCorretoresRoute: AuthenticatedCorretoresRoute,
+  AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
+  AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
+  AuthenticatedRoletaRoute: AuthenticatedRoletaRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
