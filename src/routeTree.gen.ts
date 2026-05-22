@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
+  id: '/roleta',
+  path: '/roleta',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
   id: '/plantoes',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
+  '/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
+  '/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
+  '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,8 +97,16 @@ export interface FileRouteTypes {
     | '/corretores'
     | '/empreendimentos'
     | '/plantoes'
+    | '/roleta'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/app' | '/corretores' | '/empreendimentos' | '/plantoes'
+  to:
+    | '/'
+    | '/login'
+    | '/app'
+    | '/corretores'
+    | '/empreendimentos'
+    | '/plantoes'
+    | '/roleta'
   id:
     | '__root__'
     | '/'
@@ -99,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/corretores'
     | '/_authenticated/empreendimentos'
     | '/_authenticated/plantoes'
+    | '/_authenticated/roleta'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -129,6 +147,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/roleta': {
+      id: '/_authenticated/roleta'
+      path: '/roleta'
+      fullPath: '/roleta'
+      preLoaderRoute: typeof AuthenticatedRoletaRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/plantoes': {
       id: '/_authenticated/plantoes'
@@ -166,6 +191,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCorretoresRoute: typeof AuthenticatedCorretoresRoute
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
+  AuthenticatedRoletaRoute: typeof AuthenticatedRoletaRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -173,6 +199,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCorretoresRoute: AuthenticatedCorretoresRoute,
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
+  AuthenticatedRoletaRoute: AuthenticatedRoletaRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
