@@ -41,6 +41,8 @@ function CorretoresPage() {
   const [editing, setEditing] = useState<Partial<Corretor> | null>(null);
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
+  const [empBusca, setEmpBusca] = useState("");
+  const [fotoUploading, setFotoUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const habilitar = useServerFn(habilitarCorretorAcesso);
 
@@ -48,13 +50,39 @@ function CorretoresPage() {
     setLoading(true);
     const [{ data: cs }, { data: es }] = await Promise.all([
       supabase.from("corretores").select("*").order("ordem_roleta"),
-      supabase.from("empreendimentos").select("id,nome").eq("ativo", true).order("nome"),
+      supabase.from("empreendimentos").select("id,nome,cnpj").eq("ativo", true).order("nome"),
     ]);
     setRows((cs as Corretor[]) ?? []);
     setEmps((es as Emp[]) ?? []);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
+
+  // Sincroniza o campo de busca com o empreendimento selecionado ao abrir edição
+  useEffect(() => {
+    if (!editing) { setEmpBusca(""); return; }
+    const e = emps.find((x) => x.id === editing.empreendimento_id);
+    setEmpBusca(e ? e.nome : "");
+  }, [editing?.id, emps]);
+
+  async function uploadFoto(file: File) {
+    if (!file.type.startsWith("image/")) return toast.error("Selecione uma imagem");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Imagem maior que 5MB");
+    setFotoUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from("corretores").getPublicUrl(path);
+      setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
+      toast.success("Foto enviada");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha no upload");
+    } finally {
+      setFotoUploading(false);
+    }
+  }
 
   async function save(e: FormEvent) {
     e.preventDefault();
