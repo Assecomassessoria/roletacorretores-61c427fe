@@ -1,62 +1,87 @@
-# Reimplantação do Roleta Corretor (do zero) — TanStack Start + Lovable Cloud
 
-A proposta da **imagem 3** (app completo: login por papel, roleta, plantões, presença por geofencing/Wi-Fi/QR, relatórios semanais, painel admin) tem ~7.700 linhas de código no `App.tsx` original + Worker + D1. **Não dá para portar tudo em uma única mensagem** — o arquivo sozinho excede o limite prático de edição. Vamos fatiar em fases curtas, cada uma testável.
+# Plano de implementação — Roleta Corretor Elite 4.0
 
-## Arquitetura alvo
+Você pediu o pacote completo. Para não estourar créditos em uma única rodada (foi o problema antes), vou fatiar em **4 fases**. Cada fase é entregue e testada antes de iniciar a próxima. Você aprova fase a fase.
 
-- **Frontend:** TanStack Start (já configurado neste projeto), rotas em `src/routes/`, UI com Tailwind/shadcn.
-- **Backend:** Lovable Cloud (Postgres + Auth + Storage + Cron + Email Resend) — substitui D1/Workers/KV.
-- **Auth:** Lovable Cloud Auth (email/senha) + tabela `user_roles` (`incorporadora`, `gerente`, `coordenador`, `corretor`) com função `has_role()` SECURITY DEFINER. Nada de senha hardcoded.
-- **Cron:** `pg_cron` chamando endpoints `/api/public/*` com assinatura HMAC.
-  - Domingo 23:59 BRT → arquiva semana e zera contadores.
-  - Sexta 23:59 BRT → dispara relatório por e-mail (Resend).
-- **Retenção:** dados ativos por 7–8 dias; histórico semanal por 30 dias; purga automática.
+---
 
-## Fases (entrega incremental, cada uma roda no preview antes da próxima)
+## Fase 1 — Acesso Master e Login Real (PRIORITÁRIA)
 
-### Fase 1 — Fundação (esta resposta, se aprovado)
-- Habilitar Lovable Cloud.
-- Criar schema base: `profiles`, `user_roles`, `empreendimentos`, `corretores`, `plantoes`, `atendimentos`, `historico_semanal`, `email_log`.
-- RLS em todas as tabelas + função `has_role()`.
-- Trigger `handle_new_user` cria profile no signup.
-- Página `/login` (email/senha) + `/` landing (mantém visual da imagem 2).
-- Rota protegida `/app` com layout `_authenticated`.
+**Objetivo:** Login por e-mail/senha. Quem tem role `incorporadora` acessa tudo (Setup, Gerência, Corretor) sem outras barreiras. RLS no Supabase já está pronta — falta o front consumir.
 
-### Fase 2 — Cadastros e Roleta
-- CRUDs de empreendimentos, corretores, escala de plantões (UI shadcn).
-- Lógica de roleta justa (próximo da fila respeitando presença).
-- Check-in com geofencing (geolocation API) + validação de Wi-Fi (SSID via input do gerente) + QR Code dinâmico (rotativo a cada 5 min).
+**Entregáveis:**
+- Tela única `/login` (e-mail + senha) usando `supabase.auth.signInWithPassword`
+- Redirecionamento por role após login:
+  - `incorporadora` → menu completo (Setup + Gerência + Corretor + Roleta)
+  - `gerente` / `coordenador` → Gerência + Roleta
+  - `corretor` → Área do Corretor
+- Mover `/corretor`, `/gerencia`, `/setup` para baixo de `_authenticated/` (com guard por role)
+- Página `/setup` (Incorporadora) com:
+  - CRUD de Empreendimentos
+  - CRUD de Corretores
+  - Atribuição de roles (`user_roles`) a um e-mail cadastrado
+  - Cadastro do **usuário master** (você define o e-mail; eu insiro a role `incorporadora`)
+- Cabeçalho mostra usuário logado + botão Sair
 
-### Fase 3 — Atendimentos e dashboard
-- Registro de atendimento, transferência, status.
-- Dashboard por papel (corretor vê só seus; gerente vê stand; incorporadora vê tudo).
-- Tela de configuração mestra (substitui o painel da imagem 3).
+**Sem mexer em:** UI pública da landing, planos, countdown, footer (já aprovados).
 
-### Fase 4 — Cron, e-mail e relatórios
-- Configurar `pg_cron` + endpoints `/api/public/cron/arquivar` e `/api/public/cron/relatorio`.
-- Integração Resend (peço a chave depois) para envio de relatório semanal.
-- Botão "Enviar relatório agora" no painel.
-- Purga automática de histórico >30 dias.
+---
 
-### Fase 5 — Polimento e go-live
-- Auditoria de segurança (RLS, secrets, HIBP).
-- SEO/meta, `_headers`, HSTS.
-- Apontar DNS `roletacorretor.simuladorcorretorelite.com.br` para a publicação Lovable.
+## Fase 2 — Painel de Recepção + QR Code do Corretor
 
-## Custo estimado (Lovable Cloud)
+**Objetivo:** Cada corretor tem um QR pessoal; recepcionista lê e identifica o cliente.
 
-Para o volume descrito (uso diário em plantões, retenção curta), deve ficar **dentro do crédito gratuito mensal** (~US$ 25). Os maiores consumos serão Auth + Postgres rows + envio de e-mail. Se passar do free tier, mostro como reduzir.
+**Entregáveis:**
+- Rota `/qr?creci=XXXX` → renderiza QR Code dinâmico (lib `qrcode.react`, sem armazenar imagem)
+- Painel do Corretor mostra o próprio QR + link copiável
+- Rota `/recepcao` (acesso por role `recepcao` ou `coordenador`):
+  - Campo para escanear/colar código → mostra "Cliente esperado por: [Nome do Corretor]"
+  - Botão "Registrar chegada" → grava em `atendimentos` e dispara webhook (placeholder p/ Luna Messenger)
 
-## O que **não** vou trazer do ZIP
+**Migration necessária:** adicionar role `recepcao` ao enum `app_role` e campo `creci_unique` em `corretores`.
 
-- Hardcoded passwords (`47231970`, `123456`, etc.) — vão para `user_roles` com hash bcrypt do Supabase Auth.
-- Validação client-side de senha — toda autenticação no servidor.
-- `worker.js`, `wrangler.toml`, D1 migrations — substituídos por Postgres + server functions.
+---
 
-## Confirmação necessária antes da Fase 1
+## Fase 3 — Lógica de Triagem Lorenza (Backend)
 
-1. **Confirmo que vou apagar o conteúdo atual da landing** e construir o app de verdade nas rotas (mantenho a landing como `/` opcional).
-2. **Confirmo o reset:** seus dados antigos do D1 da Cloudflare **não** serão migrados — começamos com banco vazio. Se precisar migrar dados existentes, me avisa antes.
-3. Posso pedir 1 secret na Fase 4: `RESEND_API_KEY` (para e-mail). Você cria conta gratuita em resend.com.
+**Objetivo:** Endpoint que recebe input da Lorenza e roteia conforme as 5 opções (A/B/C/D/E).
 
-Aprova esse plano (ou ajusta) e eu começo pela Fase 1 imediatamente.
+**Entregáveis:**
+- Server route `POST /api/public/triagem` (assinatura HMAC obrigatória — secret `LORENZA_WEBHOOK_SECRET`)
+- Implementa o `switch(cliente.opcao)` que você descreveu:
+  - **A/C** → busca corretor por CRECI/WhatsApp → se no stand, aciona; senão, último da roleta
+  - **B** → próximo da fila (primeiro da vez)
+  - **D/E** → encaminha ao coordenador da roleta
+- Funções helper: `buscarCorretor`, `corretorNoStand` (checa `plantoes.presenca_confirmada_em` do dia), `alocarParaUltimoDaRoleta`, `alocarParaPrimeiroDaVez`, `encaminharParaCoordenadorRoleta`
+- Tabela `triagens_lorenza` (log de cada chamada para auditoria)
+
+---
+
+## Fase 4 — Webhook Luna Messenger + Notificações
+
+**Objetivo:** Disparar alerta WhatsApp quando recepção registra chegada ou triagem aciona corretor.
+
+**Entregáveis:**
+- Server function `notificarCorretor(corretor_id, mensagem)` que chama a API da Luna Messenger
+- Secret `LUNA_MESSENGER_API_KEY` (vou pedir quando chegarmos nesta fase)
+- Hook automático nos eventos: chegada registrada, triagem alocada, plantão atribuído
+
+---
+
+## Custos estimados (créditos Lovable)
+
+| Fase | Complexidade | Estimativa |
+|------|-------------|------------|
+| 1    | Média       | ~baixa-média (auth já configurado no Supabase) |
+| 2    | Baixa-média | ~baixa |
+| 3    | Média       | ~média (lógica de negócio + testes) |
+| 4    | Baixa       | ~baixa (depende da doc Luna) |
+
+---
+
+## O que preciso de você ANTES da Fase 1
+
+1. **E-mail do usuário master** (será o seu login com role `incorporadora`)
+2. **Senha inicial** (pode trocar depois; mínimo 8 caracteres) — você define no momento do primeiro signup pela tela de login
+
+Confirme o plano e me passe o e-mail master para eu começar a Fase 1.
