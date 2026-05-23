@@ -1,87 +1,76 @@
 
-# Plano de implementação — Roleta Corretor Elite 4.0
+# Área do Coordenador
 
-Você pediu o pacote completo. Para não estourar créditos em uma única rodada (foi o problema antes), vou fatiar em **4 fases**. Cada fase é entregue e testada antes de iniciar a próxima. Você aprova fase a fase.
+Criar uma nova área dedicada ao **Coordenador** (acessível também pela Incorporadora/Gerente/Master) que centraliza toda a operação de um empreendimento. Baseada nos mockups enviados (Painel de Operações Pro).
 
----
+## Nova rota
 
-## Fase 1 — Acesso Master e Login Real (PRIORITÁRIA)
+`src/routes/_authenticated/coordenador.tsx` — protegida por role `coordenador` (ou superior). Adicionar link **"Gerente/Coordenador"** no header de navegação.
 
-**Objetivo:** Login por e-mail/senha. Quem tem role `incorporadora` acessa tudo (Setup, Gerência, Corretor) sem outras barreiras. RLS no Supabase já está pronta — falta o front consumir.
+## Estrutura da página (seções, top → bottom)
 
-**Entregáveis:**
-- Tela única `/login` (e-mail + senha) usando `supabase.auth.signInWithPassword`
-- Redirecionamento por role após login:
-  - `incorporadora` → menu completo (Setup + Gerência + Corretor + Roleta)
-  - `gerente` / `coordenador` → Gerência + Roleta
-  - `corretor` → Área do Corretor
-- Mover `/corretor`, `/gerencia`, `/setup` para baixo de `_authenticated/` (com guard por role)
-- Página `/setup` (Incorporadora) com:
-  - CRUD de Empreendimentos
-  - CRUD de Corretores
-  - Atribuição de roles (`user_roles`) a um e-mail cadastrado
-  - Cadastro do **usuário master** (você define o e-mail; eu insiro a role `incorporadora`)
-- Cabeçalho mostra usuário logado + botão Sair
+### 1. Cabeçalho de ações
+- Seletor de empreendimento ativo
+- Botões: **Bater Roleta Oficial**, **Salvar Alterações**, **Envia WhatsApp**, **PDF / Imprimir**
 
-**Sem mexer em:** UI pública da landing, planos, countdown, footer (já aprovados).
+### 2. Ciclo Operacional Ativo
+Três cards selecionáveis (radio): **Roleta Única** · **Roleta Manhã** · **Roleta Tarde**
 
----
+### 3. Configuração de Períodos
+Cards por turno (Comercial / Matutino / Vespertino) com horário início–fim editável.
 
-## Fase 2 — Painel de Recepção + QR Code do Corretor
+### 4. Anexar Políticas e Regras do Plantão (PDF)
+Upload de PDF por empreendimento (storage bucket `plantao-regras`). Mostra arquivo vinculado ou "Nenhum PDF vinculado (usando normas padrão)".
 
-**Objetivo:** Cada corretor tem um QR pessoal; recepcionista lê e identifica o cliente.
+### 5. Identidade & Comunicação
+- Nome do empreendimento ativo
+- WhatsApp Grupo (DDD+número) — link do grupo oficial de vendas
 
-**Entregáveis:**
-- Rota `/qr?creci=XXXX` → renderiza QR Code dinâmico (lib `qrcode.react`, sem armazenar imagem)
-- Painel do Corretor mostra o próprio QR + link copiável
-- Rota `/recepcao` (acesso por role `recepcao` ou `coordenador`):
-  - Campo para escanear/colar código → mostra "Cliente esperado por: [Nome do Corretor]"
-  - Botão "Registrar chegada" → grava em `atendimentos` e dispara webhook (placeholder p/ Luna Messenger)
+### 6. Protocolos de Blindagem e Presença
+4 cards indicadores (Geofencing / QR Code / Stand Wi-Fi / Liberação Mestra) + 3 blocos de configuração:
+- **Parâmetros de Cerca GPS** — latitude, longitude, raio (m)
+- **QR Code de Presença** — token ativo + botão "Gerar Novo Token" + preview do QR
+- **Configuração de Rede** — SSID Wi-Fi + IP homologado
 
-**Migration necessária:** adicionar role `recepcao` ao enum `app_role` e campo `creci_unique` em `corretores`.
+### 7. Gestão de Ativos e Períodos (Equipes)
+Editar nomes **Equipe Alfa** / **Equipe Beta** + botões para acessar cada equipe.
 
----
+### 8. Gestão de Corretores
+- **Cadastros Aguardando Habilitação** (lista com botão Ativar)
+- **Corretores Ativos** com ações Ativar | Desativar | Excluir
 
-## Fase 3 — Lógica de Triagem Lorenza (Backend)
+### 9. Auditoria & Automação (Cron)
+Lista de cron jobs ativos (próximas execuções) — read-only.
 
-**Objetivo:** Endpoint que recebe input da Lorenza e roteia conforme as 5 opções (A/B/C/D/E).
+## Backend (migração SQL)
 
-**Entregáveis:**
-- Server route `POST /api/public/triagem` (assinatura HMAC obrigatória — secret `LORENZA_WEBHOOK_SECRET`)
-- Implementa o `switch(cliente.opcao)` que você descreveu:
-  - **A/C** → busca corretor por CRECI/WhatsApp → se no stand, aciona; senão, último da roleta
-  - **B** → próximo da fila (primeiro da vez)
-  - **D/E** → encaminha ao coordenador da roleta
-- Funções helper: `buscarCorretor`, `corretorNoStand` (checa `plantoes.presenca_confirmada_em` do dia), `alocarParaUltimoDaRoleta`, `alocarParaPrimeiroDaVez`, `encaminharParaCoordenadorRoleta`
-- Tabela `triagens_lorenza` (log de cada chamada para auditoria)
+Adicionar colunas ao `empreendimentos`:
+- `ciclo_roleta` (`unica`|`manha`|`tarde`)
+- `horario_comercial_inicio/fim`, `horario_matutino_inicio/fim`, `horario_vespertino_inicio/fim`
+- `regras_pdf_url`, `whatsapp_grupo_url`
+- `qr_token`, `ip_homologado`
+- `equipe_alfa_nome` (default 'Equipe Alfa'), `equipe_beta_nome` (default 'Equipe Beta')
 
----
+Adicionar ao `corretores`:
+- `equipe` (`alfa`|`beta`|null)
+- `status_habilitacao` (`pendente`|`ativo`|`desativado`) — substitui/complementa `ativo`
 
-## Fase 4 — Webhook Luna Messenger + Notificações
+Storage bucket `plantao-regras` (privado, RLS por empreendimento).
 
-**Objetivo:** Disparar alerta WhatsApp quando recepção registra chegada ou triagem aciona corretor.
+## Detalhes técnicos
 
-**Entregáveis:**
-- Server function `notificarCorretor(corretor_id, mensagem)` que chama a API da Luna Messenger
-- Secret `LUNA_MESSENGER_API_KEY` (vou pedir quando chegarmos nesta fase)
-- Hook automático nos eventos: chegada registrada, triagem alocada, plantão atribuído
+- Componente único grande dividido em sub-componentes locais por seção
+- Mutations via Supabase client direto (já temos RLS)
+- Geração de token QR: `crypto.randomBytes(4).toString('hex').toUpperCase()` + lib `qrcode` para SVG preview
+- Upload PDF: `supabase.storage.from('plantao-regras').upload(...)`
+- Cron list: query em `cron.job` via server function admin
 
----
+## Fora do escopo (perguntar depois)
+- Edição visual avançada dos protocolos (cores/tema por empreendimento)
+- Disparo real de WhatsApp em massa pelo botão "Envia WhatsApp" (apenas abre o grupo por enquanto)
+- Tela dedicada de cada Equipe (Alfa/Beta) — por ora só renomeação
 
-## Custos estimados (créditos Lovable)
+## Estimativa
+1 migração SQL + 1 rota nova (~600 linhas) + 1 link no header + 1 bucket de storage.
 
-| Fase | Complexidade | Estimativa |
-|------|-------------|------------|
-| 1    | Média       | ~baixa-média (auth já configurado no Supabase) |
-| 2    | Baixa-média | ~baixa |
-| 3    | Média       | ~média (lógica de negócio + testes) |
-| 4    | Baixa       | ~baixa (depende da doc Luna) |
-
----
-
-## O que preciso de você ANTES da Fase 1
-
-1. **E-mail do usuário master** (será o seu login com role `incorporadora`)
-2. **Senha inicial** (pode trocar depois; mínimo 8 caracteres) — você define no momento do primeiro signup pela tela de login
-
-Confirme o plano e me passe o e-mail master para eu começar a Fase 1.
+Confirma para eu implementar?
