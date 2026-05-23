@@ -4,10 +4,10 @@ import { ShieldCheck } from "lucide-react";
 const ECOSSISTEMA = [
   { produto: "Simulação Personalizada", agente: "Luiza IA", url: "https://assecomassessoria.net.br" },
   { produto: "Marketing Imobiliário", agente: "Luiza Mkt", url: "https://luiza.elitemkt.nom.br/" },
-  { produto: "Atendimento Mensagens", agente: "Luna Messenger", url: "https://elitemessenger.com.br/" },
+  { produto: "Atendimento Mensagens", agente: "Luna Messenger • API Terminal", url: "https://elitemessenger.com.br/" },
   { produto: "Academia Elite EAD", agente: "Lowrence Elite", url: "https://www.academiaead.simuladorcorretorelite.com.br/" },
   { produto: "Tráfego Pago Imobiliário", agente: "Laurens Elite ADS", url: "https://laurens.ads.simuladorcorretorelite.com.br/" },
-  { produto: "Escala de Plantão", agente: "Lorenza Roleta 4.0", url: "https://roletacorretor.simuladorcorretorelite.com.br/" },
+  { produto: "Escala de Plantão", agente: "Lorenza Roleta Corretores • API Terminal", url: "https://roletacorretor.simuladorcorretorelite.com.br/" },
   { produto: "Desenvolvedor LP/Sites", agente: "Lauren Elite 4.0", url: "https://simuladorcorretorelite.com.br/" },
   { produto: "Gestão de CRM", agente: "Lorento CRM", url: "https://lorentocrm.simuladorcorretorelite.com.br/" },
 ];
