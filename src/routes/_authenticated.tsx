@@ -12,8 +12,16 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !session) navigate({ to: "/login" });
-  }, [loading, session, navigate]);
+    if (loading) return;
+    if (!session) {
+      navigate({ to: "/login" });
+      return;
+    }
+    // Primeiro acesso: força redefinição de senha
+    if (user?.user_metadata?.must_change_password) {
+      navigate({ to: "/reset-password" });
+    }
+  }, [loading, session, navigate, user]);
 
   if (loading || !session) {
     return (
