@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Phone, MessageCircle, Mail } from "lucide-react";
 
 const ECOSSISTEMA = [
   { produto: "Simulação Personalizada", agente: "Luiza IA", url: "https://assecomassessoria.net.br" },
@@ -17,34 +17,100 @@ export function SiteFooter() {
     <footer className="mt-16 bg-[var(--navy-deep)] text-navy-foreground">
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">Razão Social</h4>
-          <p className="text-xs leading-relaxed text-white/70">
-            CNPJ 00.000.000/0001-00<br />
-            WhatsApp (00) 0 0000-0000<br />
-            <a href="mailto:contato@simuladorcorretorelite.com.br" className="text-orange/80 hover:text-orange">
-              contato@simuladorcorretorelite.com.br
-            </a>
-          </p>
-        </div>
-        <div>
-          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">Importante</h4>
-          <p className="text-xs leading-relaxed text-white/70">
-            <a href="https://simuladorcorretorelite.com.br" className="block text-orange/80 hover:text-orange">
-              www.simuladorcorretorelite.com.br
-            </a>
-          </p>
-        </div>
-        <div>
-          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">Programações &amp; Áreas</h4>
-          <ul className="space-y-1 text-xs text-white/70">
-            <li>Termos de Programação</li>
-            <li>Política &amp; Privacidade</li>
-            <li>Manual de Operações</li>
+          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">
+            Canais de Suporte
+          </h4>
+          <ul className="space-y-2 text-xs leading-relaxed text-white/80">
+            <li className="flex items-center gap-2">
+              <Phone className="h-3.5 w-3.5 text-orange/80" />
+              <a href="tel:+5511922052470" className="hover:text-orange">
+                (11) 9 2205-2470
+              </a>
+            </li>
+            <li className="flex items-center gap-2">
+              <MessageCircle className="h-3.5 w-3.5 text-orange/80" />
+              <a
+                href="https://wa.me/5511920024853"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-orange"
+              >
+                WhatsApp (11) 9 2002-4853
+              </a>
+            </li>
+            <li className="flex items-center gap-2">
+              <Mail className="h-3.5 w-3.5 text-orange/80" />
+              <a
+                href="mailto:contatoapps@simuladorcorretorelite.com.br"
+                className="break-all hover:text-orange"
+              >
+                contatoapps@simuladorcorretorelite.com.br
+              </a>
+            </li>
           </ul>
         </div>
+
         <div>
-          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">Apresentação do Sistema</h4>
-          <ul className="space-y-1 text-xs text-white/70">
+          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">
+            Institucional
+          </h4>
+          <ul className="space-y-2 text-xs leading-relaxed text-white/80">
+            <li className="flex items-center gap-2">
+              <Mail className="h-3.5 w-3.5 text-orange/80" />
+              <a
+                href="mailto:simulador@simuladorcorretorelite.com.br"
+                className="break-all hover:text-orange"
+              >
+                simulador@simuladorcorretorelite.com.br
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://simuladorcorretorelite.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange/90 hover:text-orange"
+              >
+                www.simuladorcorretorelite.com.br
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">
+            Privacidade e Ética
+          </h4>
+          <ul className="space-y-1.5 text-xs text-white/80">
+            <li>
+              <Link to="/lgpd" className="hover:text-orange">
+                Política de Privacidade
+              </Link>
+            </li>
+            <li>
+              <Link to="/lgpd" className="hover:text-orange">
+                Termos e Condições
+              </Link>
+            </li>
+            <li>
+              <Link to="/lgpd" className="hover:text-orange">
+                Exclusão de Dados (LGPD)
+              </Link>
+            </li>
+            <li>
+              <Link to="/lgpd" className="font-semibold text-orange/90 hover:text-orange">
+                Tratamento de Dados (LGPD/GDPR)
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">
+            Apresentação do Sistema
+          </h4>
+          <ul className="space-y-1.5 text-xs text-white/80">
+            <li>Apresentação do Sistema</li>
             <li>Manual do Usuário</li>
           </ul>
         </div>
@@ -63,7 +129,9 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 className="flex flex-col rounded-md border border-orange/30 bg-navy px-3 py-2 text-center transition hover:border-orange hover:bg-orange hover:text-orange-foreground"
               >
-                <span className="text-[10px] font-semibold uppercase leading-tight text-white/90">{s.produto}</span>
+                <span className="text-[10px] font-semibold uppercase leading-tight text-white/90">
+                  {s.produto}
+                </span>
                 <span className="mt-0.5 text-[9px] leading-tight text-orange/70">{s.agente}</span>
               </a>
             </li>
@@ -72,7 +140,8 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-white/10 py-4 text-center text-[11px] text-white/60">
-        Desenvolvido por <span className="font-bold text-orange">INFORMATIC</span> — Tecnologia da Informação · CNPJ 00.000.000/0001-00
+        Desenvolvido por <span className="font-bold text-orange">INFORMATIC</span> — Tecnologia
+        da Informação
       </div>
 
       <div className="border-t border-white/10 px-6 py-4 text-center">
