@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   Save, Printer, MessageCircle, RefreshCw, Shield, MapPin, QrCode, Wifi,
   KeyRound, FileUp, Settings2, Users, UserCheck, UserX, Trash2, Sparkles,
-  LogOut, Clock, Plus, Timer, Zap,
+  LogOut, Clock, Plus, Timer, Zap, Search,
 } from "lucide-react";
 
 type Emp = {
