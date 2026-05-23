@@ -41,6 +41,9 @@ const PLANOS = [
     features: [
       "Cadastro ilimitado de corretores",
       "Dados &amp; relatórios mensais",
+      "Validação de presença para corretores",
+      "Roleta automatizada por escala",
+      "Auditoria e relatórios para incorporadora"
       "100% dos recursos liberados",
       "Suporte por WhatsApp prioritário",
     ],
