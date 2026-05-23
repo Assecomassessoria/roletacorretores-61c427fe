@@ -16,6 +16,7 @@ import { Route as GerenciaRouteImport } from './routes/gerencia'
 import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
@@ -56,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
   id: '/roleta',
   path: '/roleta',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/plantoes'
     | '/roleta'
+    | '/usuarios'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/plantoes'
     | '/roleta'
+    | '/usuarios'
   id:
     | '__root__'
     | '/'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/empreendimentos'
     | '/_authenticated/plantoes'
     | '/_authenticated/roleta'
+    | '/_authenticated/usuarios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -228,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/roleta': {
       id: '/_authenticated/roleta'
       path: '/roleta'
@@ -272,6 +291,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
   AuthenticatedRoletaRoute: typeof AuthenticatedRoletaRoute
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -280,6 +300,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
   AuthenticatedRoletaRoute: AuthenticatedRoletaRoute,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -298,3 +319,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
