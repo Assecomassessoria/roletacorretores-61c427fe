@@ -355,14 +355,12 @@ function CorretoresPage() {
           </TableBody>
         </Table>
       </div>
-    </main>
-  );
-}
 
       <QrCorretorDialog corretor={qrAlvo} empNome={empName(qrAlvo?.empreendimento_id)} onClose={() => setQrAlvo(null)} />
     </main>
   );
 }
+
 
 function QrCorretorDialog({
   corretor,
