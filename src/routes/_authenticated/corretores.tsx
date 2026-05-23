@@ -11,6 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Pencil, Plus } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
 
 type Corretor = {
   id: string;
