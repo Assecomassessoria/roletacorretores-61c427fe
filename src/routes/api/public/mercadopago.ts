@@ -169,19 +169,33 @@ export const Route = createFileRoute("/api/public/mercadopago")({
           const agora = new Date();
           const expira = new Date(agora.getTime() + dias * 86_400_000);
 
-          await supabaseAdmin
+          const { data: existing } = await supabaseAdmin
             .from("assinaturas")
-            .upsert(
-              {
-                user_id: pagamento.user_id,
-                plano_id: pagamento.plano_id,
+            .select("id")
+            .eq("user_id", pagamento.user_id)
+            .eq("plano_id", pagamento.plano_id)
+            .maybeSingle();
+
+          if (existing) {
+            await supabaseAdmin
+              .from("assinaturas")
+              .update({
                 status: "ativa",
                 iniciada_em: agora.toISOString(),
                 expira_em: expira.toISOString(),
                 aviso_renovacao_enviado: false,
-              },
-              { onConflict: "user_id,plano_id" } as never
-            );
+                cancelada_em: null,
+              })
+              .eq("id", existing.id);
+          } else {
+            await supabaseAdmin.from("assinaturas").insert({
+              user_id: pagamento.user_id,
+              plano_id: pagamento.plano_id,
+              status: "ativa",
+              iniciada_em: agora.toISOString(),
+              expira_em: expira.toISOString(),
+            });
+          }
 
           await supabaseAdmin
             .from("pagamentos")
