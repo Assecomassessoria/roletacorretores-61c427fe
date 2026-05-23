@@ -22,6 +22,7 @@ import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
+import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 
@@ -90,6 +91,12 @@ const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
   path: '/corretores',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAtendimentosRoute =
+  AuthenticatedAtendimentosRouteImport.update({
+    id: '/atendimentos',
+    path: '/atendimentos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
+  '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
+  '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
@@ -144,6 +153,7 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/app'
+    | '/atendimentos'
     | '/corretores'
     | '/empreendimentos'
     | '/plantoes'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/app'
+    | '/atendimentos'
     | '/corretores'
     | '/empreendimentos'
     | '/plantoes'
@@ -195,6 +207,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/_authenticated/app'
+    | '/_authenticated/atendimentos'
     | '/_authenticated/corretores'
     | '/_authenticated/empreendimentos'
     | '/_authenticated/plantoes'
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/atendimentos': {
+      id: '/_authenticated/atendimentos'
+      path: '/atendimentos'
+      fullPath: '/atendimentos'
+      preLoaderRoute: typeof AuthenticatedAtendimentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -327,6 +347,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedAtendimentosRoute: typeof AuthenticatedAtendimentosRoute
   AuthenticatedCorretoresRoute: typeof AuthenticatedCorretoresRoute
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
@@ -336,6 +357,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedAtendimentosRoute: AuthenticatedAtendimentosRoute,
   AuthenticatedCorretoresRoute: AuthenticatedCorretoresRoute,
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
@@ -361,3 +383,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
