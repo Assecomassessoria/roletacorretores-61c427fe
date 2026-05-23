@@ -1,6 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 
+const ECOSSISTEMA = [
+  { nome: "Luiza IA", url: "https://assecomassessoria.net.br", icon: "💎" },
+  { nome: "Luiza Mkt", url: "https://luiza.elitemkt.nom.br/", icon: "📈" },
+  { nome: "Luna Messenger", url: "https://elitemessenger.com.br/", icon: "💬" },
+  { nome: "Lowrence Elite", url: "https://www.academiaead.simuladorcorretorelite.com.br/", icon: "🎓" },
+  { nome: "Laurens Elite ADS", url: "https://laurens.ads.simuladorcorretorelite.com.br/", icon: "🎯" },
+  { nome: "Lorenza Roleta 4.0", url: "https://roletacorretor.simuladorcorretorelite.com.br/", icon: "🎡" },
+  { nome: "Lauren Elite 4.0", url: "https://simuladorcorretorelite.com.br/", icon: "🚀" },
+  { nome: "Lorento CRM", url: "https://lorentocrm.simuladorcorretorelite.com.br/", icon: "📊" },
+];
+
 export function SiteFooter() {
   return (
     <footer className="mt-16 bg-[var(--navy-deep)] text-navy-foreground">
@@ -37,6 +48,27 @@ export function SiteFooter() {
             <li>Manual do Usuário</li>
           </ul>
         </div>
+      </div>
+
+      <div className="border-t border-white/10 px-6 py-8">
+        <h4 className="mb-4 text-center text-[11px] font-bold uppercase tracking-[0.25em] text-orange">
+          Ecossistema 4.0 · Roleta 360º
+        </h4>
+        <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2">
+          {ECOSSISTEMA.map((s) => (
+            <li key={s.url}>
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-md border border-orange/30 bg-navy px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/85 transition hover:border-orange hover:bg-orange hover:text-orange-foreground"
+              >
+                <span aria-hidden className="text-sm leading-none">{s.icon}</span>
+                {s.nome}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="border-t border-white/10 py-4 text-center text-[11px] text-white/60">
