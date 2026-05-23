@@ -83,6 +83,9 @@ function CoordenadorPage() {
   const [saving, setSaving] = useState(false);
   const [qrSvg, setQrSvg] = useState<string>("");
   const [novoHorario, setNovoHorario] = useState("");
+  const [filtroBusca, setFiltroBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativo" | "desativado">("todos");
+  const [filtroEquipe, setFiltroEquipe] = useState<"todas" | "alfa" | "beta" | "sem">("todas");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
