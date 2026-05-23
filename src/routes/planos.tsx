@@ -10,7 +10,15 @@ export const Route = createFileRoute("/planos")({
       { title: "Planos — Roleta Corretor Elite 4.0" },
       {
         name: "description",
-        content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo.",
+        content:
+          "Planos profissionais e solução de escala: 30 dias de experiência, Mensal Elite e Anual Executivo.",
+      },
+    ],
+    scripts: [
+      {
+        src: "https://www.mercadopago.com/v2/security.js",
+        view: "checkout",
+        output: "deviceId",
       },
     ],
   }),
@@ -18,20 +26,23 @@ export const Route = createFileRoute("/planos")({
 
 const PLANOS = [
   {
-    nome: "Experiência 7 dias",
+    nome: "Plano 30 dias de Experiência",
     cor: "navy" as const,
-    badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 179,90",
-    sub: "ÚNICO",
-    promo: "R$ 59,90 trial",
+    badge: "Trial qualificado · Pagamento único na adesão",
+    preco: "R$ 69,90",
+    sub: "/30 dias · pagamento único",
+    promo: "Renovação automática avisada no 25º dia pela Lorenza",
     features: [
-      "Acesso à gestão operacional completa",
-      "Validação de presença para corretores",
+      "Acesso total à gestão operacional por 30 dias",
+      "Cadastro ilimitado de corretores no período",
+      "Validação de presença (GPS / Wi-Fi / QR / PIN)",
       "Roleta automatizada por escala",
       "Auditoria e relatórios para incorporadora",
+      "Pagamento seguro via Mercado Pago",
     ],
-    cta: "Assinar plano experiência (7 dias)",
+    cta: "Assinar 30 dias de experiência",
   },
+
   {
     nome: "Plano Mensal Elite",
     cor: "white" as const,
