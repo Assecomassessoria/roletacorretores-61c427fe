@@ -8,7 +8,10 @@ export const Route = createFileRoute("/planos")({
   head: () => ({
     meta: [
       { title: "Planos — Roleta Corretor Elite 4.0" },
-      { name: "description", content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo." },
+      {
+        name: "description",
+        content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo.",
+      },
     ],
   }),
 });
@@ -20,7 +23,7 @@ const PLANOS = [
     badge: "Cadastro de demonstração / experiência",
     preco: "R$ 179,90",
     sub: "ÚNICO",
-    promo: "R$ 39,90 trial",
+    promo: "R$ 59,90 trial",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
@@ -66,7 +69,10 @@ function Planos() {
       <div className="h-1 bg-gradient-to-r from-orange via-gold to-orange/40" />
 
       <main className="mx-auto max-w-6xl px-4 py-10">
-        <Link to="/" className="mb-6 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-3 w-3" /> Voltar à página inicial
         </Link>
 
@@ -81,13 +87,15 @@ function Planos() {
                 Planos Profissionais e Solução de Escala
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-white/70">
-                Escolha o plano ideal para o momento atual do seu negócio. Toda a infraestrutura — roleta, presença, cron semanal,
-                e-mails — entregue sob medida para incorporadoras e stands de venda.
+                Escolha o plano ideal para o momento atual do seu negócio. Toda a infraestrutura — roleta, presença,
+                cron semanal, e-mails — entregue sob medida para incorporadoras e stands de venda.
               </p>
               <ul className="mt-4 flex flex-wrap gap-3 text-[11px] text-white/80">
                 <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">100% web · sem instalação</li>
                 <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">Suporte humano</li>
-                <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">Relatórios semanais por e-mail</li>
+                <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">
+                  Relatórios semanais por e-mail
+                </li>
               </ul>
             </div>
             <Zap className="hidden h-16 w-16 text-orange/30 sm:block" />
@@ -104,8 +112,8 @@ function Planos() {
                 (p.cor === "navy"
                   ? "bg-[var(--navy-deep)] text-navy-foreground ring-orange/30"
                   : p.cor === "gold"
-                  ? "bg-card text-foreground ring-gold/40"
-                  : "bg-card text-foreground ring-border")
+                    ? "bg-card text-foreground ring-gold/40"
+                    : "bg-card text-foreground ring-border")
               }
             >
               <div
@@ -114,8 +122,8 @@ function Planos() {
                   (p.cor === "navy"
                     ? "bg-orange text-orange-foreground"
                     : p.cor === "gold"
-                    ? "bg-gold text-gold-foreground"
-                    : "bg-secondary text-secondary-foreground")
+                      ? "bg-gold text-gold-foreground"
+                      : "bg-secondary text-secondary-foreground")
                 }
               >
                 {p.badge}
@@ -123,19 +131,23 @@ function Planos() {
               <h3 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h3>
 
               <div className="mt-4 flex items-baseline gap-1">
-                <span className={"font-display text-3xl font-bold " + (p.cor === "navy" ? "text-orange" : "text-foreground")}>
+                <span
+                  className={
+                    "font-display text-3xl font-bold " + (p.cor === "navy" ? "text-orange" : "text-foreground")
+                  }
+                >
                   {p.preco}
                 </span>
                 <span className="text-xs text-muted-foreground">{p.sub}</span>
               </div>
-              {p.promo && (
-                <div className="mt-2 text-xs font-semibold text-orange">{p.promo}</div>
-              )}
+              {p.promo && <div className="mt-2 text-xs font-semibold text-orange">{p.promo}</div>}
 
               <ul className="mt-5 space-y-2 text-xs">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <Check className={"mt-0.5 h-3.5 w-3.5 flex-none " + (p.cor === "navy" ? "text-orange" : "text-success")} />
+                    <Check
+                      className={"mt-0.5 h-3.5 w-3.5 flex-none " + (p.cor === "navy" ? "text-orange" : "text-success")}
+                    />
                     <span dangerouslySetInnerHTML={{ __html: f }} />
                   </li>
                 ))}
@@ -147,8 +159,8 @@ function Planos() {
                   (p.cor === "navy"
                     ? "bg-orange text-orange-foreground hover:bg-orange/90"
                     : p.cor === "gold"
-                    ? "bg-gold text-gold-foreground hover:bg-gold/90"
-                    : "bg-[var(--navy-deep)] text-navy-foreground hover:bg-navy")
+                      ? "bg-gold text-gold-foreground hover:bg-gold/90"
+                      : "bg-[var(--navy-deep)] text-navy-foreground hover:bg-navy")
                 }
               >
                 {p.cta}
