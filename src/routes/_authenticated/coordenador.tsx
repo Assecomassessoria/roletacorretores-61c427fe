@@ -208,6 +208,23 @@ function CoordenadorPage() {
   const equipeBeta = useMemo(() => ativos.filter((c) => c.equipe === "beta"), [ativos]);
   const semEquipe = useMemo(() => ativos.filter((c) => !c.equipe), [ativos]);
 
+  const ativosFiltrados = useMemo(() => {
+    const q = filtroBusca.trim().toLowerCase();
+    return ativos.filter((c) => {
+      if (filtroStatus !== "todos" && c.status_habilitacao !== filtroStatus) return false;
+      if (filtroEquipe === "sem" && c.equipe) return false;
+      if ((filtroEquipe === "alfa" || filtroEquipe === "beta") && c.equipe !== filtroEquipe) return false;
+      if (q) {
+        const hay = [c.nome, c.email ?? "", c.telefone ?? ""].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [ativos, filtroBusca, filtroStatus, filtroEquipe]);
+
+  const countAtivos = useMemo(() => ativos.filter((c) => c.status_habilitacao === "ativo").length, [ativos]);
+  const countDesativados = useMemo(() => ativos.filter((c) => c.status_habilitacao === "desativado").length, [ativos]);
+
   function ciclSubtitle(c: "unica" | "manha" | "tarde") {
     if (!emp) return "";
     if (c === "unica") return "Período comercial corrido";
