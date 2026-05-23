@@ -23,6 +23,7 @@ import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
+import { Route as AuthenticatedCoordenadorRouteImport } from './routes/_authenticated/coordenador'
 import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
@@ -99,6 +100,12 @@ const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
   path: '/corretores',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCoordenadorRoute =
+  AuthenticatedCoordenadorRouteImport.update({
+    id: '/coordenador',
+    path: '/coordenador',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAtendimentosRoute =
   AuthenticatedAtendimentosRouteImport.update({
     id: '/atendimentos',
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
+  '/coordenador': typeof AuthenticatedCoordenadorRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
+  '/coordenador': typeof AuthenticatedCoordenadorRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
@@ -172,6 +181,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
+  '/_authenticated/coordenador': typeof AuthenticatedCoordenadorRoute
   '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/app'
     | '/atendimentos'
+    | '/coordenador'
     | '/corretores'
     | '/empreendimentos'
     | '/integracoes'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/app'
     | '/atendimentos'
+    | '/coordenador'
     | '/corretores'
     | '/empreendimentos'
     | '/integracoes'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/_authenticated/app'
     | '/_authenticated/atendimentos'
+    | '/_authenticated/coordenador'
     | '/_authenticated/corretores'
     | '/_authenticated/empreendimentos'
     | '/_authenticated/integracoes'
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/coordenador': {
+      id: '/_authenticated/coordenador'
+      path: '/coordenador'
+      fullPath: '/coordenador'
+      preLoaderRoute: typeof AuthenticatedCoordenadorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/atendimentos': {
       id: '/_authenticated/atendimentos'
       path: '/atendimentos'
@@ -389,6 +409,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedAtendimentosRoute: typeof AuthenticatedAtendimentosRoute
+  AuthenticatedCoordenadorRoute: typeof AuthenticatedCoordenadorRoute
   AuthenticatedCorretoresRoute: typeof AuthenticatedCorretoresRoute
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
@@ -400,6 +421,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedAtendimentosRoute: AuthenticatedAtendimentosRoute,
+  AuthenticatedCoordenadorRoute: AuthenticatedCoordenadorRoute,
   AuthenticatedCorretoresRoute: AuthenticatedCorretoresRoute,
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
@@ -427,13 +449,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -228,10 +228,12 @@ export type Database = {
           creci: string | null
           email: string | null
           empreendimento_id: string
+          equipe: string | null
           foto_url: string | null
           id: string
           nome: string
           ordem_roleta: number
+          status_habilitacao: string
           telefone: string | null
           updated_at: string
           user_id: string | null
@@ -242,10 +244,12 @@ export type Database = {
           creci?: string | null
           email?: string | null
           empreendimento_id: string
+          equipe?: string | null
           foto_url?: string | null
           id?: string
           nome: string
           ordem_roleta?: number
+          status_habilitacao?: string
           telefone?: string | null
           updated_at?: string
           user_id?: string | null
@@ -256,10 +260,12 @@ export type Database = {
           creci?: string | null
           email?: string | null
           empreendimento_id?: string
+          equipe?: string | null
           foto_url?: string | null
           id?: string
           nome?: string
           ordem_roleta?: number
+          status_habilitacao?: string
           telefone?: string | null
           updated_at?: string
           user_id?: string | null
@@ -315,11 +321,21 @@ export type Database = {
       empreendimentos: {
         Row: {
           ativo: boolean
+          ciclo_roleta: string
           cnpj: string | null
           created_at: string
           criado_por: string | null
           endereco: string | null
+          equipe_alfa_nome: string
+          equipe_beta_nome: string
+          horario_comercial_fim: string | null
+          horario_comercial_inicio: string | null
+          horario_matutino_fim: string | null
+          horario_matutino_inicio: string | null
+          horario_vespertino_fim: string | null
+          horario_vespertino_inicio: string | null
           id: string
+          ip_homologado: string | null
           latitude: number | null
           longitude: number | null
           metodos_presenca: string[]
@@ -327,16 +343,28 @@ export type Database = {
           pin_intervalo_min: number
           qrcode_token: string | null
           raio_metros: number
+          regras_pdf_url: string | null
           updated_at: string
+          whatsapp_grupo_url: string | null
           wifi_ssid: string | null
         }
         Insert: {
           ativo?: boolean
+          ciclo_roleta?: string
           cnpj?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
+          equipe_alfa_nome?: string
+          equipe_beta_nome?: string
+          horario_comercial_fim?: string | null
+          horario_comercial_inicio?: string | null
+          horario_matutino_fim?: string | null
+          horario_matutino_inicio?: string | null
+          horario_vespertino_fim?: string | null
+          horario_vespertino_inicio?: string | null
           id?: string
+          ip_homologado?: string | null
           latitude?: number | null
           longitude?: number | null
           metodos_presenca?: string[]
@@ -344,16 +372,28 @@ export type Database = {
           pin_intervalo_min?: number
           qrcode_token?: string | null
           raio_metros?: number
+          regras_pdf_url?: string | null
           updated_at?: string
+          whatsapp_grupo_url?: string | null
           wifi_ssid?: string | null
         }
         Update: {
           ativo?: boolean
+          ciclo_roleta?: string
           cnpj?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
+          equipe_alfa_nome?: string
+          equipe_beta_nome?: string
+          horario_comercial_fim?: string | null
+          horario_comercial_inicio?: string | null
+          horario_matutino_fim?: string | null
+          horario_matutino_inicio?: string | null
+          horario_vespertino_fim?: string | null
+          horario_vespertino_inicio?: string | null
           id?: string
+          ip_homologado?: string | null
           latitude?: number | null
           longitude?: number | null
           metodos_presenca?: string[]
@@ -361,7 +401,9 @@ export type Database = {
           pin_intervalo_min?: number
           qrcode_token?: string | null
           raio_metros?: number
+          regras_pdf_url?: string | null
           updated_at?: string
+          whatsapp_grupo_url?: string | null
           wifi_ssid?: string | null
         }
         Relationships: []

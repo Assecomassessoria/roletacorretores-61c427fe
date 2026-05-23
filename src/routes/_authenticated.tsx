@@ -39,6 +39,7 @@ function AuthenticatedLayout() {
               {isAdmin && (
                 <>
                   <Link to="/empreendimentos" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Empreendimentos</Link>
+                  <Link to="/coordenador" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Gerente/Coordenador</Link>
                   <Link to="/corretores" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Corretores</Link>
                   <Link to="/plantoes" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Plantões</Link>
                   {roles.includes("incorporadora") && (
