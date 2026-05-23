@@ -24,8 +24,9 @@ type Corretor = {
   ordem_roleta: number;
   ativo: boolean;
   user_id: string | null;
+  foto_url: string | null;
 };
-type Emp = { id: string; nome: string };
+type Emp = { id: string; nome: string; cnpj: string | null };
 
 export const Route = createFileRoute("/_authenticated/corretores")({
   component: CorretoresPage,
