@@ -139,11 +139,6 @@ export function SiteFooter() {
         </ul>
       </div>
 
-      <div className="border-t border-white/10 py-4 text-center text-[11px] text-white/60">
-        Desenvolvido por <span className="font-bold text-orange">INFORMATIC</span> — Tecnologia
-        da Informação
-      </div>
-
       <div className="border-t border-white/10 px-6 py-4 text-center">
         <Link
           to="/setup"
@@ -151,6 +146,12 @@ export function SiteFooter() {
         >
           <ShieldCheck className="h-3.5 w-3.5" /> Painel de Gestão Administrativo (Mestra)
         </Link>
+      </div>
+
+      <div className="border-t border-white/10 py-4 text-center text-[11px] text-white/60">
+        Todos os direitos reservados. Desenvolvido por{" "}
+        <span className="font-bold text-orange">INFORMATIC</span> — Tecnologia em Informações ·
+        CNPJ 00.921.557/0001-65
       </div>
     </footer>
   );
