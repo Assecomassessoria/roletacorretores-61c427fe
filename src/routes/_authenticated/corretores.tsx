@@ -143,8 +143,17 @@ function CorretoresPage() {
 
     toast.success("Cadastro completo");
     setSenha(""); setSenha2("");
+    // Recupera dados completos para o QR Code
+    const { data: full } = await supabase.from("corretores").select("*").eq("id", corretorId!).single();
     setEditing(null);
+    if (full) setQrAlvo(full as Corretor);
     load();
+  }
+
+  // Tabela de listagem usa essa função; usada também no QR.
+  function getEmpName(id?: string | null) {
+    if (!id) return "—";
+    return emps.find((e) => e.id === id)?.nome ?? "—";
   }
 
   const empName = (id: string) => emps.find((e) => e.id === id)?.nome ?? "—";
