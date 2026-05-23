@@ -38,13 +38,20 @@ function AtendimentosPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("atendimentos")
-      .select("id, status, cliente_nome, cliente_email, cliente_telefone, observacoes, iniciado_em, finalizado_em, empreendimento_id, corretor_id, empreendimentos(nome,cnpj), corretores(nome)")
-      .order("iniciado_em", { ascending: false })
-      .limit(500);
-    if (error) toast.error(error.message);
-    setRows((data as unknown as Row[]) ?? []);
+    const [a, e, c] = await Promise.all([
+      supabase.from("atendimentos").select("id,status,cliente_nome,cliente_email,cliente_telefone,observacoes,iniciado_em,finalizado_em,empreendimento_id,corretor_id").order("iniciado_em", { ascending: false }).limit(500),
+      supabase.from("empreendimentos").select("id,nome,cnpj"),
+      supabase.from("corretores").select("id,nome"),
+    ]);
+    if (a.error) toast.error(a.error.message);
+    const empMap = new Map((e.data ?? []).map((x: any) => [x.id, { nome: x.nome, cnpj: x.cnpj }]));
+    const corMap = new Map((c.data ?? []).map((x: any) => [x.id, { nome: x.nome }]));
+    const merged: Row[] = (a.data ?? []).map((r: any) => ({
+      ...r,
+      empreendimentos: empMap.get(r.empreendimento_id) ?? null,
+      corretores: corMap.get(r.corretor_id) ?? null,
+    }));
+    setRows(merged);
     setLoading(false);
   }
 
