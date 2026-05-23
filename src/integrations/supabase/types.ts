@@ -84,6 +84,36 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          acao: string
+          created_at: string
+          detalhes: Json | null
+          id: string
+          recurso: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          recurso?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          recurso?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       corretores: {
         Row: {
           ativo: boolean
@@ -388,6 +418,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_master: { Args: { _user_id: string }; Returns: boolean }
+      is_master_email: { Args: { _email: string }; Returns: boolean }
     }
     Enums: {
       app_role: "incorporadora" | "gerente" | "coordenador" | "corretor"
