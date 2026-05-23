@@ -22,6 +22,7 @@ import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
@@ -88,6 +89,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
+  id: '/api/public/lorenza',
+  path: '/api/public/lorenza',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/api/public/lorenza': typeof ApiPublicLorenzaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/api/public/lorenza': typeof ApiPublicLorenzaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/api/public/lorenza': typeof ApiPublicLorenzaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/plantoes'
     | '/roleta'
     | '/usuarios'
+    | '/api/public/lorenza'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/plantoes'
     | '/roleta'
     | '/usuarios'
+    | '/api/public/lorenza'
   id:
     | '__root__'
     | '/'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/_authenticated/plantoes'
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
+    | '/api/public/lorenza'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   SetupRoute: typeof SetupRoute
+  ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -282,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/lorenza': {
+      id: '/api/public/lorenza'
+      path: '/api/public/lorenza'
+      fullPath: '/api/public/lorenza'
+      preLoaderRoute: typeof ApiPublicLorenzaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -315,7 +335,18 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   SetupRoute: SetupRoute,
+  ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
