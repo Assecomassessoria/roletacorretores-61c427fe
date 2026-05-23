@@ -2,14 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 
 const ECOSSISTEMA = [
-  { nome: "Luiza IA", url: "https://assecomassessoria.net.br", icon: "💎" },
-  { nome: "Luiza Mkt", url: "https://luiza.elitemkt.nom.br/", icon: "📈" },
-  { nome: "Luna Messenger", url: "https://elitemessenger.com.br/", icon: "💬" },
-  { nome: "Lowrence Elite", url: "https://www.academiaead.simuladorcorretorelite.com.br/", icon: "🎓" },
-  { nome: "Laurens Elite ADS", url: "https://laurens.ads.simuladorcorretorelite.com.br/", icon: "🎯" },
-  { nome: "Lorenza Roleta 4.0", url: "https://roletacorretor.simuladorcorretorelite.com.br/", icon: "🎡" },
-  { nome: "Lauren Elite 4.0", url: "https://simuladorcorretorelite.com.br/", icon: "🚀" },
-  { nome: "Lorento CRM", url: "https://lorentocrm.simuladorcorretorelite.com.br/", icon: "📊" },
+  { produto: "Simulação Personalizada", agente: "Luiza IA", url: "https://assecomassessoria.net.br" },
+  { produto: "Marketing Imobiliário", agente: "Luiza Mkt", url: "https://luiza.elitemkt.nom.br/" },
+  { produto: "Atendimento Mensagens", agente: "Luna Messenger", url: "https://elitemessenger.com.br/" },
+  { produto: "Academia Elite EAD", agente: "Lowrence Elite", url: "https://www.academiaead.simuladorcorretorelite.com.br/" },
+  { produto: "Tráfego Pago Imobiliário", agente: "Laurens Elite ADS", url: "https://laurens.ads.simuladorcorretorelite.com.br/" },
+  { produto: "Escala de Plantão", agente: "Lorenza Roleta 4.0", url: "https://roletacorretor.simuladorcorretorelite.com.br/" },
+  { produto: "Desenvolvedor LP/Sites", agente: "Lauren Elite 4.0", url: "https://simuladorcorretorelite.com.br/" },
+  { produto: "Gestão de CRM", agente: "Lorento CRM", url: "https://lorentocrm.simuladorcorretorelite.com.br/" },
 ];
 
 export function SiteFooter() {
@@ -54,17 +54,17 @@ export function SiteFooter() {
         <h4 className="mb-4 text-center text-[11px] font-bold uppercase tracking-[0.25em] text-orange">
           Ecossistema 4.0 · Roleta 360º
         </h4>
-        <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2">
+        <ul className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
           {ECOSSISTEMA.map((s) => (
             <li key={s.url}>
               <a
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-md border border-orange/30 bg-navy px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/85 transition hover:border-orange hover:bg-orange hover:text-orange-foreground"
+                className="flex flex-col rounded-md border border-orange/30 bg-navy px-3 py-2 text-center transition hover:border-orange hover:bg-orange hover:text-orange-foreground"
               >
-                <span aria-hidden className="text-sm leading-none">{s.icon}</span>
-                {s.nome}
+                <span className="text-[10px] font-semibold uppercase leading-tight text-white/90">{s.produto}</span>
+                <span className="mt-0.5 text-[9px] leading-tight text-orange/70">{s.agente}</span>
               </a>
             </li>
           ))}
