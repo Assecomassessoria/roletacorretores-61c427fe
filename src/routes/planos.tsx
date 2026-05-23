@@ -50,7 +50,7 @@ const PLANOS = [
     nome: "Plano Anual Executivo",
     cor: "gold" as const,
     badge: "Recomendado · Maior economia",
-    preco: "R$ 139,90",
+    preco: "R$ 129,90",
     sub: "/mês · cobrança anual",
     features: [
       "Todos os benefícios do mensal",
