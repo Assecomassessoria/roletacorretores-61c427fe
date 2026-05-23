@@ -91,13 +91,9 @@ function CorretoresPage() {
     if (!editing) return;
     if (!editing.empreendimento_id) return toast.error("Selecione o empreendimento");
 
-    // Validação da senha de 6 dígitos (obrigatória em novo cadastro; opcional ao editar)
-    const querSenha = !!senha || !!senha2 || !editing.id;
-    if (querSenha) {
-      if (!/^\d{6}$/.test(senha)) return toast.error("A senha deve ter exatamente 6 dígitos numéricos");
-      if (senha !== senha2) return toast.error("As senhas não conferem");
-      if (!editing.email) return toast.error("Informe o e-mail do corretor para habilitar o acesso");
-    }
+    // Primeiro acesso usa SENHA PADRÃO 123456 — o corretor é obrigado a
+    // redefinir a senha vinculada ao próprio e-mail no primeiro login.
+    const habilitarAcesso = !!editing.email && (!editing.id || !editing.user_id);
 
     // tenta vincular ao user_id via e-mail (caso já exista perfil)
     let user_id = editing.user_id ?? null;
@@ -128,9 +124,10 @@ function CorretoresPage() {
       corretorId = data!.id as string;
     }
 
-    if (querSenha && corretorId && editing.email) {
+    if (habilitarAcesso && corretorId && editing.email) {
       try {
-        await habilitar({ data: { corretor_id: corretorId, email: editing.email, senha } });
+        await habilitar({ data: { corretor_id: corretorId, email: editing.email } });
+        toast.success("Acesso criado. Senha de primeiro acesso: 123456");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
         toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);
@@ -270,39 +267,15 @@ function CorretoresPage() {
 
                 <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
 
-                <div className="rounded-md border border-orange/30 bg-orange/5 p-3">
-                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-orange">
-                    Senha de acesso (6 dígitos)
+                <div className="rounded-md border border-orange/30 bg-orange/5 p-3 text-xs">
+                  <p className="font-bold uppercase tracking-wider text-orange">
+                    Primeiro acesso do corretor
                   </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Criar Senha">
-                      <Input
-                        type="password"
-                        inputMode="numeric"
-                        pattern="\d{6}"
-                        maxLength={6}
-                        placeholder="••••••"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      />
-                    </Field>
-                    <Field label="Confirmar Senha">
-                      <Input
-                        type="password"
-                        inputMode="numeric"
-                        pattern="\d{6}"
-                        maxLength={6}
-                        placeholder="••••••"
-                        value={senha2}
-                        onChange={(e) => setSenha2(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      />
-                    </Field>
-                  </div>
-                  {editing?.id && (
-                    <p className="mt-2 text-[10px] text-muted-foreground">
-                      Preencha somente para redefinir a senha do corretor.
-                    </p>
-                  )}
+                  <p className="mt-1 text-muted-foreground">
+                    Ao salvar, o corretor entra em <strong>ÁREA CORRETOR</strong> com o
+                    e-mail informado e a senha padrão <strong>123456</strong>. No primeiro
+                    login o sistema obriga ele a criar uma nova senha vinculada ao próprio e-mail.
+                  </p>
                 </div>
 
                 <DialogFooter className="gap-2">
