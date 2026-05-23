@@ -99,8 +99,15 @@ export const cadastroDemo = createServerFn({ method: "POST" })
       { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
       { onConflict: "id" },
     );
-    await supabaseAdmin
+    const { data: existing } = await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id, role: data.role }, { onConflict: "user_id,role" });
+      .select("id")
+      .eq("user_id", user_id)
+      .eq("role", data.role)
+      .is("empreendimento_id", null)
+      .maybeSingle();
+    if (!existing) {
+      await supabaseAdmin.from("user_roles").insert({ user_id, role: data.role });
+    }
     return { ok: true };
   });
