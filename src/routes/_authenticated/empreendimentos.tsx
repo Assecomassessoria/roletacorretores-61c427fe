@@ -137,7 +137,10 @@ function EmpreendimentosPage() {
                 <DialogTitle>{editing?.id ? "Editar" : "Novo"} empreendimento</DialogTitle>
               </DialogHeader>
               <form onSubmit={save} className="space-y-4">
-                <Field label="Nome"><Input required value={editing?.nome ?? ""} onChange={(e) => setEditing((s) => ({ ...s, nome: e.target.value }))} /></Field>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Nome"><Input required value={editing?.nome ?? ""} onChange={(e) => setEditing((s) => ({ ...s, nome: e.target.value }))} /></Field>
+                  <Field label="CNPJ (usado para vincular corretores)"><Input placeholder="00.000.000/0001-00" value={editing?.cnpj ?? ""} onChange={(e) => setEditing((s) => ({ ...s, cnpj: e.target.value }))} /></Field>
+                </div>
                 <Field label="Endereço"><Input value={editing?.endereco ?? ""} onChange={(e) => setEditing((s) => ({ ...s, endereco: e.target.value }))} /></Field>
 
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
