@@ -41,8 +41,12 @@ function AuthenticatedLayout() {
                   <Link to="/empreendimentos" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Empreendimentos</Link>
                   <Link to="/corretores" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Corretores</Link>
                   <Link to="/plantoes" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Plantões</Link>
+                  {roles.includes("incorporadora") && (
+                    <Link to="/usuarios" className="hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>Usuários</Link>
+                  )}
                 </>
               )}
+
             </nav>
           </div>
           <div className="flex items-center gap-4 text-sm">
