@@ -8,14 +8,30 @@ interface AuthCtx {
   user: User | null;
   session: Session | null;
   roles: Role[];
+  isMaster: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
+}
+
+// Lista de e-mails com acesso TOTAL e IRRESTRITO (Administrador Master).
+// Espelha public.is_master_email() no banco. Para adicionar/remover, atualize
+// AMBOS os locais.
+const MASTER_EMAILS = [
+  "contatoapps@simuladorcorretorelite.com.br",
+  "contato@assecomassessoria.net.br",
+];
+
+const ALL_ROLES: Role[] = ["incorporadora", "gerente", "coordenador", "corretor"];
+
+export function emailIsMaster(email?: string | null) {
+  return !!email && MASTER_EMAILS.includes(email.trim().toLowerCase());
 }
 
 const Ctx = createContext<AuthCtx>({
   user: null,
   session: null,
   roles: [],
+  isMaster: false,
   loading: true,
   signOut: async () => {},
 });
@@ -29,8 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
-        // defer to avoid deadlock inside the callback
-        setTimeout(() => loadRoles(s.user.id), 0);
+        setTimeout(() => loadRoles(s.user.id, s.user.email), 0);
       } else {
         setRoles([]);
       }
@@ -38,14 +53,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) loadRoles(data.session.user.id);
+      if (data.session?.user) loadRoles(data.session.user.id, data.session.user.email);
       setLoading(false);
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  async function loadRoles(userId: string) {
+  async function loadRoles(userId: string, email?: string | null) {
+    if (emailIsMaster(email)) {
+      setRoles(ALL_ROLES);
+      return;
+    }
     const { data } = await supabase
       .from("user_roles")
       .select("role")
@@ -59,8 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRoles([]);
   };
 
+  const isMaster = emailIsMaster(session?.user?.email);
+  const effectiveRoles = isMaster ? ALL_ROLES : roles;
+
   return (
-    <Ctx.Provider value={{ user: session?.user ?? null, session, roles, loading, signOut }}>
+    <Ctx.Provider
+      value={{
+        user: session?.user ?? null,
+        session,
+        roles: effectiveRoles,
+        isMaster,
+        loading,
+        signOut,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );
