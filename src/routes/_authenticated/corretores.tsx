@@ -344,7 +344,12 @@ function CorretoresPage() {
                   <TableCell className="text-sm">{empName(r.empreendimento_id)}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{r.telefone ?? "—"}<br />{r.email ?? ""}</TableCell>
                   <TableCell>{r.user_id ? <Badge>vinculado</Badge> : <Badge variant="outline">sem login</Badge>}</TableCell>
-                  <TableCell className="text-right">{canEdit && <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>}</TableCell>
+                  <TableCell className="text-right">
+                    <Button size="sm" variant="ghost" title="Gerar QR" onClick={() => setQrAlvo(r)}>
+                      <QrCode className="h-3.5 w-3.5" />
+                    </Button>
+                    {canEdit && <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
