@@ -359,6 +359,129 @@ function CorretoresPage() {
   );
 }
 
+      <QrCorretorDialog corretor={qrAlvo} empNome={empName(qrAlvo?.empreendimento_id)} onClose={() => setQrAlvo(null)} />
+    </main>
+  );
+}
+
+function QrCorretorDialog({
+  corretor,
+  empNome,
+  onClose,
+}: {
+  corretor: Corretor | null;
+  empNome: string;
+  onClose: () => void;
+}) {
+  if (!corretor) return null;
+
+  const tel = (corretor.telefone ?? "").replace(/\D/g, "");
+  // vCard 3.0 — ao escanear, o cliente salva o contato com WhatsApp e CRECI na nota.
+  const vcard = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${corretor.nome}`,
+    `N:${corretor.nome};;;;`,
+    tel ? `TEL;TYPE=CELL:+${tel}` : "",
+    corretor.email ? `EMAIL:${corretor.email}` : "",
+    `ORG:${empNome}`,
+    corretor.creci ? `NOTE:CRECI ${corretor.creci} — ${empNome}` : `NOTE:${empNome}`,
+    "END:VCARD",
+  ].filter(Boolean).join("\n");
+
+  function baixar() {
+    const canvas = document.getElementById("qr-corretor-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `qr-${corretor!.nome.replace(/\s+/g, "_")}.png`;
+    a.click();
+  }
+
+  async function compartilhar() {
+    const canvas = document.getElementById("qr-corretor-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], `qr-${corretor!.nome}.png`, { type: "image/png" });
+      const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void>; canShare?: (d: ShareData) => boolean };
+      if (nav.share && nav.canShare?.({ files: [file] })) {
+        try {
+          await nav.share({
+            files: [file],
+            title: `Contato — ${corretor!.nome}`,
+            text: `Contato direto: ${corretor!.nome}${corretor!.creci ? ` · CRECI ${corretor!.creci}` : ""}`,
+          });
+        } catch {
+          /* cancelado */
+        }
+      } else {
+        toast.message("Compartilhar não disponível neste dispositivo. Use Baixar PNG.");
+      }
+    }, "image/png");
+  }
+
+  return (
+    <Dialog open={!!corretor} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-orange" />
+            QR Code do corretor
+          </DialogTitle>
+          <p className="text-xs text-muted-foreground">
+            Envie ao cliente. Ao escanear, ele salva o contato direto com WhatsApp e CRECI.
+          </p>
+        </DialogHeader>
+
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-4">
+          <div className="rounded-md bg-white p-3 ring-1 ring-border">
+            <QRCodeCanvas
+              id="qr-corretor-canvas"
+              value={vcard}
+              size={220}
+              level="M"
+              includeMargin
+            />
+          </div>
+
+          <div className="w-full space-y-1 text-center">
+            <p className="font-display text-lg font-bold leading-tight">{corretor.nome}</p>
+            {tel && (
+              <p className="text-sm text-muted-foreground">
+                WhatsApp: <span className="font-medium text-foreground">+{tel}</span>
+              </p>
+            )}
+            {corretor.creci && (
+              <p className="text-sm text-muted-foreground">
+                CRECI: <span className="font-medium text-foreground">{corretor.creci}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="w-full border-t border-border pt-2 text-center">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Empreendimento</p>
+            <p className="text-sm font-semibold text-foreground">{empNome}</p>
+          </div>
+        </div>
+
+        <DialogFooter className="flex-row justify-between gap-2 sm:justify-between">
+          <Button type="button" variant="outline" onClick={onClose}>Fechar</Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={baixar}>
+              <Download className="mr-1 h-3.5 w-3.5" /> Baixar PNG
+            </Button>
+            <Button type="button" onClick={compartilhar}>
+              <Share2 className="mr-1 h-3.5 w-3.5" /> Compartilhar
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
 }
