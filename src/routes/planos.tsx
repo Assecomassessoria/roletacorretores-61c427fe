@@ -113,10 +113,26 @@ function Planos() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             {(planos ?? []).map((p) => {
               const beneficios = Array.isArray(p.beneficios) ? (p.beneficios as string[]) : [];
               const isLoading = checkout.isPending && checkout.variables === p.id;
+              const badge =
+                p.codigo === "experiencia_90_dias"
+                  ? "Plano Comercial de Entrada"
+                  : p.codigo === "mensal_elite_recorrente"
+                    ? "Faturamento Recorrente"
+                    : p.codigo === "anual_executivo"
+                      ? "Melhor Custo-Benefício"
+                      : null;
+              const ctaLabel =
+                p.codigo === "experiencia_90_dias"
+                  ? "💎 Assinar Plano Experiência 90 Dias"
+                  : p.codigo === "mensal_elite_recorrente"
+                    ? "Quero Assinar Mensal"
+                    : p.codigo === "anual_executivo"
+                      ? "👑 Assinar Plano Anual Elite"
+                      : `Assinar ${p.nome}`;
               return (
                 <div
                   key={p.id}
@@ -128,8 +144,13 @@ function Planos() {
                   }
                 >
                   {p.destaque && (
-                    <div className="mb-2 inline-block self-start rounded bg-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold-foreground">
-                      Recomendado
+                    <div className="absolute -top-2.5 right-4 rounded bg-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold-foreground shadow">
+                      Recomendado · Economia 33%
+                    </div>
+                  )}
+                  {badge && (
+                    <div className="mb-2 inline-block self-start rounded-full bg-orange/15 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-orange ring-1 ring-orange/30">
+                      {badge}
                     </div>
                   )}
                   <h3 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h3>
@@ -165,8 +186,8 @@ function Planos() {
                         : "bg-orange text-orange-foreground hover:bg-orange/90")
                     }
                   >
-                    {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
-                    Assinar {p.nome}
+                    {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                    {ctaLabel}
                   </button>
                 </div>
               );
