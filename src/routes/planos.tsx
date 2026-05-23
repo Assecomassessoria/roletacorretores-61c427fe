@@ -1,65 +1,91 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ArrowLeft, Check, Zap } from "lucide-react";
+import { ArrowLeft, Check, Zap, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { criarCheckoutMercadoPago } from "@/lib/checkout.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/planos")({
   component: Planos,
   head: () => ({
     meta: [
       { title: "Planos — Roleta Corretor Elite 4.0" },
-      { name: "description", content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo." },
+      { name: "description", content: "Planos profissionais: Mensal Elite, Trimestral e Anual Executivo." },
     ],
   }),
 });
 
-const PLANOS = [
-  {
-    nome: "Experiência 7 dias",
-    cor: "navy" as const,
-    badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 179,90",
-    sub: "ÚNICO",
-    promo: "R$ 39,90 trial",
-    features: [
-      "Acesso à gestão operacional completa",
-      "Validação de presença para corretores",
-      "Roleta automatizada por escala",
-      "Auditoria e relatórios para incorporadora",
-    ],
-    cta: "Assinar plano experiência (7 dias)",
-  },
-  {
-    nome: "Plano Mensal Elite",
-    cor: "white" as const,
-    badge: "Profissional · Cobrança mensal",
-    preco: "R$ 169,90",
-    sub: "/mês",
-    features: [
-      "Cadastro ilimitado de corretores",
-      "Dados &amp; relatórios mensais",
-      "100% dos recursos liberados",
-      "Suporte por WhatsApp prioritário",
-    ],
-    cta: "Assinar plano mensal",
-  },
-  {
-    nome: "Plano Anual Executivo",
-    cor: "gold" as const,
-    badge: "Recomendado · Maior economia",
-    preco: "R$ 139,90",
-    sub: "/mês · cobrança anual",
-    features: [
-      "Todos os benefícios do mensal",
-      "Atendimento de inauguração inclusivo",
-      "Relatório executivo + área para diretoria",
-      "Customização de marca da incorporadora",
-    ],
-    cta: "Assinar plano anual elite",
-  },
-];
+type Plano = {
+  id: string;
+  codigo: string;
+  nome: string;
+  descricao: string | null;
+  ciclo: string;
+  preco_centavos: number;
+  moeda: string;
+  destaque: boolean;
+  ordem: number;
+  beneficios: unknown;
+};
+
+function formatPreco(c: number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(c / 100);
+}
+
+function cicloLabel(ciclo: string) {
+  switch (ciclo) {
+    case "mensal":
+      return "/mês";
+    case "trimestral":
+      return "/trimestre";
+    case "anual":
+      return "/ano";
+    case "trial":
+      return "ÚNICO";
+    default:
+      return "";
+  }
+}
 
 function Planos() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const criarCheckout = useServerFn(criarCheckoutMercadoPago);
+
+  const { data: planos, isLoading } = useQuery({
+    queryKey: ["planos-publico"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("planos")
+        .select("*")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true });
+      if (error) throw error;
+      return data as Plano[];
+    },
+  });
+
+  const checkout = useMutation({
+    mutationFn: (plano_id: string) => criarCheckout({ data: { plano_id } }),
+    onSuccess: (res) => {
+      if (res?.init_point) window.location.href = res.init_point;
+    },
+    onError: (err: Error) => toast.error(err.message ?? "Falha ao iniciar checkout"),
+  });
+
+  function handleAssinar(planoId: string) {
+    if (!user) {
+      toast.info("Faça login para assinar.");
+      navigate({ to: "/login" });
+      return;
+    }
+    checkout.mutate(planoId);
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
@@ -70,92 +96,83 @@ function Planos() {
           <ArrowLeft className="h-3 w-3" /> Voltar à página inicial
         </Link>
 
-        {/* hero */}
         <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--navy-deep)] to-navy p-6 text-navy-foreground shadow-lg sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-orange ring-1 ring-orange/40">
-                <Zap className="h-3 w-3" /> Profissional Roleta Digital 4.0
-              </span>
-              <h1 className="mt-3 font-display text-2xl font-bold uppercase tracking-wider sm:text-3xl">
-                Planos Profissionais e Solução de Escala
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-white/70">
-                Escolha o plano ideal para o momento atual do seu negócio. Toda a infraestrutura — roleta, presença, cron semanal,
-                e-mails — entregue sob medida para incorporadoras e stands de venda.
-              </p>
-              <ul className="mt-4 flex flex-wrap gap-3 text-[11px] text-white/80">
-                <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">100% web · sem instalação</li>
-                <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">Suporte humano</li>
-                <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">Relatórios semanais por e-mail</li>
-              </ul>
-            </div>
-            <Zap className="hidden h-16 w-16 text-orange/30 sm:block" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-orange ring-1 ring-orange/40">
+            <Zap className="h-3 w-3" /> Profissional Roleta Digital 4.0
+          </span>
+          <h1 className="mt-3 font-display text-2xl font-bold uppercase tracking-wider sm:text-3xl">
+            Planos Profissionais e Solução de Escala
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-white/70">
+            Pagamento processado por Mercado Pago. Cancelamento a qualquer momento.
+          </p>
+        </section>
+
+        {isLoading ? (
+          <div className="mt-12 flex justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        </section>
+        ) : (
+          <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+            {(planos ?? []).map((p) => {
+              const beneficios = Array.isArray(p.beneficios) ? (p.beneficios as string[]) : [];
+              const isLoading = checkout.isPending && checkout.variables === p.id;
+              return (
+                <div
+                  key={p.id}
+                  className={
+                    "relative flex flex-col rounded-2xl p-6 shadow-md ring-1 " +
+                    (p.destaque
+                      ? "bg-card text-foreground ring-gold/60"
+                      : "bg-card text-foreground ring-border")
+                  }
+                >
+                  {p.destaque && (
+                    <div className="mb-2 inline-block self-start rounded bg-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold-foreground">
+                      Recomendado
+                    </div>
+                  )}
+                  <h3 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h3>
+                  {p.descricao && (
+                    <p className="mt-1 text-xs text-muted-foreground">{p.descricao}</p>
+                  )}
 
-        {/* cards */}
-        <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {PLANOS.map((p) => (
-            <div
-              key={p.nome}
-              className={
-                "relative flex flex-col rounded-2xl p-6 shadow-md ring-1 " +
-                (p.cor === "navy"
-                  ? "bg-[var(--navy-deep)] text-navy-foreground ring-orange/30"
-                  : p.cor === "gold"
-                  ? "bg-card text-foreground ring-gold/40"
-                  : "bg-card text-foreground ring-border")
-              }
-            >
-              <div
-                className={
-                  "mb-2 inline-block self-start rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest " +
-                  (p.cor === "navy"
-                    ? "bg-orange text-orange-foreground"
-                    : p.cor === "gold"
-                    ? "bg-gold text-gold-foreground"
-                    : "bg-secondary text-secondary-foreground")
-                }
-              >
-                {p.badge}
-              </div>
-              <h3 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="font-display text-3xl font-bold text-foreground">
+                      {formatPreco(p.preco_centavos)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{cicloLabel(p.ciclo)}</span>
+                  </div>
 
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className={"font-display text-3xl font-bold " + (p.cor === "navy" ? "text-orange" : "text-foreground")}>
-                  {p.preco}
-                </span>
-                <span className="text-xs text-muted-foreground">{p.sub}</span>
-              </div>
-              {p.promo && (
-                <div className="mt-2 text-xs font-semibold text-orange">{p.promo}</div>
-              )}
+                  {beneficios.length > 0 && (
+                    <ul className="mt-5 space-y-2 text-xs">
+                      {beneficios.map((f) => (
+                        <li key={f} className="flex items-start gap-2">
+                          <Check className="mt-0.5 h-3.5 w-3.5 flex-none text-success" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
-              <ul className="mt-5 space-y-2 text-xs">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <Check className={"mt-0.5 h-3.5 w-3.5 flex-none " + (p.cor === "navy" ? "text-orange" : "text-success")} />
-                    <span dangerouslySetInnerHTML={{ __html: f }} />
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className={
-                  "mt-6 w-full rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition " +
-                  (p.cor === "navy"
-                    ? "bg-orange text-orange-foreground hover:bg-orange/90"
-                    : p.cor === "gold"
-                    ? "bg-gold text-gold-foreground hover:bg-gold/90"
-                    : "bg-[var(--navy-deep)] text-navy-foreground hover:bg-navy")
-                }
-              >
-                {p.cta}
-              </button>
-            </div>
-          ))}
-        </section>
+                  <button
+                    onClick={() => handleAssinar(p.id)}
+                    disabled={isLoading}
+                    className={
+                      "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition disabled:opacity-60 " +
+                      (p.destaque
+                        ? "bg-gold text-gold-foreground hover:bg-gold/90"
+                        : "bg-orange text-orange-foreground hover:bg-orange/90")
+                    }
+                  >
+                    {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+                    Assinar {p.nome}
+                  </button>
+                </div>
+              );
+            })}
+          </section>
+        )}
 
         <p className="mt-8 text-center text-[10px] text-muted-foreground">
           Pagamento processado por Mercado Pago · cancelamento a qualquer momento · suporte por WhatsApp.
