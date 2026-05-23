@@ -25,6 +25,24 @@ export const Route = createFileRoute("/planos")({
 
 const PLANOS = [
   {
+    nome: "Plano 30 Teste Elite",
+    cor: "white" as const,
+    badge: "Trial qualificado · Pagamento único na adesão",
+    preco: "R$ 69,90",
+    sub: "/30 dias",
+    promo: "Renovação assistida no 25º dia via Lorenza Messenger",
+    features: [
+      "Cadastro ilimitado de corretores",
+      "Dados e relatórios mensais",
+      "Validação de presença para corretores",
+      "Roleta automatizada por escala",
+      "Auditoria e relatórios para incorporadora",
+      "100% dos recursos liberados",
+      "Suporte por WhatsApp prioritário",
+    ],
+    cta: "Assinar 30 dias experiência",
+  },
+  {
     nome: "Experiência 7 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
