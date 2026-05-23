@@ -659,7 +659,6 @@ function CoordenadorPage() {
                 </ul>
               )}
             </div>
-            </div>
           </Card>
         </div>
       )}
