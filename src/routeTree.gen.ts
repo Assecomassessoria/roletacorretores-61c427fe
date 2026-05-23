@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as GerenciaRouteImport } from './routes/gerencia'
 import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -37,6 +38,11 @@ const PlanosRoute = PlanosRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LgpdRoute = LgpdRouteImport.update({
+  id: '/lgpd',
+  path: '/lgpd',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GerenciaRoute = GerenciaRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
+  '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
+  '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
+  '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/'
     | '/corretor'
     | '/gerencia'
+    | '/lgpd'
     | '/login'
     | '/planos'
     | '/setup'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/'
     | '/corretor'
     | '/gerencia'
+    | '/lgpd'
     | '/login'
     | '/planos'
     | '/setup'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/corretor'
     | '/gerencia'
+    | '/lgpd'
     | '/login'
     | '/planos'
     | '/setup'
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CorretorRoute: typeof CorretorRoute
   GerenciaRoute: typeof GerenciaRoute
+  LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   SetupRoute: typeof SetupRoute
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lgpd': {
+      id: '/lgpd'
+      path: '/lgpd'
+      fullPath: '/lgpd'
+      preLoaderRoute: typeof LgpdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gerencia': {
@@ -332,6 +352,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CorretorRoute: CorretorRoute,
   GerenciaRoute: GerenciaRoute,
+  LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   SetupRoute: SetupRoute,
