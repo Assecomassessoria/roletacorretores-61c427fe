@@ -17,6 +17,7 @@ type Metodo = "geofence" | "wifi" | "qrcode" | "pin";
 type Emp = {
   id: string;
   nome: string;
+  cnpj: string | null;
   endereco: string | null;
   latitude: number | null;
   longitude: number | null;
