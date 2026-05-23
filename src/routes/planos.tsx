@@ -43,7 +43,7 @@ const PLANOS = [
       "Dados &amp; relatórios mensais",
       "Validação de presença para corretores",
       "Roleta automatizada por escala",
-      "Auditoria e relatórios para incorporadora"
+      "Auditoria e relatórios para incorporadora",
       "100% dos recursos liberados",
       "Suporte por WhatsApp prioritário",
     ],
