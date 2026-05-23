@@ -125,14 +125,24 @@ function CorretoresPage() {
           <p className="text-sm text-muted-foreground">Equipe vinculada por e-mail à conta de acesso.</p>
         </div>
         {canEdit && (
-          <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+          <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setSenha(""); setSenha2(""); } }}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing({ ativo: true, ordem_roleta: rows.length })}>
                 <Plus className="mr-1 h-4 w-4" /> Novo
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editing?.id ? "Editar" : "Novo"} corretor</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {editing?.id ? "Editar corretor" : "Novo corretor"}
+                  <span className="rounded bg-orange px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                    Cadastro Completo
+                  </span>
+                </DialogTitle>
+                <p className="text-xs text-muted-foreground">
+                  Insira seus dados para habilitação no ecossistema de vendas.
+                </p>
+              </DialogHeader>
               <form onSubmit={save} className="space-y-3">
                 <Field label="Nome"><Input required value={editing?.nome ?? ""} onChange={(e) => setEditing((s) => ({ ...s, nome: e.target.value }))} /></Field>
                 <div className="grid grid-cols-2 gap-3">
@@ -149,12 +159,58 @@ function CorretoresPage() {
                   </Select>
                 </Field>
                 <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
-                <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
+
+                <div className="rounded-md border border-orange/30 bg-orange/5 p-3">
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-orange">
+                    Senha de acesso (6 dígitos)
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Criar Senha">
+                      <Input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="\d{6}"
+                        maxLength={6}
+                        placeholder="••••••"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      />
+                    </Field>
+                    <Field label="Confirmar Senha">
+                      <Input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="\d{6}"
+                        maxLength={6}
+                        placeholder="••••••"
+                        value={senha2}
+                        onChange={(e) => setSenha2(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      />
+                    </Field>
+                  </div>
+                  {editing?.id && (
+                    <p className="mt-2 text-[10px] text-muted-foreground">
+                      Preencha somente para redefinir a senha do corretor.
+                    </p>
+                  )}
+                </div>
+
+                <DialogFooter className="gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => { setEditing(null); setSenha(""); setSenha2(""); }}
+                  >
+                    Fechar
+                  </Button>
+                  <Button type="submit">Salvar</Button>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         )}
       </div>
+
 
       <div className="rounded-lg border border-border bg-card">
         <Table>
