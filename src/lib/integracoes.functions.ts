@@ -89,7 +89,7 @@ export const enviarAtendimentoCRM = createServerFn({ method: "POST" })
       evento: "atendimento.enviado",
       origem: "roleta-corretor",
       timestamp: new Date().toISOString(),
-      atendimento: at,
+      atendimento,
     };
 
     let enviados = 0;
