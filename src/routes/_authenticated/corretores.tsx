@@ -150,13 +150,9 @@ function CorretoresPage() {
     load();
   }
 
-  // Tabela de listagem usa essa função; usada também no QR.
-  function getEmpName(id?: string | null) {
-    if (!id) return "—";
-    return emps.find((e) => e.id === id)?.nome ?? "—";
-  }
+  const empName = (id: string | null | undefined) =>
+    id ? (emps.find((e) => e.id === id)?.nome ?? "—") : "—";
 
-  const empName = (id: string) => emps.find((e) => e.id === id)?.nome ?? "—";
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
