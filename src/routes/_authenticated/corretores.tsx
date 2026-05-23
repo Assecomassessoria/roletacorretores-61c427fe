@@ -38,7 +38,10 @@ function CorretoresPage() {
   const [rows, setRows] = useState<Corretor[]>([]);
   const [emps, setEmps] = useState<Emp[]>([]);
   const [editing, setEditing] = useState<Partial<Corretor> | null>(null);
+  const [senha, setSenha] = useState("");
+  const [senha2, setSenha2] = useState("");
   const [loading, setLoading] = useState(true);
+  const habilitar = useServerFn(habilitarCorretorAcesso);
 
   async function load() {
     setLoading(true);
