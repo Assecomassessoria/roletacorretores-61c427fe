@@ -1,5 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
@@ -8,51 +10,43 @@ export const Route = createFileRoute("/_authenticated/app")({
 
 function AppDashboard() {
   const { user, roles } = useAuth();
-  const semRole = roles.length === 0;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-bold">Bem-vindo, {user?.email}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Fase 1 concluída: autenticação e banco prontos.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Bem-vindo, {user?.email}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Papéis: {roles.length > 0 ? roles.join(", ") : "carregando…"}
+          </p>
+        </div>
+        <Button asChild size="lg" className="gap-2">
+          <Link to="/usuarios">
+            <ShieldCheck className="h-4 w-4" />
+            Prosseguir como Admin
+          </Link>
+        </Button>
+      </div>
 
-      {semRole ? (
-        <div className="mt-6 rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          <strong>Seu usuário ainda não tem papel atribuído.</strong>
-          <p className="mt-1">
-            Solicite à Incorporadora que atribua um papel (Gerente, Coordenador ou Corretor)
-            para liberar acesso aos módulos.
-          </p>
-          <p className="mt-2 text-xs opacity-80">
-            Primeiro acesso? O primeiro usuário cadastrado deve receber o papel{" "}
-            <code className="rounded bg-amber-200/60 px-1 dark:bg-amber-900/60">incorporadora</code>{" "}
-            via banco para liberar o sistema.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card title="Empreendimentos" desc="Cadastre stands com geofencing e Wi-Fi." badge="Fase 2" />
-          <Card title="Corretores & Escala" desc="Equipe, plantões e roleta justa." badge="Fase 2" />
-          <Card title="Atendimentos" desc="Leads, status e transferências." badge="Fase 3" />
-          <Card title="Relatórios" desc="Histórico semanal e envio por e-mail." badge="Fase 4" />
-          <Card title="Painel Mestra" desc="Gestão de usuários e papéis." badge="Fase 3" />
-        </div>
-      )}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <CardLink to="/empreendimentos" title="Empreendimentos" desc="Cadastre stands com geofencing e Wi-Fi." />
+        <CardLink to="/corretores" title="Corretores" desc="Equipe, dados e ordem da roleta." />
+        <CardLink to="/plantoes" title="Plantões & Escala" desc="Agenda e presença dos corretores." />
+        <CardLink to="/roleta" title="Roleta" desc="Próximo da vez, status do dia." />
+        <CardLink to="/usuarios" title="Usuários & Papéis" desc="Atribua acesso a novos membros." />
+      </div>
     </main>
   );
 }
 
-function Card({ title, desc, badge }: { title: string; desc: string; badge: string }) {
+function CardLink({ to, title, desc }: { to: string; title: string; desc: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        <span className="rounded bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-          {badge}
-        </span>
-      </div>
+    <Link
+      to={to}
+      className="group rounded-lg border border-border bg-card p-5 transition hover:border-orange/60 hover:shadow-sm"
+    >
+      <h3 className="text-sm font-semibold group-hover:text-orange">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
-    </div>
+    </Link>
   );
 }
