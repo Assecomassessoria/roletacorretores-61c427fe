@@ -60,7 +60,15 @@ function CorretoresPage() {
     if (!editing) return;
     if (!editing.empreendimento_id) return toast.error("Selecione o empreendimento");
 
-    // tenta vincular ao user_id via e-mail
+    // Validação da senha de 6 dígitos (obrigatória em novo cadastro; opcional ao editar)
+    const querSenha = !!senha || !!senha2 || !editing.id;
+    if (querSenha) {
+      if (!/^\d{6}$/.test(senha)) return toast.error("A senha deve ter exatamente 6 dígitos numéricos");
+      if (senha !== senha2) return toast.error("As senhas não conferem");
+      if (!editing.email) return toast.error("Informe o e-mail do corretor para habilitar o acesso");
+    }
+
+    // tenta vincular ao user_id via e-mail (caso já exista perfil)
     let user_id = editing.user_id ?? null;
     if (editing.email && !user_id) {
       const { data: prof } = await supabase.from("profiles").select("id").eq("email", editing.email).maybeSingle();
@@ -77,11 +85,32 @@ function CorretoresPage() {
       ativo: editing.ativo ?? true,
       user_id,
     };
-    const { error } = editing.id
-      ? await supabase.from("corretores").update(payload).eq("id", editing.id)
-      : await supabase.from("corretores").insert(payload);
-    if (error) return toast.error(error.message);
-    toast.success("Salvo");
+
+    let corretorId = editing.id ?? null;
+    if (corretorId) {
+      const { error } = await supabase.from("corretores").update(payload).eq("id", corretorId);
+      if (error) return toast.error(error.message);
+    } else {
+      const { data, error } = await supabase.from("corretores").insert(payload).select("id").single();
+      if (error) return toast.error(error.message);
+      corretorId = data!.id as string;
+    }
+
+    if (querSenha && corretorId && editing.email) {
+      try {
+        await habilitar({ data: { corretor_id: corretorId, email: editing.email, senha } });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
+        toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);
+        setSenha(""); setSenha2("");
+        setEditing(null);
+        load();
+        return;
+      }
+    }
+
+    toast.success("Cadastro completo");
+    setSenha(""); setSenha2("");
     setEditing(null);
     load();
   }
