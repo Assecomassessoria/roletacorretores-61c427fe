@@ -25,9 +25,7 @@ import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_auth
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
 import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as ApiPublicMercadopagoRouteImport } from './routes/api/public/mercadopago'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
-import { Route as ApiPublicHooksAssinaturasVencimentoRouteImport } from './routes/api/public/hooks/assinaturas-vencimento'
 
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
@@ -111,22 +109,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiPublicMercadopagoRoute = ApiPublicMercadopagoRouteImport.update({
-  id: '/api/public/mercadopago',
-  path: '/api/public/mercadopago',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
   id: '/api/public/lorenza',
   path: '/api/public/lorenza',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksAssinaturasVencimentoRoute =
-  ApiPublicHooksAssinaturasVencimentoRouteImport.update({
-    id: '/api/public/hooks/assinaturas-vencimento',
-    path: '/api/public/hooks/assinaturas-vencimento',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,8 +132,6 @@ export interface FileRoutesByFullPath {
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
-  '/api/public/mercadopago': typeof ApiPublicMercadopagoRoute
-  '/api/public/hooks/assinaturas-vencimento': typeof ApiPublicHooksAssinaturasVencimentoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -165,8 +150,6 @@ export interface FileRoutesByTo {
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
-  '/api/public/mercadopago': typeof ApiPublicMercadopagoRoute
-  '/api/public/hooks/assinaturas-vencimento': typeof ApiPublicHooksAssinaturasVencimentoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -187,8 +170,6 @@ export interface FileRoutesById {
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
-  '/api/public/mercadopago': typeof ApiPublicMercadopagoRoute
-  '/api/public/hooks/assinaturas-vencimento': typeof ApiPublicHooksAssinaturasVencimentoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,8 +190,6 @@ export interface FileRouteTypes {
     | '/roleta'
     | '/usuarios'
     | '/api/public/lorenza'
-    | '/api/public/mercadopago'
-    | '/api/public/hooks/assinaturas-vencimento'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -229,8 +208,6 @@ export interface FileRouteTypes {
     | '/roleta'
     | '/usuarios'
     | '/api/public/lorenza'
-    | '/api/public/mercadopago'
-    | '/api/public/hooks/assinaturas-vencimento'
   id:
     | '__root__'
     | '/'
@@ -250,8 +227,6 @@ export interface FileRouteTypes {
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
     | '/api/public/lorenza'
-    | '/api/public/mercadopago'
-    | '/api/public/hooks/assinaturas-vencimento'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -264,8 +239,6 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   SetupRoute: typeof SetupRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
-  ApiPublicMercadopagoRoute: typeof ApiPublicMercadopagoRoute
-  ApiPublicHooksAssinaturasVencimentoRoute: typeof ApiPublicHooksAssinaturasVencimentoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -382,25 +355,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/mercadopago': {
-      id: '/api/public/mercadopago'
-      path: '/api/public/mercadopago'
-      fullPath: '/api/public/mercadopago'
-      preLoaderRoute: typeof ApiPublicMercadopagoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/lorenza': {
       id: '/api/public/lorenza'
       path: '/api/public/lorenza'
       fullPath: '/api/public/lorenza'
       preLoaderRoute: typeof ApiPublicLorenzaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/assinaturas-vencimento': {
-      id: '/api/public/hooks/assinaturas-vencimento'
-      path: '/api/public/hooks/assinaturas-vencimento'
-      fullPath: '/api/public/hooks/assinaturas-vencimento'
-      preLoaderRoute: typeof ApiPublicHooksAssinaturasVencimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -442,9 +401,6 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   SetupRoute: SetupRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
-  ApiPublicMercadopagoRoute: ApiPublicMercadopagoRoute,
-  ApiPublicHooksAssinaturasVencimentoRoute:
-    ApiPublicHooksAssinaturasVencimentoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
