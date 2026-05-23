@@ -112,6 +112,7 @@ function CorretoresPage() {
       empreendimento_id: editing.empreendimento_id,
       ordem_roleta: editing.ordem_roleta ?? 0,
       ativo: editing.ativo ?? true,
+      foto_url: editing.foto_url ?? null,
       user_id,
     };
 
