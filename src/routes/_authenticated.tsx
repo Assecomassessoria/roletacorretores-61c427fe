@@ -52,7 +52,12 @@ function AuthenticatedLayout() {
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-muted-foreground sm:inline">
               {user?.email}
-              {roles.length > 0 && (
+              {isMaster && (
+                <span className="ml-2 rounded bg-orange px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+                  MASTER
+                </span>
+              )}
+              {!isMaster && roles.length > 0 && (
                 <span className="ml-2 rounded bg-muted px-2 py-0.5 text-xs uppercase tracking-wider">
                   {roles.join(", ")}
                 </span>
