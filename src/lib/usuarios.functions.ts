@@ -65,10 +65,17 @@ export const criarUsuarioComPapel = createServerFn({ method: "POST" })
       { onConflict: "id" },
     );
 
-    // Atribui papel
-    await supabaseAdmin
+    // Atribui papel (idempotente)
+    const { data: existing } = await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id, role: data.role }, { onConflict: "user_id,role" });
+      .select("id")
+      .eq("user_id", user_id)
+      .eq("role", data.role)
+      .is("empreendimento_id", null)
+      .maybeSingle();
+    if (!existing) {
+      await supabaseAdmin.from("user_roles").insert({ user_id, role: data.role });
+    }
 
     return { ok: true, user_id };
   });
