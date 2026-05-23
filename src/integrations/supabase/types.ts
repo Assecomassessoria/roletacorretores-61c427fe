@@ -344,6 +344,8 @@ export type Database = {
           qrcode_token: string | null
           raio_metros: number
           regras_pdf_url: string | null
+          roleta_auto_horarios: string[]
+          roleta_automatica: boolean
           updated_at: string
           whatsapp_grupo_url: string | null
           wifi_ssid: string | null
@@ -373,6 +375,8 @@ export type Database = {
           qrcode_token?: string | null
           raio_metros?: number
           regras_pdf_url?: string | null
+          roleta_auto_horarios?: string[]
+          roleta_automatica?: boolean
           updated_at?: string
           whatsapp_grupo_url?: string | null
           wifi_ssid?: string | null
@@ -402,6 +406,8 @@ export type Database = {
           qrcode_token?: string | null
           raio_metros?: number
           regras_pdf_url?: string | null
+          roleta_auto_horarios?: string[]
+          roleta_automatica?: boolean
           updated_at?: string
           whatsapp_grupo_url?: string | null
           wifi_ssid?: string | null
