@@ -10,8 +10,15 @@ export const Route = createFileRoute("/planos")({
       { title: "Planos — Roleta Corretor Elite 4.0" },
       {
         name: "description",
-        content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo.",
+        content: "Planos profissionais e solução de escala: 30 Teste Elite, Experiência 7 dias, Mensal Elite e Anual Executivo.",
       },
+    ],
+    scripts: [
+      {
+        src: "https://www.mercadopago.com/v2/security.js",
+        view: "checkout",
+        output: "deviceId",
+      } as never,
     ],
   }),
 });
