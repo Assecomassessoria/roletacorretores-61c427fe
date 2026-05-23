@@ -77,6 +77,7 @@ function EmpreendimentosPage() {
 
     const payload = {
       nome: editing.nome ?? "",
+      cnpj: editing.cnpj ?? null,
       endereco: editing.endereco ?? null,
       latitude: editing.latitude ?? null,
       longitude: editing.longitude ?? null,
