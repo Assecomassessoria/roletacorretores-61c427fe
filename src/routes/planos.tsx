@@ -10,13 +10,38 @@ export const Route = createFileRoute("/planos")({
       { title: "Planos — Roleta Corretor Elite 4.0" },
       {
         name: "description",
-        content: "Planos profissionais e solução de escala: Experiência 7 dias, Mensal Elite e Anual Executivo.",
+        content: "Planos profissionais e solução de escala: 30 Teste Elite, Experiência 7 dias, Mensal Elite e Anual Executivo.",
       },
+    ],
+    scripts: [
+      {
+        src: "https://www.mercadopago.com/v2/security.js",
+        view: "checkout",
+        output: "deviceId",
+      } as never,
     ],
   }),
 });
 
 const PLANOS = [
+  {
+    nome: "Plano 30 Teste Elite",
+    cor: "white" as const,
+    badge: "Trial qualificado · Pagamento único na adesão",
+    preco: "R$ 69,90",
+    sub: "/30 dias",
+    promo: "Renovação assistida no 25º dia via Lorenza Messenger",
+    features: [
+      "Cadastro ilimitado de corretores",
+      "Dados e relatórios mensais",
+      "Validação de presença para corretores",
+      "Roleta automatizada por escala",
+      "Auditoria e relatórios para incorporadora",
+      "100% dos recursos liberados",
+      "Suporte por WhatsApp prioritário",
+    ],
+    cta: "Assinar 30 dias experiência",
+  },
   {
     nome: "Experiência 7 dias",
     cor: "navy" as const,
@@ -106,7 +131,7 @@ function Planos() {
         </section>
 
         {/* cards */}
-        <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <section className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
           {PLANOS.map((p) => (
             <div
               key={p.nome}
