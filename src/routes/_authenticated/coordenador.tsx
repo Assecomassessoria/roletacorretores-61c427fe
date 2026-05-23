@@ -276,7 +276,18 @@ function CoordenadorPage() {
         </div>
       </div>
 
-      {!emp ? (
+      {emps.length === 0 ? (
+        <div className="rounded-lg border-2 border-dashed border-border bg-card p-8 text-center">
+          <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
+          <h2 className="text-lg font-semibold">Nenhum empreendimento cadastrado</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            Para configurar ciclos, equipes, protocolos de presença e escala, primeiro cadastre ao menos um empreendimento (stand).
+          </p>
+          <Button className="mt-4" onClick={() => navigate({ to: "/empreendimentos" })}>
+            <Plus className="mr-1 h-4 w-4" /> Cadastrar empreendimento
+          </Button>
+        </div>
+      ) : !emp ? (
         <p className="text-sm text-muted-foreground">Selecione um empreendimento.</p>
       ) : (
         <div className="space-y-6">
