@@ -121,6 +121,7 @@ export type Database = {
           creci: string | null
           email: string | null
           empreendimento_id: string
+          foto_url: string | null
           id: string
           nome: string
           ordem_roleta: number
@@ -134,6 +135,7 @@ export type Database = {
           creci?: string | null
           email?: string | null
           empreendimento_id: string
+          foto_url?: string | null
           id?: string
           nome: string
           ordem_roleta?: number
@@ -147,6 +149,7 @@ export type Database = {
           creci?: string | null
           email?: string | null
           empreendimento_id?: string
+          foto_url?: string | null
           id?: string
           nome?: string
           ordem_roleta?: number
@@ -205,6 +208,7 @@ export type Database = {
       empreendimentos: {
         Row: {
           ativo: boolean
+          cnpj: string | null
           created_at: string
           criado_por: string | null
           endereco: string | null
@@ -221,6 +225,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          cnpj?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
@@ -237,6 +242,7 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          cnpj?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
