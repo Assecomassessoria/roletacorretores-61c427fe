@@ -40,7 +40,7 @@ export const registrarTriagem = createServerFn({ method: "POST" })
         origem: data.origem,
         cliente_nome: data.cliente_nome ?? null,
         cliente_telefone: data.cliente_telefone ?? null,
-        payload: data.payload ?? null,
+        payload: (data.payload ?? null) as never,
         criado_por: userId,
       })
       .select("id, opcao_codigo, acao, created_at")

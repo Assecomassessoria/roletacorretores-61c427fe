@@ -81,7 +81,7 @@ export const Route = createFileRoute("/api/public/lorenza")({
             origem: "lorenza",
             cliente_nome: parsed.cliente_nome ?? null,
             cliente_telefone: parsed.cliente_telefone ?? null,
-            payload: parsed.payload ?? null,
+            payload: (parsed.payload ?? null) as never,
           })
           .select("id, opcao_codigo, acao, created_at")
           .single();
