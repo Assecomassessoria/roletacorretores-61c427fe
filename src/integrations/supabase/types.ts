@@ -279,6 +279,39 @@ export type Database = {
           },
         ]
       }
+      opcoes_triagem: {
+        Row: {
+          action: string
+          ativo: boolean
+          codigo: string
+          created_at: string
+          id: string
+          label: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          ativo?: boolean
+          codigo: string
+          created_at?: string
+          id?: string
+          label: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          ativo?: boolean
+          codigo?: string
+          created_at?: string
+          id?: string
+          label?: string
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plantoes: {
         Row: {
           corretor_id: string
@@ -365,6 +398,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      triagens: {
+        Row: {
+          acao: string
+          atendimento_id: string | null
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          created_at: string
+          criado_por: string | null
+          empreendimento_id: string
+          id: string
+          opcao_codigo: string
+          origem: string
+          payload: Json | null
+        }
+        Insert: {
+          acao: string
+          atendimento_id?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id: string
+          id?: string
+          opcao_codigo: string
+          origem?: string
+          payload?: Json | null
+        }
+        Update: {
+          acao?: string
+          atendimento_id?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id?: string
+          id?: string
+          opcao_codigo?: string
+          origem?: string
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "triagens_atendimento_id_fkey"
+            columns: ["atendimento_id"]
+            isOneToOne: false
+            referencedRelation: "atendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
