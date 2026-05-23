@@ -294,6 +294,48 @@ export type Database = {
           },
         ]
       }
+      integracoes_crm: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          criado_por: string | null
+          empreendimento_id: string | null
+          headers: Json | null
+          id: string
+          nome: string
+          provider: string
+          secret: string | null
+          updated_at: string
+          webhook_url: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id?: string | null
+          headers?: Json | null
+          id?: string
+          nome: string
+          provider?: string
+          secret?: string | null
+          updated_at?: string
+          webhook_url: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          empreendimento_id?: string | null
+          headers?: Json | null
+          id?: string
+          nome?: string
+          provider?: string
+          secret?: string | null
+          updated_at?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       opcoes_triagem: {
         Row: {
           action: string
