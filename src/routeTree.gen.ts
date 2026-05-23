@@ -26,6 +26,7 @@ import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
+import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
 
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
@@ -114,6 +115,12 @@ const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
   path: '/api/public/lorenza',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksAvisosRenovacaoRoute =
+  ApiPublicHooksAvisosRenovacaoRouteImport.update({
+    id: '/api/public/hooks/avisos-renovacao',
+    path: '/api/public/hooks/avisos-renovacao',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/roleta'
     | '/usuarios'
     | '/api/public/lorenza'
+    | '/api/public/hooks/avisos-renovacao'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/roleta'
     | '/usuarios'
     | '/api/public/lorenza'
+    | '/api/public/hooks/avisos-renovacao'
   id:
     | '__root__'
     | '/'
@@ -227,6 +239,7 @@ export interface FileRouteTypes {
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
     | '/api/public/lorenza'
+    | '/api/public/hooks/avisos-renovacao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,6 +252,7 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   SetupRoute: typeof SetupRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
+  ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -362,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLorenzaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/avisos-renovacao': {
+      id: '/api/public/hooks/avisos-renovacao'
+      path: '/api/public/hooks/avisos-renovacao'
+      fullPath: '/api/public/hooks/avisos-renovacao'
+      preLoaderRoute: typeof ApiPublicHooksAvisosRenovacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -401,6 +422,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   SetupRoute: SetupRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
+  ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
