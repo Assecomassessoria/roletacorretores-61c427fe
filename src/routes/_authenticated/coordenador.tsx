@@ -538,48 +538,127 @@ function CoordenadorPage() {
             </div>
 
             <div>
-              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Corretores ({ativos.length})
-              </h3>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Corretores ativos ({ativosFiltrados.length} de {ativos.length})
+                </h3>
+                <div className="flex items-center gap-2 text-[11px]">
+                  <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-600">
+                    {countAtivos} ativos
+                  </Badge>
+                  <Badge variant="outline" className="border-muted-foreground/40">
+                    {countDesativados} desativados
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Filtros */}
+              <div className="mb-3 grid gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={filtroBusca}
+                    onChange={(e) => setFiltroBusca(e.target.value)}
+                    placeholder="Buscar por nome, e-mail ou telefone…"
+                    className="h-9 pl-8"
+                  />
+                </div>
+                <Select value={filtroStatus} onValueChange={(v) => setFiltroStatus(v as any)}>
+                  <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos status</SelectItem>
+                    <SelectItem value="ativo">Apenas ativos</SelectItem>
+                    <SelectItem value="desativado">Desativados</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filtroEquipe} onValueChange={(v) => setFiltroEquipe(v as any)}>
+                  <SelectTrigger className="h-9 w-40"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas equipes</SelectItem>
+                    <SelectItem value="alfa">{emp.equipe_alfa_nome}</SelectItem>
+                    <SelectItem value="beta">{emp.equipe_beta_nome}</SelectItem>
+                    <SelectItem value="sem">Sem equipe</SelectItem>
+                  </SelectContent>
+                </Select>
+                {(filtroBusca || filtroStatus !== "todos" || filtroEquipe !== "todas") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setFiltroBusca(""); setFiltroStatus("todos"); setFiltroEquipe("todas"); }}
+                  >
+                    Limpar
+                  </Button>
+                )}
+              </div>
+
               {ativos.length === 0 ? (
                 <p className="text-xs text-muted-foreground">Sem corretores cadastrados.</p>
+              ) : ativosFiltrados.length === 0 ? (
+                <p className="rounded border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                  Nenhum corretor encontrado com os filtros atuais.
+                </p>
               ) : (
                 <ul className="space-y-1.5">
-                  {ativos.map((c) => (
-                    <li key={c.id} className="flex items-center justify-between rounded border border-border px-3 py-2 text-sm">
-                      <div className="flex items-center gap-3">
-                        <span className="font-medium">{c.nome}</span>
-                        <Badge variant={c.status_habilitacao === "ativo" ? "default" : "outline"}>
-                          {c.status_habilitacao}
-                        </Badge>
-                        {c.equipe && <Badge variant="outline">{c.equipe === "alfa" ? emp.equipe_alfa_nome : emp.equipe_beta_nome}</Badge>}
-                      </div>
-                      <div className="flex gap-1">
-                        <Select value={c.equipe ?? "none"} onValueChange={(v) => setEquipe(c, v === "none" ? null : (v as "alfa" | "beta"))}>
-                          <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Sem equipe</SelectItem>
-                            <SelectItem value="alfa">{emp.equipe_alfa_nome}</SelectItem>
-                            <SelectItem value="beta">{emp.equipe_beta_nome}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {c.status_habilitacao === "ativo" ? (
-                          <Button size="sm" variant="outline" onClick={() => setStatus(c, "desativado")}>
-                            <UserX className="mr-1 h-3.5 w-3.5" /> Desativar
+                  {ativosFiltrados.map((c) => {
+                    const isAtivo = c.status_habilitacao === "ativo";
+                    return (
+                      <li
+                        key={c.id}
+                        className={`flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2 text-sm ${
+                          isAtivo ? "border-border" : "border-border bg-muted/30 opacity-70"
+                        }`}
+                      >
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <span className={`truncate font-medium ${!isAtivo ? "line-through" : ""}`}>{c.nome}</span>
+                          <Badge variant={isAtivo ? "default" : "outline"} className={isAtivo ? "bg-emerald-600 hover:bg-emerald-600" : ""}>
+                            {c.status_habilitacao}
+                          </Badge>
+                          {c.equipe && (
+                            <Badge variant="outline">
+                              {c.equipe === "alfa" ? emp.equipe_alfa_nome : emp.equipe_beta_nome}
+                            </Badge>
+                          )}
+                          {c.email && <span className="hidden truncate text-xs text-muted-foreground md:inline">{c.email}</span>}
+                        </div>
+                        <div className="flex flex-shrink-0 gap-1">
+                          <Select
+                            value={c.equipe ?? "none"}
+                            onValueChange={(v) => setEquipe(c, v === "none" ? null : (v as "alfa" | "beta"))}
+                          >
+                            <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Sem equipe</SelectItem>
+                              <SelectItem value="alfa">{emp.equipe_alfa_nome}</SelectItem>
+                              <SelectItem value="beta">{emp.equipe_beta_nome}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {isAtivo ? (
+                            <Button size="sm" variant="outline" onClick={() => setStatus(c, "desativado")}
+                              title="Desativar (mantém o cadastro, remove da roleta)">
+                              <UserX className="mr-1 h-3.5 w-3.5" /> Desativar
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="outline" onClick={() => setStatus(c, "ativo")}
+                              title="Reativar corretor">
+                              <UserCheck className="mr-1 h-3.5 w-3.5" /> Reativar
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => excluir(c)}
+                            title="Excluir definitivamente"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
-                        ) : (
-                          <Button size="sm" variant="outline" onClick={() => setStatus(c, "ativo")}>
-                            <UserCheck className="mr-1 h-3.5 w-3.5" /> Ativar
-                          </Button>
-                        )}
-                        <Button size="sm" variant="outline" onClick={() => excluir(c)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
+            </div>
             </div>
           </Card>
         </div>
