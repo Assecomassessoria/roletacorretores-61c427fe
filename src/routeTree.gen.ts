@@ -20,8 +20,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
+import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
 import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
+import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 
@@ -79,6 +81,12 @@ const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
   path: '/plantoes',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedIntegracoesRoute =
+  AuthenticatedIntegracoesRouteImport.update({
+    id: '/integracoes',
+    path: '/integracoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEmpreendimentosRoute =
   AuthenticatedEmpreendimentosRouteImport.update({
     id: '/empreendimentos',
@@ -90,6 +98,12 @@ const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
   path: '/corretores',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAtendimentosRoute =
+  AuthenticatedAtendimentosRouteImport.update({
+    id: '/atendimentos',
+    path: '/atendimentos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -110,8 +124,10 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
+  '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -126,8 +142,10 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
+  '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/corretores': typeof AuthenticatedCorretoresRoute
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -144,8 +162,10 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/_authenticated/corretores': typeof AuthenticatedCorretoresRoute
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
+  '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -162,8 +182,10 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/app'
+    | '/atendimentos'
     | '/corretores'
     | '/empreendimentos'
+    | '/integracoes'
     | '/plantoes'
     | '/roleta'
     | '/usuarios'
@@ -178,8 +200,10 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/app'
+    | '/atendimentos'
     | '/corretores'
     | '/empreendimentos'
+    | '/integracoes'
     | '/plantoes'
     | '/roleta'
     | '/usuarios'
@@ -195,8 +219,10 @@ export interface FileRouteTypes {
     | '/planos'
     | '/setup'
     | '/_authenticated/app'
+    | '/_authenticated/atendimentos'
     | '/_authenticated/corretores'
     | '/_authenticated/empreendimentos'
+    | '/_authenticated/integracoes'
     | '/_authenticated/plantoes'
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
@@ -294,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlantoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/integracoes': {
+      id: '/_authenticated/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof AuthenticatedIntegracoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/empreendimentos': {
       id: '/_authenticated/empreendimentos'
       path: '/empreendimentos'
@@ -306,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/corretores'
       fullPath: '/corretores'
       preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/atendimentos': {
+      id: '/_authenticated/atendimentos'
+      path: '/atendimentos'
+      fullPath: '/atendimentos'
+      preLoaderRoute: typeof AuthenticatedAtendimentosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/app': {
@@ -327,8 +367,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedAtendimentosRoute: typeof AuthenticatedAtendimentosRoute
   AuthenticatedCorretoresRoute: typeof AuthenticatedCorretoresRoute
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
+  AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
   AuthenticatedRoletaRoute: typeof AuthenticatedRoletaRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
@@ -336,8 +378,10 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedAtendimentosRoute: AuthenticatedAtendimentosRoute,
   AuthenticatedCorretoresRoute: AuthenticatedCorretoresRoute,
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
+  AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
   AuthenticatedRoletaRoute: AuthenticatedRoletaRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,

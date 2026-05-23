@@ -33,6 +33,8 @@ function AppDashboard() {
         <CardLink to="/corretores" title="Corretores" desc="Equipe, dados e ordem da roleta." />
         <CardLink to="/plantoes" title="Plantões & Escala" desc="Agenda e presença dos corretores." />
         <CardLink to="/roleta" title="Roleta" desc="Próximo da vez, status do dia." />
+        <CardLink to="/atendimentos" title="Atendimentos" desc="Histórico filtrável por cliente e CNPJ." />
+        <CardLink to="/integracoes" title="Integrações CRM" desc="Webhooks Zapier, Make, n8n, CRM próprio." />
         <CardLink to="/usuarios" title="Usuários & Papéis" desc="Atribua acesso a novos membros." />
       </div>
     </main>
