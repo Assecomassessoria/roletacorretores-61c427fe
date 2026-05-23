@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetupRouteImport } from './routes/setup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LgpdRouteImport } from './routes/lgpd'
@@ -32,6 +33,11 @@ import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
   path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanosRoute = PlanosRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/reset-password'
     | '/setup'
     | '/app'
     | '/atendimentos'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/reset-password'
     | '/setup'
     | '/app'
     | '/atendimentos'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/reset-password'
     | '/setup'
     | '/_authenticated/app'
     | '/_authenticated/atendimentos'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -275,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/setup'
       fullPath: '/setup'
       preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planos': {
@@ -442,6 +462,7 @@ const rootRouteChildren: RootRouteChildren = {
   LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
