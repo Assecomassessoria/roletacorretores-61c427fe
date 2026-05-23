@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      assinaturas: {
+        Row: {
+          aviso_renovacao_enviado: boolean
+          cancelada_em: string | null
+          created_at: string
+          empreendimento_id: string | null
+          expira_em: string | null
+          external_subscription_id: string | null
+          id: string
+          iniciada_em: string | null
+          metadata: Json | null
+          plano_id: string
+          renovacao_automatica: boolean
+          status: Database["public"]["Enums"]["assinatura_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aviso_renovacao_enviado?: boolean
+          cancelada_em?: string | null
+          created_at?: string
+          empreendimento_id?: string | null
+          expira_em?: string | null
+          external_subscription_id?: string | null
+          id?: string
+          iniciada_em?: string | null
+          metadata?: Json | null
+          plano_id: string
+          renovacao_automatica?: boolean
+          status?: Database["public"]["Enums"]["assinatura_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aviso_renovacao_enviado?: boolean
+          cancelada_em?: string | null
+          created_at?: string
+          empreendimento_id?: string | null
+          expira_em?: string | null
+          external_subscription_id?: string | null
+          id?: string
+          iniciada_em?: string | null
+          metadata?: Json | null
+          plano_id?: string
+          renovacao_automatica?: boolean
+          status?: Database["public"]["Enums"]["assinatura_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       atendimentos: {
         Row: {
           cliente_email: string | null
@@ -113,6 +179,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      avisos_renovacao: {
+        Row: {
+          assinatura_id: string
+          canal: string
+          enviado_em: string
+          id: string
+          payload: Json | null
+          status: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          assinatura_id: string
+          canal?: string
+          enviado_em?: string
+          id?: string
+          payload?: Json | null
+          status?: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          assinatura_id?: string
+          canal?: string
+          enviado_em?: string
+          id?: string
+          payload?: Json | null
+          status?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avisos_renovacao_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       corretores: {
         Row: {
@@ -369,6 +476,126 @@ export type Database = {
         }
         Relationships: []
       }
+      pagamentos: {
+        Row: {
+          assinatura_id: string | null
+          created_at: string
+          external_id: string | null
+          external_status: string | null
+          id: string
+          metodo: string | null
+          moeda: string
+          pago_em: string | null
+          payload: Json | null
+          plano_id: string | null
+          provider: string
+          status: Database["public"]["Enums"]["pagamento_status"]
+          updated_at: string
+          user_id: string
+          valor_centavos: number
+        }
+        Insert: {
+          assinatura_id?: string | null
+          created_at?: string
+          external_id?: string | null
+          external_status?: string | null
+          id?: string
+          metodo?: string | null
+          moeda?: string
+          pago_em?: string | null
+          payload?: Json | null
+          plano_id?: string | null
+          provider?: string
+          status?: Database["public"]["Enums"]["pagamento_status"]
+          updated_at?: string
+          user_id: string
+          valor_centavos: number
+        }
+        Update: {
+          assinatura_id?: string | null
+          created_at?: string
+          external_id?: string | null
+          external_status?: string | null
+          id?: string
+          metodo?: string | null
+          moeda?: string
+          pago_em?: string | null
+          payload?: Json | null
+          plano_id?: string | null
+          provider?: string
+          status?: Database["public"]["Enums"]["pagamento_status"]
+          updated_at?: string
+          user_id?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos: {
+        Row: {
+          ativo: boolean
+          beneficios: Json | null
+          ciclo: Database["public"]["Enums"]["ciclo_plano"]
+          codigo: string
+          created_at: string
+          descricao: string | null
+          destaque: boolean
+          dias_duracao: number
+          id: string
+          moeda: string
+          nome: string
+          ordem: number
+          preco_centavos: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          beneficios?: Json | null
+          ciclo: Database["public"]["Enums"]["ciclo_plano"]
+          codigo: string
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          dias_duracao: number
+          id?: string
+          moeda?: string
+          nome: string
+          ordem?: number
+          preco_centavos: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          beneficios?: Json | null
+          ciclo?: Database["public"]["Enums"]["ciclo_plano"]
+          codigo?: string
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          dias_duracao?: number
+          id?: string
+          moeda?: string
+          nome?: string
+          ordem?: number
+          preco_centavos?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plantoes: {
         Row: {
           corretor_id: string
@@ -563,12 +790,26 @@ export type Database = {
     }
     Enums: {
       app_role: "incorporadora" | "gerente" | "coordenador" | "corretor"
+      assinatura_status:
+        | "pendente"
+        | "ativa"
+        | "cancelada"
+        | "expirada"
+        | "inadimplente"
+        | "trial"
       atendimento_status:
         | "aberto"
         | "em_negociacao"
         | "fechado"
         | "perdido"
         | "transferido"
+      ciclo_plano: "mensal" | "trimestral" | "anual"
+      pagamento_status:
+        | "pendente"
+        | "aprovado"
+        | "recusado"
+        | "estornado"
+        | "cancelado"
       plantao_status: "agendado" | "em_andamento" | "concluido" | "cancelado"
     }
     CompositeTypes: {
@@ -698,12 +939,28 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["incorporadora", "gerente", "coordenador", "corretor"],
+      assinatura_status: [
+        "pendente",
+        "ativa",
+        "cancelada",
+        "expirada",
+        "inadimplente",
+        "trial",
+      ],
       atendimento_status: [
         "aberto",
         "em_negociacao",
         "fechado",
         "perdido",
         "transferido",
+      ],
+      ciclo_plano: ["mensal", "trimestral", "anual"],
+      pagamento_status: [
+        "pendente",
+        "aprovado",
+        "recusado",
+        "estornado",
+        "cancelado",
       ],
       plantao_status: ["agendado", "em_andamento", "concluido", "cancelado"],
     },
