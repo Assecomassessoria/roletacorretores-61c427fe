@@ -64,10 +64,16 @@ export const enviarAtendimentoCRM = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: at, error } = await supabase
       .from("atendimentos")
-      .select("id,status,cliente_nome,cliente_email,cliente_telefone,observacoes,iniciado_em,finalizado_em,empreendimento_id,corretor_id,empreendimentos(nome,cnpj),corretores(nome,telefone,email,creci)")
+      .select("id,status,cliente_nome,cliente_email,cliente_telefone,observacoes,iniciado_em,finalizado_em,empreendimento_id,corretor_id")
       .eq("id", data.atendimento_id)
       .maybeSingle();
     if (error || !at) throw new Error(error?.message ?? "Atendimento não encontrado");
+
+    const [empRes, corRes] = await Promise.all([
+      supabase.from("empreendimentos").select("nome,cnpj,endereco").eq("id", at.empreendimento_id).maybeSingle(),
+      supabase.from("corretores").select("nome,telefone,email,creci").eq("id", at.corretor_id).maybeSingle(),
+    ]);
+    const atendimento = { ...at, empreendimento: empRes.data ?? null, corretor: corRes.data ?? null };
 
     const { data: integs, error: ie } = await supabase
       .from("integracoes_crm")
