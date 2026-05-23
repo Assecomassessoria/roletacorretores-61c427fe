@@ -30,6 +30,7 @@ function AppDashboard() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <CardLink to="/empreendimentos" title="Empreendimentos" desc="Cadastre stands com geofencing e Wi-Fi." />
+        <CardLink to="/coordenador" title="Gerente / Coordenador" desc="Painel de Operações Pro: ciclos, equipes, protocolos e escala." />
         <CardLink to="/corretores" title="Corretores" desc="Equipe, dados e ordem da roleta." />
         <CardLink to="/plantoes" title="Plantões & Escala" desc="Agenda e presença dos corretores." />
         <CardLink to="/roleta" title="Roleta" desc="Próximo da vez, status do dia." />
