@@ -174,20 +174,93 @@ function CorretoresPage() {
                 </p>
               </DialogHeader>
               <form onSubmit={save} className="space-y-3">
+                {/* Foto do corretor */}
+                <Field label="Foto do corretor">
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const f = e.dataTransfer.files?.[0];
+                      if (f) uploadFoto(f);
+                    }}
+                    className="flex items-center gap-3 rounded-md border border-dashed border-border bg-muted/30 p-3"
+                  >
+                    {editing?.foto_url ? (
+                      <div className="relative">
+                        <img src={editing.foto_url} alt="" className="h-16 w-16 rounded-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing((s) => ({ ...s, foto_url: null }))}
+                          className="absolute -right-1 -top-1 rounded-full bg-background p-0.5 shadow"
+                          aria-label="Remover foto"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
+                        sem foto
+                      </div>
+                    )}
+                    <div className="flex-1 text-xs text-muted-foreground">
+                      Arraste e solte aqui, cole, ou
+                      <label className="ml-1 cursor-pointer text-orange underline">
+                        anexar
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFoto(f); e.currentTarget.value = ""; }}
+                        />
+                      </label>
+                      {fotoUploading && <span className="ml-2">enviando…</span>}
+                    </div>
+                    <Upload className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </Field>
+
                 <Field label="Nome"><Input required value={editing?.nome ?? ""} onChange={(e) => setEditing((s) => ({ ...s, nome: e.target.value }))} /></Field>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="CRECI"><Input value={editing?.creci ?? ""} onChange={(e) => setEditing((s) => ({ ...s, creci: e.target.value }))} /></Field>
                   <Field label="Telefone"><Input value={editing?.telefone ?? ""} onChange={(e) => setEditing((s) => ({ ...s, telefone: e.target.value }))} /></Field>
                 </div>
                 <Field label="E-mail (vincula à conta de login)"><Input type="email" value={editing?.email ?? ""} onChange={(e) => setEditing((s) => ({ ...s, email: e.target.value }))} /></Field>
-                <Field label="Empreendimento">
-                  <Select value={editing?.empreendimento_id ?? ""} onValueChange={(v) => setEditing((s) => ({ ...s, empreendimento_id: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
-                    <SelectContent>
-                      {emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+
+                {/* Empreendimento por NOME ou CNPJ */}
+                <Field label="Empreendimento ou CNPJ (para vínculo ao empreendimento)">
+                  <div className="relative">
+                    <Input
+                      list="emp-options"
+                      placeholder="Digite o nome do empreendimento ou CNPJ…"
+                      value={empBusca}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setEmpBusca(v);
+                        const term = v.trim().toLowerCase();
+                        const onlyDigits = v.replace(/\D/g, "");
+                        const match = emps.find((emp) => {
+                          const empCnpj = (emp.cnpj ?? "").replace(/\D/g, "");
+                          return (
+                            emp.nome.toLowerCase() === term ||
+                            (onlyDigits.length >= 11 && empCnpj && empCnpj === onlyDigits)
+                          );
+                        });
+                        setEditing((s) => ({ ...s, empreendimento_id: match?.id ?? undefined }));
+                      }}
+                    />
+                    <datalist id="emp-options">
+                      {emps.map((e) => (
+                        <option key={e.id} value={e.nome}>{e.cnpj ? `CNPJ ${e.cnpj}` : ""}</option>
+                      ))}
+                    </datalist>
+                    {editing?.empreendimento_id ? (
+                      <p className="mt-1 text-[10px] text-emerald-600">✓ vinculado a {emps.find((x) => x.id === editing.empreendimento_id)?.nome}</p>
+                    ) : empBusca ? (
+                      <p className="mt-1 text-[10px] text-muted-foreground">Nenhum empreendimento corresponde ao termo. Cadastre antes em Empreendimentos.</p>
+                    ) : null}
+                  </div>
                 </Field>
+
                 <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
 
                 <div className="rounded-md border border-orange/30 bg-orange/5 p-3">
