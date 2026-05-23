@@ -211,7 +211,10 @@ export type Database = {
           id: string
           latitude: number | null
           longitude: number | null
+          metodos_presenca: string[]
           nome: string
+          pin_intervalo_min: number
+          qrcode_token: string | null
           raio_metros: number
           updated_at: string
           wifi_ssid: string | null
@@ -224,7 +227,10 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          metodos_presenca?: string[]
           nome: string
+          pin_intervalo_min?: number
+          qrcode_token?: string | null
           raio_metros?: number
           updated_at?: string
           wifi_ssid?: string | null
@@ -237,7 +243,10 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          metodos_presenca?: string[]
           nome?: string
+          pin_intervalo_min?: number
+          qrcode_token?: string | null
           raio_metros?: number
           updated_at?: string
           wifi_ssid?: string | null
