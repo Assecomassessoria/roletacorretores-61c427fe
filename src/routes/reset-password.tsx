@@ -36,7 +36,10 @@ function ResetPasswordPage() {
     if (password.length < 6) return toast.error("Mínimo 6 caracteres.");
     setBusy(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await supabase.auth.updateUser({
+        password,
+        data: { must_change_password: false },
+      });
       if (error) throw error;
       toast.success("Senha atualizada com sucesso.");
       navigate({ to: "/app" });
