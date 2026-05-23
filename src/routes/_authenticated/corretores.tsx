@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Pencil, Plus, Upload, X } from "lucide-react";
+import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
+import { QRCodeCanvas } from "qrcode.react";
 
 type Corretor = {
   id: string;
