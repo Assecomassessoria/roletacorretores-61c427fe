@@ -236,6 +236,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         nome: c.nome,
         creci: c.creci,
         telefone: c.telefone,
+        foto_url: (c as { foto_url?: string | null }).foto_url ?? null,
         atendimentos_semana: counts[c.id] ?? 0,
         ordem_roleta: c.ordem_roleta ?? 0,
       }))
