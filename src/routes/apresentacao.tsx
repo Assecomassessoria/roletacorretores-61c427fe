@@ -1,11 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ArrowRight, QrCode, Users, Sparkles } from "lucide-react";
+import { ArrowRight, QrCode, Users, Sparkles, Monitor, User, Clock, ShieldCheck, Building2, Tag } from "lucide-react";
 import heroImg from "@/assets/apresentacao-hero.png";
 import caosImg from "@/assets/apresentacao-caos.png";
 import qrcodeImg from "@/assets/apresentacao-qrcode.png";
 import filaImg from "@/assets/apresentacao-fila.png";
+
+const NAV_TOP = [
+  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
+  { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
+];
+
+const NAV_BOTTOM = [
+  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
+  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
+  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+];
 
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/apresentacao";
 
@@ -30,6 +42,24 @@ export function ApresentacaoPage() {
   return (
     <div className="min-h-screen bg-navy text-cream">
       <SiteHeader />
+
+      {/* NAVEGAÇÃO SUPERIOR */}
+      <section className="border-b border-orange/20 bg-navy-deep/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-4">
+          {NAV_TOP.map((n) => {
+            const Icon = n.icon;
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                className="inline-flex items-center gap-2 rounded-full border border-orange/50 bg-orange/10 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-orange transition hover:bg-orange hover:text-orange-foreground hover:shadow-lg hover:shadow-orange/30"
+              >
+                <Icon className="h-3.5 w-3.5" /> {n.label}
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-orange/20">
@@ -170,6 +200,30 @@ export function ApresentacaoPage() {
           >
             Voltar ao início
           </Link>
+        </div>
+      </section>
+
+      {/* NAVEGAÇÃO INFERIOR */}
+      <section className="border-y border-orange/20 bg-navy-deep/60">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-5">
+          {NAV_BOTTOM.map((n) => {
+            const Icon = n.icon;
+            const isGold = n.tone === "gold";
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                className={
+                  "inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider transition hover:shadow-lg " +
+                  (isGold
+                    ? "border-gold/60 bg-gold text-gold-foreground hover:bg-gold/90 hover:shadow-gold/30"
+                    : "border-white/15 bg-white/5 text-cream/90 hover:border-orange/60 hover:text-cream hover:bg-white/10")
+                }
+              >
+                <Icon className="h-3.5 w-3.5" /> {n.label}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
