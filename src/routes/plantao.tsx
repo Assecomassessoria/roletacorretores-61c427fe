@@ -22,11 +22,13 @@ export const Route = createFileRoute("/plantao")({
 });
 
 type Emp = { id: string; nome: string };
+type Check = { metodo: string; ok: boolean; detalhe: string };
 type CheckInResult = {
   ok: boolean;
   metodo: string;
   distancia: number | null;
-  corretor: { id: string; nome: string; telefone: string | null; creci: string | null };
+  checks: Check[];
+  corretor: { id: string; nome: string; telefone: string | null; creci: string | null; foto_url: string | null };
   empreendimento: { id: string; nome: string };
 };
 
@@ -35,6 +37,7 @@ type RoletaItem = {
   nome: string;
   creci: string | null;
   telefone: string | null;
+  foto_url: string | null;
   atendimentos_semana: number;
   ordem_roleta: number;
 };
@@ -44,6 +47,13 @@ type RoletaDia = {
   total_presentes: number;
   proximo_id: string | null;
   fila: RoletaItem[];
+};
+
+const METODO_LABEL: Record<string, string> = {
+  geofence: "Geolocalização",
+  wifi: "Wi-Fi do stand",
+  qrcode: "QR Code",
+  pin: "PIN rotativo",
 };
 
 function PlantaoPage() {
