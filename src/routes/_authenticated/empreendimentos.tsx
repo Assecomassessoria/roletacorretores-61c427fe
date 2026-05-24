@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation } from "lucide-react";
+import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X } from "lucide-react";
 
 type Metodo = "geofence" | "wifi" | "qrcode" | "pin";
 
@@ -27,6 +27,10 @@ type Emp = {
   metodos_presenca: Metodo[];
   pin_intervalo_min: number;
   qrcode_token: string | null;
+  logo_url: string | null;
+  cor_primaria: string | null;
+  cor_secundaria: string | null;
+  cor_destaque: string | null;
 };
 
 const METODOS: { key: Metodo; label: string; icon: any; desc: string }[] = [
