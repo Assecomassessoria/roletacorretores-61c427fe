@@ -65,6 +65,29 @@ function PlantaoPage() {
   const carregarRoleta = useServerFn(roletaDoDiaPublico);
   const carregarEscala = useServerFn(listarEscalaSemanal);
   const inscrever = useServerFn(inscreverEscala);
+  const resetAdmin = useServerFn(resetarEscalaAdmin);
+
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetSenha, setResetSenha] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
+
+  async function executarResetAdmin() {
+    if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
+    if (!resetSenha) return toast.error("Informe a senha");
+    setResetBusy(true);
+    try {
+      const r = await resetAdmin({ data: { empreendimento_id: form.empreendimento_id, senha: resetSenha } });
+      toast.success(`Escala resetada (${r.removidos} registro${r.removidos === 1 ? "" : "s"} removido${r.removidos === 1 ? "" : "s"}). Vagas abertas a partir de domingo.`);
+      setResetSenha("");
+      setResetOpen(false);
+      await refreshEscala(form.empreendimento_id);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao resetar escala");
+    } finally {
+      setResetBusy(false);
+    }
+  }
+
 
   type EscalaItem = { data: string; data_br: string; dia_semana: string; slot_id: string | null; corretor: { id: string; nome: string; creci: string | null } | null };
   type Escala = { feriados: string[]; escala: Array<{ equipe: string; itens: EscalaItem[] }> };
