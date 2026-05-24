@@ -76,6 +76,9 @@ function CorretoresPage() {
       const path = `${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (error) throw error;
+      // Bucket privado: armazenamos a URL pública legada apenas como referência
+      // do path; a leitura usa createSignedUrl. Persistir a URL pública mantém
+      // compatibilidade — o helper extrai o path automaticamente.
       const { data } = supabase.storage.from("corretores").getPublicUrl(path);
       setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
       toast.success("Foto enviada");
