@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation } from "lucide-react";
+import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X } from "lucide-react";
 
 type Metodo = "geofence" | "wifi" | "qrcode" | "pin";
 
@@ -27,6 +27,10 @@ type Emp = {
   metodos_presenca: Metodo[];
   pin_intervalo_min: number;
   qrcode_token: string | null;
+  logo_url: string | null;
+  cor_primaria: string | null;
+  cor_secundaria: string | null;
+  cor_destaque: string | null;
 };
 
 const METODOS: { key: Metodo; label: string; icon: any; desc: string }[] = [
@@ -87,6 +91,10 @@ function EmpreendimentosPage() {
       metodos_presenca: metodos,
       pin_intervalo_min: editing.pin_intervalo_min ?? 5,
       qrcode_token: editing.qrcode_token ?? null,
+      logo_url: editing.logo_url ?? null,
+      cor_primaria: editing.cor_primaria ?? null,
+      cor_secundaria: editing.cor_secundaria ?? null,
+      cor_destaque: editing.cor_destaque ?? null,
     };
     let err;
     if (editing.id) {
@@ -112,6 +120,28 @@ function EmpreendimentosPage() {
   function genQrToken() {
     const t = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
     setEditing((s) => ({ ...s, qrcode_token: t }));
+  }
+
+  async function uploadLogo(file: File) {
+    if (!file.type.startsWith("image/")) return toast.error("Envie uma imagem (PNG, JPG ou SVG)");
+    if (file.size > 4 * 1024 * 1024) return toast.error("Imagem deve ter no máximo 4MB");
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${editing?.id ?? "novo"}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("empreendimento-brand").upload(path, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type,
+    });
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("empreendimento-brand").getPublicUrl(path);
+    setEditing((s) => ({ ...s, logo_url: data.publicUrl }));
+    toast.success("Logo enviado");
+  }
+
+  function onDropLogo(e: React.DragEvent) {
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0];
+    if (f) uploadLogo(f);
   }
 
   const metodos = (editing?.metodos_presenca ?? ["geofence"]) as Metodo[];
@@ -223,6 +253,106 @@ function EmpreendimentosPage() {
                   </div>
                 )}
 
+                <div className="rounded-lg border border-border p-3 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Palette className="h-3.5 w-3.5" /> Identidade visual do empreendimento
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Personalize a roleta com a marca do empreendimento: logo e paleta de cores.
+                  </p>
+
+                  <div>
+                    <Label className="text-xs">Logo</Label>
+                    <div
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={onDropLogo}
+                      className="mt-1.5 flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/30 px-4 py-5 text-center transition hover:border-orange/50 hover:bg-orange/5"
+                    >
+                      {editing?.logo_url ? (
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={editing.logo_url}
+                            alt="Logo"
+                            className="h-16 w-16 rounded-md border border-border object-contain bg-white p-1"
+                          />
+                          <div className="text-left">
+                            <div className="text-xs text-muted-foreground">Logo atual</div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs text-destructive"
+                              onClick={() => setEditing((s) => ({ ...s, logo_url: null }))}
+                            >
+                              <X className="mr-1 h-3 w-3" /> Remover
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      )}
+                      <label className="cursor-pointer text-xs text-foreground hover:text-orange">
+                        <UploadCloud className="mr-1 inline h-3.5 w-3.5" />
+                        Arraste e solte ou <span className="font-semibold underline">clique para enviar</span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                          className="hidden"
+                          onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])}
+                        />
+                      </label>
+                      <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG ou WEBP — até 4MB</span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <ColorField
+                      label="Cor primária"
+                      value={editing?.cor_primaria ?? ""}
+                      onChange={(v) => setEditing((s) => ({ ...s, cor_primaria: v }))}
+                    />
+                    <ColorField
+                      label="Cor secundária"
+                      value={editing?.cor_secundaria ?? ""}
+                      onChange={(v) => setEditing((s) => ({ ...s, cor_secundaria: v }))}
+                    />
+                    <ColorField
+                      label="Cor de destaque"
+                      value={editing?.cor_destaque ?? ""}
+                      onChange={(v) => setEditing((s) => ({ ...s, cor_destaque: v }))}
+                    />
+                  </div>
+
+                  {(editing?.logo_url || editing?.cor_primaria || editing?.cor_secundaria || editing?.cor_destaque) && (
+                    <div
+                      className="mt-1 flex items-center gap-3 overflow-hidden rounded-md border border-border p-3"
+                      style={{
+                        background: editing?.cor_primaria
+                          ? `linear-gradient(135deg, ${editing.cor_primaria}, ${editing.cor_secundaria ?? editing.cor_primaria})`
+                          : undefined,
+                      }}
+                    >
+                      {editing?.logo_url && (
+                        <img src={editing.logo_url} alt="" className="h-10 w-10 rounded bg-white object-contain p-1" />
+                      )}
+                      <div className="flex-1">
+                        <div className="text-sm font-bold text-white drop-shadow">
+                          {editing?.nome || "Pré-visualização"}
+                        </div>
+                        <div
+                          className="inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                          style={{
+                            background: editing?.cor_destaque ?? "#fff",
+                            color: editing?.cor_primaria ?? "#000",
+                          }}
+                        >
+                          Roleta ao vivo
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
               </form>
             </DialogContent>
@@ -271,4 +401,27 @@ function EmpreendimentosPage() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
+}
+
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const v = value || "#000000";
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={v}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-9 cursor-pointer rounded border border-border bg-transparent"
+        />
+        <Input
+          placeholder="#FF6A00"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="font-mono text-xs uppercase"
+        />
+      </div>
+    </div>
+  );
 }

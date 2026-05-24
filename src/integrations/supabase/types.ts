@@ -323,6 +323,9 @@ export type Database = {
           ativo: boolean
           ciclo_roleta: string
           cnpj: string | null
+          cor_destaque: string | null
+          cor_primaria: string | null
+          cor_secundaria: string | null
           created_at: string
           criado_por: string | null
           endereco: string | null
@@ -337,6 +340,7 @@ export type Database = {
           id: string
           ip_homologado: string | null
           latitude: number | null
+          logo_url: string | null
           longitude: number | null
           metodos_presenca: string[]
           nome: string
@@ -354,6 +358,9 @@ export type Database = {
           ativo?: boolean
           ciclo_roleta?: string
           cnpj?: string | null
+          cor_destaque?: string | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
@@ -368,6 +375,7 @@ export type Database = {
           id?: string
           ip_homologado?: string | null
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           metodos_presenca?: string[]
           nome: string
@@ -385,6 +393,9 @@ export type Database = {
           ativo?: boolean
           ciclo_roleta?: string
           cnpj?: string | null
+          cor_destaque?: string | null
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
           created_at?: string
           criado_por?: string | null
           endereco?: string | null
@@ -399,6 +410,7 @@ export type Database = {
           id?: string
           ip_homologado?: string | null
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           metodos_presenca?: string[]
           nome?: string
