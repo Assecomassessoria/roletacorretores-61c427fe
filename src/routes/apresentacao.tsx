@@ -75,12 +75,38 @@ export function ApresentacaoPage() {
           </div>
           <div className="relative">
             <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-orange/30 via-transparent to-transparent blur-2xl" />
-            <img
-              src={heroImg}
-              alt="Narrativa Elite 4.0: solução, dor e cura"
-              className="relative rounded-2xl border-2 border-orange/40 shadow-2xl"
-            />
+            <div className="relative overflow-hidden rounded-2xl border-2 border-orange/40 shadow-2xl">
+              <img
+                src={heroImg}
+                alt="Narrativa Elite 4.0: a solução, o caos e a organização"
+                className="block w-full"
+              />
+              {/* Banner PT-BR cobrindo o rodapé em inglês da imagem */}
+              <div className="absolute inset-x-0 bottom-0 grid grid-cols-3 bg-navy-deep/95 backdrop-blur-sm border-t border-orange/40">
+                {[
+                  { t: "A Solução", s: "Um primeiro passo sem atrito" },
+                  { t: "O Caos", s: "Confusão. Conflito. Sem clareza." },
+                  { t: "A Organização", s: "Transparência. Confiança. Tecnologia." },
+                ].map((b, i) => (
+                  <div
+                    key={b.t}
+                    className={
+                      "px-3 py-3 text-center " +
+                      (i < 2 ? "border-r border-orange/30 " : "")
+                    }
+                  >
+                    <div className="font-display text-[11px] sm:text-sm font-bold uppercase tracking-wider text-orange leading-tight">
+                      {b.t}
+                    </div>
+                    <div className="mt-1 text-[9px] sm:text-[11px] text-cream/80 leading-tight">
+                      {b.s}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+
         </div>
       </section>
 
