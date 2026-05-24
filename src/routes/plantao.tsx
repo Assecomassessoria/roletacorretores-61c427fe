@@ -70,6 +70,9 @@ function PlantaoPage() {
   const [escala, setEscala] = useState<Escala | null>(null);
   const [equipeSel, setEquipeSel] = useState<"alfa" | "beta">("alfa");
   const [escalaBusy, setEscalaBusy] = useState(false);
+  const [escalaNome, setEscalaNome] = useState("");
+  const [escalaData, setEscalaData] = useState<string>("");
+
 
   const [emps, setEmps] = useState<Emp[]>([]);
   const [form, setForm] = useState({ empreendimento_id: "", creci: "", senha: "", wifi_ssid: "", pin: "" });
@@ -99,11 +102,14 @@ function PlantaoPage() {
 
   async function inscreverNaEscala() {
     if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
-    if (!form.creci || !form.senha) return toast.error("Informe CRECI e senha primeiro");
+    if (!escalaNome.trim()) return toast.error("Digite seu nome");
+    if (!escalaData) return toast.error("Selecione o dia da semana");
     setEscalaBusy(true);
     try {
-      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, creci: form.creci, senha: form.senha } });
-      toast.success(r.ja_inscrito ? `Já escalado em ${r.data_br} (${r.dia_semana})` : `Escalado para ${r.data_br} — ${r.dia_semana}`);
+      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData } });
+      toast.success(r.ja_inscrito ? `${r.corretor_nome} já está em ${r.data_br} (${r.dia_semana})` : `${r.corretor_nome} escalado(a) para ${r.data_br} — ${r.dia_semana}`);
+      setEscalaNome("");
+      setEscalaData("");
       await refreshEscala(form.empreendimento_id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao entrar na escala");
@@ -111,6 +117,7 @@ function PlantaoPage() {
       setEscalaBusy(false);
     }
   }
+
 
 
   useEffect(() => {
@@ -330,16 +337,46 @@ function PlantaoPage() {
                       </table>
                     </div>
                   ))}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  onClick={inscreverNaEscala}
-                  disabled={escalaBusy}
-                >
-                  {escalaBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarDays className="mr-2 h-4 w-4" />}
-                  Entrar na escala (Equipe {equipeSel.toUpperCase()})
-                </Button>
+                <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/20 p-3">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Seu nome</Label>
+                      <Input
+                        className="h-8 text-xs"
+                        placeholder="Nome do corretor"
+                        value={escalaNome}
+                        onChange={(e) => setEscalaNome(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Dia da semana</Label>
+                      <Select value={escalaData} onValueChange={setEscalaData}>
+                        <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione um dia" /></SelectTrigger>
+                        <SelectContent>
+                          {escala.escala
+                            .filter((e) => e.equipe === equipeSel)
+                            .flatMap((e) => e.itens)
+                            .map((i) => (
+                              <SelectItem key={i.data} value={i.data} disabled={!!i.corretor}>
+                                {i.dia_semana} · {i.data_br}{i.corretor ? " (ocupado)" : ""}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    onClick={inscreverNaEscala}
+                    disabled={escalaBusy}
+                  >
+                    {escalaBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarDays className="mr-2 h-4 w-4" />}
+                    Entrar na escala (Equipe {equipeSel.toUpperCase()})
+                  </Button>
+                </div>
+
               </>
             )}
           </section>
