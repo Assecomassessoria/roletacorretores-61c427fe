@@ -91,6 +91,10 @@ function EmpreendimentosPage() {
       metodos_presenca: metodos,
       pin_intervalo_min: editing.pin_intervalo_min ?? 5,
       qrcode_token: editing.qrcode_token ?? null,
+      logo_url: editing.logo_url ?? null,
+      cor_primaria: editing.cor_primaria ?? null,
+      cor_secundaria: editing.cor_secundaria ?? null,
+      cor_destaque: editing.cor_destaque ?? null,
     };
     let err;
     if (editing.id) {
