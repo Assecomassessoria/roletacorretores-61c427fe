@@ -142,11 +142,16 @@ function MesaTriagem() {
         },
       });
       const corresp = OPCOES.find((o) => o.codigo === r.opcao.codigo)!;
+      const corretorNome = r.corretor?.nome
+        ? `${r.corretor.nome} (${r.corretor.atendimentos_semana} atend./sem)`
+        : corresp.codigo === "B"
+          ? "Sem presença confirmada"
+          : corresp.codigo === "D" ? "Coordenador" : "Designado";
       const linha: LogRow = {
         hora: new Date().toLocaleTimeString("pt-BR"),
         cliente: cliente.trim() || "Visitante",
         opcao: corresp.codigo,
-        corretor: corresp.codigo === "B" ? "Próximo da fila" : corresp.codigo === "D" ? "Coordenador" : "Designado",
+        corretor: corretorNome,
         regra: `${corresp.titulo} • action=${corresp.action}`,
       };
       setLog((l) => [linha, ...l].slice(0, 50));
