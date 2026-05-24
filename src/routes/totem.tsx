@@ -226,6 +226,8 @@ function TotemPage() {
             empNome={empreendimentos.find(e => e.id === empId)?.nome ?? "—"}
             onPick={(op) => { setOpcao(op); setMode("form"); }}
             onScan={() => setMode("scanner")}
+            onReencontro={() => setMode("reencontro")}
+            onGerencia={() => setMode("gerencia")}
           />
         )}
 
