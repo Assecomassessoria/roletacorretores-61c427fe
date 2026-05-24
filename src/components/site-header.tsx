@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
@@ -8,6 +8,7 @@ type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" |
 
 const NAV_TOP: Nav[] = [
   { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
   { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
   { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
 ];
