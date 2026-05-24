@@ -246,6 +246,13 @@ function PlantaoPage() {
             </div>
 
             <div className="mt-4 space-y-1">
+              {result.corretor.foto_url && (
+                <img
+                  src={result.corretor.foto_url}
+                  alt={result.corretor.nome}
+                  className="mx-auto mb-2 h-20 w-20 rounded-full border-2 border-primary/30 object-cover"
+                />
+              )}
               <div className="font-display text-xl font-bold text-foreground">{result.corretor.nome}</div>
               {result.corretor.telefone && (
                 <div className="text-sm text-muted-foreground">WhatsApp: {result.corretor.telefone}</div>
@@ -257,6 +264,23 @@ function PlantaoPage() {
                 {result.empreendimento.nome}
               </div>
             </div>
+
+            {result.checks.length > 0 && (
+              <ul className="mt-5 space-y-1.5 rounded-md border border-border bg-muted/30 p-3 text-left text-xs">
+                <li className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Critérios verificados
+                </li>
+                {result.checks.map((c) => (
+                  <li key={c.metodo} className="flex items-start gap-2">
+                    <span className={`mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full ${c.ok ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+                    <span className="flex-1">
+                      <strong className="text-foreground">{METODO_LABEL[c.metodo] ?? c.metodo}:</strong>{" "}
+                      <span className={c.ok ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}>{c.detalhe}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               <Button variant="outline" onClick={reset}>
