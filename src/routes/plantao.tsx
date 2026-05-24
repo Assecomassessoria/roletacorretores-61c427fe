@@ -418,10 +418,75 @@ function PlantaoPage() {
                   </Button>
                 </div>
 
+                {/* RESET ADMINISTRATIVO — Gerência / Coordenação */}
+                {form.empreendimento_id && (
+                  <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-4">
+                    {!resetOpen ? (
+                      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                          <span>
+                            <strong className="text-destructive">Gerência / Coordenação:</strong> resetar a escala
+                            semanal manualmente (apaga todas as inscrições e libera as vagas imediatamente).
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                          onClick={() => setResetOpen(true)}
+                        >
+                          <RotateCcw className="mr-2 h-3.5 w-3.5" /> Reset administrativo
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+                          <ShieldAlert className="h-4 w-4" /> Confirmar reset da escala semanal
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Esta ação é irreversível. Digite a senha de Gerência/Coordenação para confirmar.
+                        </p>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Input
+                            type="password"
+                            placeholder="Senha da Gerência"
+                            value={resetSenha}
+                            onChange={(e) => setResetSenha(e.target.value)}
+                            autoComplete="off"
+                            className="sm:flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            disabled={resetBusy}
+                            onClick={executarResetAdmin}
+                          >
+                            {resetBusy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="mr-2 h-3.5 w-3.5" />}
+                            Confirmar reset
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={resetBusy}
+                            onClick={() => { setResetOpen(false); setResetSenha(""); }}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </>
             )}
           </section>
         )}
+
 
         {result && (
           <div className="rounded-lg border border-primary/40 bg-card p-6 text-center shadow-sm">
