@@ -70,6 +70,9 @@ function PlantaoPage() {
   const [escala, setEscala] = useState<Escala | null>(null);
   const [equipeSel, setEquipeSel] = useState<"alfa" | "beta">("alfa");
   const [escalaBusy, setEscalaBusy] = useState(false);
+  const [escalaNome, setEscalaNome] = useState("");
+  const [escalaData, setEscalaData] = useState<string>("");
+
 
   const [emps, setEmps] = useState<Emp[]>([]);
   const [form, setForm] = useState({ empreendimento_id: "", creci: "", senha: "", wifi_ssid: "", pin: "" });
