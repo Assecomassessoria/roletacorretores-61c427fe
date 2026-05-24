@@ -8,6 +8,7 @@ type Nav = { label: string; to: string; tone?: "default" | "orange" | "gold" };
 
 const NAV_PUBLIC: Nav[] = [
   { label: "ÁREA DO CORRETOR", to: "/corretor", tone: "orange" },
+  { label: "PLANTÃO / PRESENÇA", to: "/plantao", tone: "orange" },
   { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia" },
   { label: "INCORPORADORA (SETUP)", to: "/setup", tone: "gold" },
 ];
