@@ -7,7 +7,7 @@ import { useNavigate } from "@tanstack/react-router";
 type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" };
 
 const NAV_TOP: Nav[] = [
-  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
   { label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
   { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
   { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
@@ -105,7 +105,7 @@ export function SiteHeader() {
                               (n.tone === "orange"
                                 ? "border-orange/60 bg-orange text-orange-foreground hover:bg-orange/90"
                                 : n.tone === "gold"
-                                  ? "border-gold/60 bg-gold text-gold-foreground hover:bg-gold/90 shadow-md shadow-gold/20"
+                                  ? "border-gold/60 text-gold-foreground shadow-md shadow-gold/20 gold-shimmer hover:brightness-110"
                                   : "border-white/20 bg-white/5 text-cream/90 hover:border-orange/60 hover:text-cream hover:bg-white/10")
                             }
                           >
