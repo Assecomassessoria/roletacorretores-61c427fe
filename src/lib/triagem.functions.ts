@@ -38,7 +38,7 @@ export const registrarTriagem = createServerFn({ method: "POST" })
     let corretorEscolhido: { id: string; nome: string; atendimentos_semana: number } | null = null;
     let atendimentoId: string | null = null;
 
-    if (opcao.action === "roleta") {
+    if (opcao.action === "roleta" || opcao.action === "alocar_roleta") {
       const today = new Date().toISOString().slice(0, 10);
       const wkRef = new Date();
       wkRef.setDate(wkRef.getDate() - wkRef.getDay()); // domingo
