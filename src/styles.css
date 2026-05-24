@@ -53,6 +53,7 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-orange: var(--orange);
   --color-orange-foreground: var(--orange-foreground);
+  --color-cream: var(--cream);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-chart-1: var(--chart-1);
@@ -102,6 +103,7 @@
   --gold-foreground: oklch(0.18 0.04 260);
   --orange: oklch(0.72 0.18 55);
   --orange-foreground: oklch(0.98 0.005 250);
+  --cream: oklch(0.96 0.02 85);
   --success: oklch(0.62 0.16 150);
   --warning: oklch(0.78 0.17 75);
   --chart-1: oklch(0.72 0.18 55);
