@@ -14,6 +14,7 @@ import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react"
 import { useServerFn } from "@tanstack/react-start";
 import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
 import { QRCodeCanvas } from "qrcode.react";
+import { SignedImg } from "@/components/signed-img";
 
 type Corretor = {
   id: string;
