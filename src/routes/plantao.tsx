@@ -102,6 +102,7 @@ function PlantaoPage() {
       })) as CheckInResult;
       setResult(r);
       toast.success(`Presença confirmada por ${r.metodo}`);
+      await refreshRoleta(r.empreendimento.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao confirmar presença");
     } finally {
@@ -109,8 +110,21 @@ function PlantaoPage() {
     }
   }
 
+  async function refreshRoleta(empId: string) {
+    setLoadingRoleta(true);
+    try {
+      const r = (await carregarRoleta({ data: { empreendimento_id: empId } })) as RoletaDia;
+      setRoleta(r);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao carregar roleta");
+    } finally {
+      setLoadingRoleta(false);
+    }
+  }
+
   function reset() {
     setResult(null);
+    setRoleta(null);
     setForm((s) => ({ ...s, senha: "", pin: "" }));
   }
 
