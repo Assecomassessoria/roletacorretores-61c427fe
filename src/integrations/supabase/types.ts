@@ -857,6 +857,7 @@ export type Database = {
           opcao_codigo: string
           origem: string
           payload: Json | null
+          status: string
         }
         Insert: {
           acao: string
@@ -870,6 +871,7 @@ export type Database = {
           opcao_codigo: string
           origem?: string
           payload?: Json | null
+          status?: string
         }
         Update: {
           acao?: string
@@ -883,6 +885,7 @@ export type Database = {
           opcao_codigo?: string
           origem?: string
           payload?: Json | null
+          status?: string
         }
         Relationships: [
           {
@@ -960,6 +963,17 @@ export type Database = {
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_master_email: { Args: { _email: string }; Returns: boolean }
       reset_escala_semanal: { Args: never; Returns: undefined }
+      triagem_status_publico: {
+        Args: { _triagem_id: string }
+        Returns: {
+          atendimento_id: string
+          cliente_nome: string
+          created_at: string
+          id: string
+          opcao_codigo: string
+          status: string
+        }[]
+      }
       user_in_empreendimento: {
         Args: { _emp: string; _uid: string }
         Returns: boolean
