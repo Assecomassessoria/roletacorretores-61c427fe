@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   ScanLine, UserPlus, QrCode, Briefcase, HandshakeIcon, Lock, ArrowLeft,
   CheckCircle2, Loader2, Camera, RefreshCw, Building2, SearchX, Phone, MessageCircle, Shield,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
