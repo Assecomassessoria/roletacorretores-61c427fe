@@ -335,7 +335,7 @@ function EmpreendimentosPage() {
                       }}
                     >
                       {editing?.logo_url && (
-                        <img src={editing.logo_url} alt="" className="h-10 w-10 rounded bg-white object-contain p-1" />
+                        <SignedImg bucket="empreendimento-brand" src={editing.logo_url} className="h-10 w-10 rounded bg-white object-contain p-1" />
                       )}
                       <div className="flex-1">
                         <div className="text-sm font-bold text-white drop-shadow">
