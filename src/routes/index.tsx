@@ -65,8 +65,14 @@ function CountdownCell({ value, label }: { value: number; label: string }) {
 /* ---------- Page ---------- */
 function Landing() {
   const c = useCountdown();
+  const assinatura = useAssinatura();
   const [plano, setPlano] = useState<"auto" | "padrao">("auto");
   const [form, setForm] = useState({ nome: "", imobiliaria: "", cpf: "", whatsapp: "", email: "" });
+
+  // Assinante ativo (fora da janela de renovação) vai direto pro painel.
+  if (!assinatura.loading && assinatura.status === "ativa") {
+    return <Navigate to="/app" />;
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
