@@ -402,3 +402,26 @@ function EmpreendimentosPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
 }
+
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const v = value || "#000000";
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={v}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-9 cursor-pointer rounded border border-border bg-transparent"
+        />
+        <Input
+          placeholder="#FF6A00"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="font-mono text-xs uppercase"
+        />
+      </div>
+    </div>
+  );
+}
