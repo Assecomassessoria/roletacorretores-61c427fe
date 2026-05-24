@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2 } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
@@ -13,6 +13,7 @@ const NAV_TOP: Nav[] = [
 ];
 
 const NAV_BOTTOM: Nav[] = [
+  { label: "🛎️ RECEPÇÃO & TRIAGEM", to: "/atendimentos", icon: BellRing, tone: "orange" },
   { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
   { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
   { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
