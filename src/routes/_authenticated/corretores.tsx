@@ -195,7 +195,7 @@ function CorretoresPage() {
                   >
                     {editing?.foto_url ? (
                       <div className="relative">
-                        <img src={editing.foto_url} alt="" className="h-16 w-16 rounded-full object-cover" />
+                        <SignedImg bucket="corretores" src={editing.foto_url} className="h-16 w-16 rounded-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setEditing((s) => ({ ...s, foto_url: null }))}
