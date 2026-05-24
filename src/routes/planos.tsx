@@ -92,6 +92,11 @@ const PLANOS = [
 ];
 
 function Planos() {
+  const assinatura = useAssinatura();
+  // Assinante já ativo (sem janela de renovação) não precisa ver planos.
+  if (!assinatura.loading && assinatura.status === "ativa") {
+    return <Navigate to="/app" />;
+  }
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
