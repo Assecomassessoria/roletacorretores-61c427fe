@@ -124,8 +124,67 @@ function TotemPage() {
     setMode("menu");
     setQrUrl(null);
     setResult(null);
-    setNome(""); setWhats("");
+    setReencontroData(null);
+    setNome(""); setWhats(""); setEmail("");
+    setCorretorNome(""); setCorretorWhats(""); setCorretorCreci("");
+    setMotivoGerencia("");
   }
+
+  async function submeterReencontro() {
+    if (!empId) return toast.error("Selecione o stand");
+    if (nome.trim().length < 2) return toast.error("Informe seu nome");
+    if (whats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp inválido");
+    if (corretorNome.trim().length < 2) return toast.error("Informe o nome do corretor");
+    if (corretorWhats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp do corretor inválido");
+    if (corretorCreci.trim().length < 2) return toast.error("Informe o CRECI do corretor");
+    setBusy(true);
+    try {
+      const r = await reencontrar({
+        data: {
+          empreendimento_id: empId,
+          cliente_nome: nome.trim(),
+          cliente_telefone: whats.trim(),
+          cliente_email: email.trim() ? email.trim() : null,
+          corretor_nome: corretorNome.trim(),
+          corretor_whatsapp: corretorWhats.trim(),
+          corretor_creci: corretorCreci.trim(),
+        },
+      });
+      setReencontroData(r);
+      setMode("reencontroResult");
+      // Se em plantão, abre WhatsApp automaticamente em nova aba
+      if (r.em_plantao && r.whatsapp_url && typeof window !== "undefined") {
+        window.open(r.whatsapp_url, "_blank", "noopener,noreferrer");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao registrar");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submeterGerencia() {
+    if (!empId) return toast.error("Selecione o stand");
+    if (nome.trim().length < 2) return toast.error("Informe seu nome");
+    if (whats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp inválido");
+    setBusy(true);
+    try {
+      await solicitarGerencia({
+        data: {
+          empreendimento_id: empId,
+          cliente_nome: nome.trim(),
+          cliente_telefone: whats.trim(),
+          motivo: motivoGerencia.trim() || null,
+        },
+      });
+      setMode("gerenciaResult");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao registrar");
+    } finally {
+      setBusy(false);
+    }
+  }
+
 
   function abrirStaff() {
     const senha = staffPass.trim();
