@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ChevronRight, Headphones, Mail, Phone, Sparkles, User, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import lorenzaImg from "@/assets/lorenza.jpg";
+import { useAssinatura } from "@/lib/use-assinatura";
 
 export const Route = createFileRoute("/")({
   component: Landing,
