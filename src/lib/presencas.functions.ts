@@ -16,11 +16,7 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
 
     let q = supabase
       .from("plantoes")
-      .select(
-        "id, data, hora_inicio, hora_fim, status, presenca_confirmada_em, presenca_lat, presenca_lng, " +
-          "corretor:corretores!plantoes_corretor_id_fkey(id, nome, creci, telefone, foto_url), " +
-          "empreendimento:empreendimentos!plantoes_empreendimento_id_fkey(id, nome, metodos_presenca, wifi_ssid, latitude, longitude, raio_metros)"
-      )
+      .select("id, data, hora_inicio, hora_fim, status, presenca_confirmada_em, presenca_lat, presenca_lng, corretor_id, empreendimento_id")
       .eq("data", dia)
       .not("presenca_confirmada_em", "is", null)
       .order("presenca_confirmada_em", { ascending: false });
@@ -28,9 +24,24 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
 
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
+    const list = rows ?? [];
 
-    // Buscar logs de auditoria recentes
-    const ids = (rows ?? []).map((r) => `plantao:${r.id}`);
+    const corretorIds = Array.from(new Set(list.map((r) => r.corretor_id).filter(Boolean)));
+    const empIds = Array.from(new Set(list.map((r) => r.empreendimento_id).filter(Boolean)));
+
+    const [{ data: corretores }, { data: emps }] = await Promise.all([
+      corretorIds.length
+        ? supabase.from("corretores").select("id, nome, creci, telefone, foto_url").in("id", corretorIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; nome: string; creci: string | null; telefone: string | null; foto_url: string | null }> }),
+      empIds.length
+        ? supabase.from("empreendimentos").select("id, nome, metodos_presenca, wifi_ssid, latitude, longitude, raio_metros").in("id", empIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; nome: string; metodos_presenca: string[] | null; wifi_ssid: string | null; latitude: number | null; longitude: number | null; raio_metros: number | null }> }),
+    ]);
+
+    const cMap = new Map((corretores ?? []).map((c) => [c.id, c]));
+    const eMap = new Map((emps ?? []).map((e) => [e.id, e]));
+
+    const ids = list.map((r) => `plantao:${r.id}`);
     let audits: Array<{ recurso: string | null; detalhes: unknown; created_at: string }> = [];
     if (ids.length > 0) {
       const { data: a } = await supabase
@@ -58,8 +69,8 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
 
     return {
       data: dia,
-      total: rows?.length ?? 0,
-      presencas: (rows ?? []).map((r) => ({
+      total: list.length,
+      presencas: list.map((r) => ({
         plantao_id: r.id,
         confirmado_em: r.presenca_confirmada_em,
         status: r.status,
@@ -67,8 +78,8 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
         hora_fim: r.hora_fim,
         lat: r.presenca_lat,
         lng: r.presenca_lng,
-        corretor: r.corretor,
-        empreendimento: r.empreendimento,
+        corretor: cMap.get(r.corretor_id) ?? null,
+        empreendimento: eMap.get(r.empreendimento_id) ?? null,
         auditoria: auditByPlantao.get(r.id) ?? null,
       })),
     };
