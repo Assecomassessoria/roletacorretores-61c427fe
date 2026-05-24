@@ -273,7 +273,79 @@ function PlantaoPage() {
               Confirmar presença & entrar na roleta
             </Button>
           </form>
-        ) : (
+        ) : null}
+
+        {!result && (
+          <section className="mt-6 rounded-lg border border-border bg-card p-5 shadow-sm">
+            <header className="mb-3 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                <h2 className="font-display text-base font-bold text-foreground">Escala Semanal</h2>
+              </div>
+              <Select value={equipeSel} onValueChange={(v) => setEquipeSel(v as "alfa" | "beta")}>
+                <SelectTrigger className="h-8 w-[150px] text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alfa">Equipe Alfa</SelectItem>
+                  <SelectItem value="beta">Equipe Beta</SelectItem>
+                </SelectContent>
+              </Select>
+            </header>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Confirme sua presença no stand e entre automaticamente na roleta do dia. Escalado para validação — segunda a sexta (sábado, domingo e feriados ficam fora).
+            </p>
+            {!form.empreendimento_id ? (
+              <div className="rounded-md border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+                Selecione um empreendimento acima para ver a escala.
+              </div>
+            ) : !escala ? (
+              <div className="flex items-center justify-center py-4 text-xs text-muted-foreground">
+                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Carregando escala…
+              </div>
+            ) : (
+              <>
+                {escala.escala
+                  .filter((e) => e.equipe === equipeSel)
+                  .map((e) => (
+                    <div key={e.equipe} className="overflow-hidden rounded-md border border-border">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/50 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          <tr>
+                            <th className="px-3 py-2 text-left">Nome</th>
+                            <th className="px-3 py-2 text-left">Data</th>
+                            <th className="px-3 py-2 text-left">Dia</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {e.itens.map((i) => (
+                            <tr key={i.data}>
+                              <td className="px-3 py-2 font-medium text-foreground">
+                                {i.corretor ? i.corretor.nome : <span className="text-muted-foreground italic">— vaga aberta —</span>}
+                                {i.corretor?.creci && <span className="ml-1 text-muted-foreground">· CRECI {i.corretor.creci}</span>}
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">{i.data_br}</td>
+                              <td className="px-3 py-2 text-muted-foreground">{i.dia_semana}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={inscreverNaEscala}
+                  disabled={escalaBusy}
+                >
+                  {escalaBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarDays className="mr-2 h-4 w-4" />}
+                  Entrar na escala (Equipe {equipeSel.toUpperCase()})
+                </Button>
+              </>
+            )}
+          </section>
+        )}
+
+        {result && (
           <div className="rounded-lg border border-primary/40 bg-card p-6 text-center shadow-sm">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
               <ShieldCheck className="h-3.5 w-3.5" /> Presença confirmada via {result.metodo}
