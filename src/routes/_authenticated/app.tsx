@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { AlertTriangle, ArrowRight, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
@@ -24,6 +26,7 @@ const CARDS: CardDef[] = [
   { to: "/atendimentos", title: "Atendimentos", desc: "Histórico filtrável por cliente e CNPJ.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/integracoes", title: "Integrações CRM", desc: "Webhooks Zapier, Make, n8n, CRM próprio.", roles: ["incorporadora", "gerente"] },
   { to: "/usuarios", title: "Usuários & Papéis", desc: "Atribua acesso a novos membros.", roles: ["incorporadora", "gerente", "coordenador"] },
+  { to: "/mensagens", title: "Central de Comunicados", desc: "Envie pelo sistema, WhatsApp manual, impressão ou PDF.", roles: ["incorporadora", "gerente", "coordenador"] },
 ];
 
 function AppDashboard() {
@@ -61,6 +64,8 @@ function AppDashboard() {
         </div>
       )}
 
+      <AvisosAtivos />
+
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((c) => (
           <CardLink key={c.to} to={c.to} title={c.title} desc={c.desc} />
@@ -85,5 +90,41 @@ function CardLink({ to, title, desc }: { to: string; title: string; desc: string
       <h3 className="text-sm font-semibold group-hover:text-orange">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
     </Link>
+  );
+}
+
+type Aviso = { id: string; titulo: string; corpo: string; created_at: string };
+
+function AvisosAtivos() {
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
+  useEffect(() => {
+    supabase
+      .from("mensagens")
+      .select("id,titulo,corpo,created_at")
+      .eq("ativa", true)
+      .order("created_at", { ascending: false })
+      .limit(3)
+      .then(({ data }) => setAvisos((data ?? []) as Aviso[]));
+  }, []);
+  if (avisos.length === 0) return null;
+  return (
+    <section className="mt-6 rounded-xl border border-orange/30 bg-orange/5 p-4">
+      <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange">
+        <Megaphone className="h-4 w-4" /> Avisos do plantão
+      </div>
+      <ul className="space-y-2">
+        {avisos.map((a) => (
+          <li key={a.id} className="rounded-md bg-background/60 p-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold">{a.titulo}</span>
+              <span className="text-[11px] text-muted-foreground">
+                {new Date(a.created_at).toLocaleString("pt-BR")}
+              </span>
+            </div>
+            <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{a.corpo}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
