@@ -52,10 +52,10 @@ const scenes = [
 
 function Apresentacao() {
   const navigate = useNavigate();
-  const { data: assinatura } = useAssinatura();
+  const assinatura = useAssinatura();
 
   // Assinante ativo → não vê a capa, vai direto para o app
-  if (assinatura?.status === "ativa") {
+  if (assinatura.status === "ativa") {
     return <Navigate to="/app" />;
   }
 
