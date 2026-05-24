@@ -273,6 +273,39 @@ function TotemPage() {
         {mode === "result" && result && (
           <ResultView result={result} onBack={reset} />
         )}
+
+        {mode === "reencontro" && (
+          <ReencontroForm
+            nome={nome} setNome={setNome}
+            whats={whats} setWhats={setWhats}
+            email={email} setEmail={setEmail}
+            corretorNome={corretorNome} setCorretorNome={setCorretorNome}
+            corretorWhats={corretorWhats} setCorretorWhats={setCorretorWhats}
+            corretorCreci={corretorCreci} setCorretorCreci={setCorretorCreci}
+            busy={busy}
+            onSubmit={submeterReencontro}
+            onBack={() => setMode("menu")}
+          />
+        )}
+
+        {mode === "reencontroResult" && reencontroData && (
+          <ReencontroResult data={reencontroData} onBack={reset} />
+        )}
+
+        {mode === "gerencia" && (
+          <GerenciaForm
+            nome={nome} setNome={setNome}
+            whats={whats} setWhats={setWhats}
+            motivo={motivoGerencia} setMotivo={setMotivoGerencia}
+            busy={busy}
+            onSubmit={submeterGerencia}
+            onBack={() => setMode("menu")}
+          />
+        )}
+
+        {mode === "gerenciaResult" && (
+          <GerenciaResult nome={nome} onBack={reset} />
+        )}
       </main>
 
       {/* RODAPÉ — acesso restrito staff */}
