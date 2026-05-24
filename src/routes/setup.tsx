@@ -36,6 +36,7 @@ function SetupDemo() {
   const [nome, setNome] = useState("");
   const [empresa, setEmpresa] = useState("");
   const [documento, setDocumento] = useState("");
+  const [cnpjEmp, setCnpjEmp] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -52,6 +53,7 @@ function SetupDemo() {
       await cadastrar({
         data: {
           nome, empresa: empresa || null, documento: documento || null,
+          cnpj_empreendimento: cnpjEmp || null,
           telefone: telefone || null, email, senha, role,
         },
       });
@@ -86,21 +88,28 @@ function SetupDemo() {
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
-          <Field label="Nome do Contato">
+          <Field label="Nome do Receptor">
             <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Pedro de Alcântara" />
           </Field>
           <Field label="Imobiliária / Stand">
             <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Ex: Elite Imóveis Stand Sul" />
           </Field>
-          <Field label="CPF ou CNPJ do Stand">
-            <Input value={documento} onChange={(e) => setDocumento(e.target.value)} placeholder="000.000.000-00 ou 00.000.000/0001-00" />
-          </Field>
-          <Field label="WhatsApp de Contato">
-            <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="Ex: 5511999999999" />
-          </Field>
-          <Field label="E-mail Corporativo">
-            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="comercial@elite.com" />
-          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="CNPJ do Empreendimento">
+              <Input value={cnpjEmp} onChange={(e) => setCnpjEmp(e.target.value)} placeholder="00.000.000/0001-00" />
+            </Field>
+            <Field label="CPF do Receptor">
+              <Input value={documento} onChange={(e) => setDocumento(e.target.value)} placeholder="000.000.000-00" />
+            </Field>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="WhatsApp do Receptor">
+              <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="Ex: 5511999999999" />
+            </Field>
+            <Field label="E-mail Administrativo">
+              <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="comercial@elite.com" />
+            </Field>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Senha de Acesso">
