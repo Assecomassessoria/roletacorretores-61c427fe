@@ -142,11 +142,16 @@ function MesaTriagem() {
         },
       });
       const corresp = OPCOES.find((o) => o.codigo === r.opcao.codigo)!;
+      const corretorNome = r.corretor?.nome
+        ? `${r.corretor.nome} (${r.corretor.atendimentos_semana} atend./sem)`
+        : corresp.codigo === "B"
+          ? "Sem presença confirmada"
+          : corresp.codigo === "D" ? "Coordenador" : "Designado";
       const linha: LogRow = {
         hora: new Date().toLocaleTimeString("pt-BR"),
         cliente: cliente.trim() || "Visitante",
         opcao: corresp.codigo,
-        corretor: corresp.codigo === "B" ? "Próximo da fila" : corresp.codigo === "D" ? "Coordenador" : "Designado",
+        corretor: corretorNome,
         regra: `${corresp.titulo} • action=${corresp.action}`,
       };
       setLog((l) => [linha, ...l].slice(0, 50));
@@ -161,6 +166,8 @@ function MesaTriagem() {
             opcao: corresp.codigo,
             label: corresp.titulo,
             action: corresp.action,
+            corretor_designado: r.corretor ?? null,
+            atendimento_id: r.atendimento_id ?? null,
             cliente: cliente.trim() || null,
             whatsapp: whats.trim(),
             empreendimento: emp.nome,
@@ -169,7 +176,11 @@ function MesaTriagem() {
           2,
         ),
       );
-      toast.success("Triagem registrada e webhook disparado.");
+      if (corresp.codigo === "B" && r.corretor) {
+        toast.success(`Encaminhado para ${r.corretor.nome} (fila justa).`);
+      } else {
+        toast.success("Triagem registrada e webhook disparado.");
+      }
       setCliente(""); setWhats(""); setEmail(""); setLgpd(false);
       setTimeout(() => setStand("aguardando"), 4000);
     } catch (e) {
