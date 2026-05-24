@@ -244,7 +244,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       (ps ?? []).some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
     );
 
-    const fila = presentes
+    const filaBase = presentes
       .map((c) => ({
         id: c.id,
         nome: c.nome,
@@ -255,6 +255,8 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         ordem_roleta: c.ordem_roleta ?? 0,
       }))
       .sort((a, b) => a.atendimentos_semana - b.atendimentos_semana || a.ordem_roleta - b.ordem_roleta);
+
+    const fila = await Promise.all(filaBase.map(async (c) => ({ ...c, foto_url: await signFoto(c.foto_url) })));
 
     return {
       empreendimento: emp,
