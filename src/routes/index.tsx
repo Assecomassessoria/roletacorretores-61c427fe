@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import lorenzaImg from "@/assets/lorenza.jpg";
+import lorenzaImg from "@/assets/lorenza.png";
 import { useAssinatura } from "@/lib/use-assinatura";
 
 export const Route = createFileRoute("/")({
