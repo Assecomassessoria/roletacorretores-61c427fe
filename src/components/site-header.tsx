@@ -1,18 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
 
-type Nav = { label: string; to: string; tone?: "default" | "orange" | "gold" };
+type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" };
 
-const NAV_PUBLIC: Nav[] = [
-  { label: "APRESENTAÇÃO", to: "/apresentacao", tone: "gold" },
-  { label: "ÁREA DO CORRETOR", to: "/corretor", tone: "orange" },
-  { label: "PLANTÃO / PRESENÇA", to: "/plantao", tone: "orange" },
-  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia" },
-  { label: "INCORPORADORA (SETUP)", to: "/setup", tone: "gold" },
+const NAV_TOP: Nav[] = [
+  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
+  { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
 ];
+
+const NAV_BOTTOM: Nav[] = [
+  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
+  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
+  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+];
+
 
 
 export function SiteHeader() {
