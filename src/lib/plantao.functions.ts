@@ -159,3 +159,52 @@ export const listarEmpreendimentosPublico = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { empreendimentos: data ?? [] };
   });
+
+// Roleta do dia (público) — fila dos corretores com presença confirmada hoje,
+// ordenada por menor número de atendimentos na semana + ordem_roleta.
+const RoletaInput = z.object({ empreendimento_id: z.string().uuid() });
+export const roletaDoDiaPublico = createServerFn({ method: "POST" })
+  .inputValidator((d) => RoletaInput.parse(d))
+  .handler(async ({ data }) => {
+    const today = todayISO();
+    const wk = new Date();
+    wk.setDate(wk.getDate() - wk.getDay());
+    const wkStart = wk.toISOString().slice(0, 10);
+
+    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
+      supabaseAdmin.from("empreendimentos").select("id, nome").eq("id", data.empreendimento_id).maybeSingle(),
+      supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
+      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
+      supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
+    ]);
+
+    if (!emp) throw new Error("Empreendimento não encontrado");
+
+    const counts: Record<string, number> = {};
+    (ats ?? []).forEach((a: { corretor_id: string }) => {
+      counts[a.corretor_id] = (counts[a.corretor_id] ?? 0) + 1;
+    });
+
+    const presentes = (cs ?? []).filter((c) =>
+      (ps ?? []).some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
+    );
+
+    const fila = presentes
+      .map((c) => ({
+        id: c.id,
+        nome: c.nome,
+        creci: c.creci,
+        telefone: c.telefone,
+        atendimentos_semana: counts[c.id] ?? 0,
+        ordem_roleta: c.ordem_roleta ?? 0,
+      }))
+      .sort((a, b) => a.atendimentos_semana - b.atendimentos_semana || a.ordem_roleta - b.ordem_roleta);
+
+    return {
+      empreendimento: emp,
+      data: today,
+      total_presentes: fila.length,
+      proximo_id: fila[0]?.id ?? null,
+      fila,
+    };
+  });

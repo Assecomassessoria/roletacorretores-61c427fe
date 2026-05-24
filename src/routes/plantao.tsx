@@ -3,13 +3,13 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
-import { MapPin, ShieldCheck, Wifi, QrCode, KeyRound, Loader2, RotateCcw } from "lucide-react";
+import { MapPin, ShieldCheck, Wifi, QrCode, KeyRound, Loader2, RotateCcw, Trophy, Users, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SiteHeader } from "@/components/site-header";
-import { checkInPlantao, listarEmpreendimentosPublico } from "@/lib/plantao.functions";
+import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
 
 export const Route = createFileRoute("/plantao")({
   component: PlantaoPage,
@@ -30,9 +30,26 @@ type CheckInResult = {
   empreendimento: { id: string; nome: string };
 };
 
+type RoletaItem = {
+  id: string;
+  nome: string;
+  creci: string | null;
+  telefone: string | null;
+  atendimentos_semana: number;
+  ordem_roleta: number;
+};
+type RoletaDia = {
+  empreendimento: { id: string; nome: string };
+  data: string;
+  total_presentes: number;
+  proximo_id: string | null;
+  fila: RoletaItem[];
+};
+
 function PlantaoPage() {
   const listEmps = useServerFn(listarEmpreendimentosPublico);
   const checkIn = useServerFn(checkInPlantao);
+  const carregarRoleta = useServerFn(roletaDoDiaPublico);
 
   const [emps, setEmps] = useState<Emp[]>([]);
   const [form, setForm] = useState({ empreendimento_id: "", creci: "", senha: "", wifi_ssid: "", pin: "" });
@@ -40,6 +57,8 @@ function PlantaoPage() {
   const [coordsErr, setCoordsErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
+  const [roleta, setRoleta] = useState<RoletaDia | null>(null);
+  const [loadingRoleta, setLoadingRoleta] = useState(false);
 
   useEffect(() => {
     listEmps({}).then((r) => setEmps(r.empreendimentos)).catch(() => {});
@@ -83,6 +102,7 @@ function PlantaoPage() {
       })) as CheckInResult;
       setResult(r);
       toast.success(`Presença confirmada por ${r.metodo}`);
+      await refreshRoleta(r.empreendimento.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao confirmar presença");
     } finally {
@@ -90,8 +110,21 @@ function PlantaoPage() {
     }
   }
 
+  async function refreshRoleta(empId: string) {
+    setLoadingRoleta(true);
+    try {
+      const r = (await carregarRoleta({ data: { empreendimento_id: empId } })) as RoletaDia;
+      setRoleta(r);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao carregar roleta");
+    } finally {
+      setLoadingRoleta(false);
+    }
+  }
+
   function reset() {
     setResult(null);
+    setRoleta(null);
     setForm((s) => ({ ...s, senha: "", pin: "" }));
   }
 
@@ -215,10 +248,91 @@ function PlantaoPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="mt-6" onClick={reset}>
-              <RotateCcw className="mr-2 h-4 w-4" /> Novo check-in
-            </Button>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              <Button variant="outline" onClick={reset}>
+                <RotateCcw className="mr-2 h-4 w-4" /> Novo check-in
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => refreshRoleta(result.empreendimento.id)}
+                disabled={loadingRoleta}
+              >
+                <RefreshCw className={`mr-2 h-4 w-4 ${loadingRoleta ? "animate-spin" : ""}`} />
+                Atualizar roleta
+              </Button>
+            </div>
           </div>
+        )}
+
+        {result && (
+          <section className="mt-8 rounded-lg border border-border bg-card p-6 shadow-sm">
+            <header className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" /> Roleta do dia
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {roleta?.empreendimento.nome ?? result.empreendimento.nome} ·{" "}
+                  {roleta ? new Date(roleta.data + "T00:00").toLocaleDateString("pt-BR") : "carregando…"}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
+                <Users className="h-3.5 w-3.5" /> {roleta?.total_presentes ?? 0} presentes
+              </span>
+            </header>
+
+            {loadingRoleta && !roleta ? (
+              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Montando fila…
+              </div>
+            ) : (roleta?.fila.length ?? 0) === 0 ? (
+              <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Ainda não há outros corretores com presença confirmada hoje.
+              </div>
+            ) : (
+              <ol className="divide-y divide-border">
+                {roleta!.fila.map((c, idx) => {
+                  const eu = c.id === result.corretor.id;
+                  const proximo = c.id === roleta!.proximo_id;
+                  return (
+                    <li
+                      key={c.id}
+                      className={`flex items-center gap-3 py-2.5 ${eu ? "rounded-md bg-primary/5 px-2" : "px-2"}`}
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                          proximo
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        {idx + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {c.nome}
+                          {eu && (
+                            <span className="ml-2 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary">
+                              VOCÊ
+                            </span>
+                          )}
+                          {proximo && (
+                            <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
+                              PRÓXIMO
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {c.creci && <>CRECI {c.creci} · </>}
+                          {c.atendimentos_semana} atendimento(s) na semana
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </section>
         )}
       </main>
     </div>
