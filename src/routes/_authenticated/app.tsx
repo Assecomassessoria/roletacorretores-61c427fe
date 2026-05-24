@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { useAssinatura } from "@/lib/use-assinatura";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
@@ -25,6 +27,7 @@ const CARDS: CardDef[] = [
 
 function AppDashboard() {
   const { user, roles, isMaster } = useAuth();
+  const assinatura = useAssinatura();
   const visible = CARDS.filter((c) => isMaster || c.roles.some((r) => roles.includes(r as never)));
 
   return (
@@ -35,6 +38,27 @@ function AppDashboard() {
           Papéis: {roles.length > 0 ? roles.join(", ") : "carregando…"}
         </p>
       </div>
+
+      {assinatura.status === "renovacao" && (
+        <div className="mt-6 flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">
+              Sua assinatura expira em {assinatura.dias_restantes ?? 0} dia
+              {assinatura.dias_restantes === 1 ? "" : "s"}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Renove agora para manter o acesso ao painel sem interrupções.
+            </p>
+          </div>
+          <Link
+            to="/planos"
+            className="inline-flex items-center gap-1 rounded-md bg-orange px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange/90"
+          >
+            Renovar <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((c) => (
