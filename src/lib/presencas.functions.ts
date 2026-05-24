@@ -82,10 +82,9 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
       }
     });
 
-    return {
-      data: dia,
-      total: list.length,
-      presencas: list.map((r) => ({
+    const presencas = await Promise.all(list.map(async (r) => {
+      const c = cMap.get(r.corretor_id) ?? null;
+      return {
         plantao_id: r.id,
         confirmado_em: r.presenca_confirmada_em,
         status: r.status,
@@ -93,9 +92,15 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
         hora_fim: r.hora_fim,
         lat: r.presenca_lat,
         lng: r.presenca_lng,
-        corretor: cMap.get(r.corretor_id) ?? null,
+        corretor: c ? { ...c, foto_url: await signFoto(c.foto_url) } : null,
         empreendimento: eMap.get(r.empreendimento_id) ?? null,
         auditoria: auditByPlantao.get(r.id) ?? null,
-      })),
+      };
+    }));
+
+    return {
+      data: dia,
+      total: list.length,
+      presencas,
     };
   });
