@@ -26,7 +26,7 @@ export const Route = createFileRoute("/apresentacao")({
   }),
 });
 
-function ApresentacaoPage() {
+export function ApresentacaoPage() {
   return (
     <div className="min-h-screen bg-navy text-cream">
       <SiteHeader />

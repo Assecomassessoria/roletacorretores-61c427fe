@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SiteHeader } from "@/components/site-header";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
 import { inscreverEscala, listarEscalaSemanal } from "@/lib/escala.functions";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/plantao")({
   component: PlantaoPage,
@@ -310,6 +310,23 @@ function PlantaoPage() {
               </div>
             ) : (
               <>
+                {(() => {
+                  const itensEquipe = escala.escala
+                    .filter((e) => e.equipe === equipeSel)
+                    .flatMap((e) => e.itens);
+                  const todosVazios = itensEquipe.length > 0 && itensEquipe.every((i) => !i.corretor);
+                  if (!todosVazios) return null;
+                  return (
+                    <div className="mb-3 flex items-start gap-2 rounded-md border border-orange/40 bg-orange/10 p-3 text-xs text-foreground">
+                      <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange" />
+                      <div>
+                        <strong className="text-orange">Nova semana liberada!</strong>{" "}
+                        As vagas estão abertas a partir de domingo. A escala foi resetada — você já pode compor a nova
+                        escala selecionando seu dia abaixo. Boa sorte na roleta!
+                      </div>
+                    </div>
+                  );
+                })()}
                 {escala.escala
                   .filter((e) => e.equipe === equipeSel)
                   .map((e) => (
