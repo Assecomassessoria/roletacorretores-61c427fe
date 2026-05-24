@@ -27,6 +27,7 @@ const CARDS: CardDef[] = [
 
 function AppDashboard() {
   const { user, roles, isMaster } = useAuth();
+  const assinatura = useAssinatura();
   const visible = CARDS.filter((c) => isMaster || c.roles.some((r) => roles.includes(r as never)));
 
   return (
