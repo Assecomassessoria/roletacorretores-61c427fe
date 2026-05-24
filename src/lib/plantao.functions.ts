@@ -214,7 +214,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
 
     const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
       supabaseAdmin.from("empreendimentos").select("id, nome").eq("id", data.empreendimento_id).maybeSingle(),
-      supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
+      supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo, foto_url").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
       supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
       supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
