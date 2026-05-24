@@ -1,11 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ArrowRight, QrCode, Users, Sparkles } from "lucide-react";
+import { ArrowRight, QrCode, Users, Sparkles, Monitor, User, Clock, ShieldCheck, Building2, Tag } from "lucide-react";
 import heroImg from "@/assets/apresentacao-hero.png";
 import caosImg from "@/assets/apresentacao-caos.png";
 import qrcodeImg from "@/assets/apresentacao-qrcode.png";
 import filaImg from "@/assets/apresentacao-fila.png";
+
+const NAV_TOP = [
+  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
+  { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
+];
+
+const NAV_BOTTOM = [
+  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
+  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
+  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+];
 
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/apresentacao";
 
