@@ -142,3 +142,29 @@ export const inscreverEscala = createServerFn({ method: "POST" })
       corretor_nome: corretor.nome,
     };
   });
+
+const ResetInput = z.object({
+  empreendimento_id: z.string().uuid(),
+  senha: z.string().min(1).max(200),
+});
+
+export const resetarEscalaAdmin = createServerFn({ method: "POST" })
+  .inputValidator((d) => ResetInput.parse(d))
+  .handler(async ({ data }) => {
+    const esperado = process.env.GERENCIA_RESET_SENHA;
+    if (!esperado) {
+      throw new Error("Senha de Gerência não configurada no servidor");
+    }
+    if (data.senha !== esperado) {
+      throw new Error("Senha incorreta");
+    }
+
+    const { error, count } = await supabaseAdmin
+      .from("escala_semanal")
+      .delete({ count: "exact" })
+      .eq("empreendimento_id", data.empreendimento_id);
+    if (error) throw new Error(error.message);
+
+    return { ok: true, removidos: count ?? 0 };
+  });
+
