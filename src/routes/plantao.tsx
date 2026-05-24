@@ -22,11 +22,13 @@ export const Route = createFileRoute("/plantao")({
 });
 
 type Emp = { id: string; nome: string };
+type Check = { metodo: string; ok: boolean; detalhe: string };
 type CheckInResult = {
   ok: boolean;
   metodo: string;
   distancia: number | null;
-  corretor: { id: string; nome: string; telefone: string | null; creci: string | null };
+  checks: Check[];
+  corretor: { id: string; nome: string; telefone: string | null; creci: string | null; foto_url: string | null };
   empreendimento: { id: string; nome: string };
 };
 
@@ -35,6 +37,7 @@ type RoletaItem = {
   nome: string;
   creci: string | null;
   telefone: string | null;
+  foto_url: string | null;
   atendimentos_semana: number;
   ordem_roleta: number;
 };
@@ -44,6 +47,13 @@ type RoletaDia = {
   total_presentes: number;
   proximo_id: string | null;
   fila: RoletaItem[];
+};
+
+const METODO_LABEL: Record<string, string> = {
+  geofence: "Geolocalização",
+  wifi: "Wi-Fi do stand",
+  qrcode: "QR Code",
+  pin: "PIN rotativo",
 };
 
 function PlantaoPage() {
@@ -236,6 +246,13 @@ function PlantaoPage() {
             </div>
 
             <div className="mt-4 space-y-1">
+              {result.corretor.foto_url && (
+                <img
+                  src={result.corretor.foto_url}
+                  alt={result.corretor.nome}
+                  className="mx-auto mb-2 h-20 w-20 rounded-full border-2 border-primary/30 object-cover"
+                />
+              )}
               <div className="font-display text-xl font-bold text-foreground">{result.corretor.nome}</div>
               {result.corretor.telefone && (
                 <div className="text-sm text-muted-foreground">WhatsApp: {result.corretor.telefone}</div>
@@ -247,6 +264,23 @@ function PlantaoPage() {
                 {result.empreendimento.nome}
               </div>
             </div>
+
+            {result.checks.length > 0 && (
+              <ul className="mt-5 space-y-1.5 rounded-md border border-border bg-muted/30 p-3 text-left text-xs">
+                <li className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Critérios verificados
+                </li>
+                {result.checks.map((c) => (
+                  <li key={c.metodo} className="flex items-start gap-2">
+                    <span className={`mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full ${c.ok ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+                    <span className="flex-1">
+                      <strong className="text-foreground">{METODO_LABEL[c.metodo] ?? c.metodo}:</strong>{" "}
+                      <span className={c.ok ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}>{c.detalhe}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               <Button variant="outline" onClick={reset}>
@@ -308,6 +342,17 @@ function PlantaoPage() {
                       >
                         {idx + 1}
                       </span>
+                      {c.foto_url ? (
+                        <img
+                          src={c.foto_url}
+                          alt={c.nome}
+                          className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                          {c.nome.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-foreground">
                           {c.nome}
@@ -331,6 +376,15 @@ function PlantaoPage() {
                   );
                 })}
               </ol>
+            )}
+
+            {roleta && roleta.fila.length > 0 && (
+              <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                <strong className="text-foreground">Auditoria do sorteio:</strong> ordenação por fila justa —
+                menor número de atendimentos na semana, desempate por <code>ordem_roleta</code>. Próximo da vez:{" "}
+                <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
+                {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
+              </footer>
             )}
           </section>
         )}

@@ -35,7 +35,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
     // 1. Localizar corretor pelo CRECI no empreendimento
     const { data: corretor, error: cErr } = await supabaseAdmin
       .from("corretores")
-      .select("id, nome, telefone, email, creci, user_id, empreendimento_id, ativo, ordem_roleta")
+      .select("id, nome, telefone, email, creci, user_id, empreendimento_id, ativo, ordem_roleta, foto_url")
       .eq("empreendimento_id", data.empreendimento_id)
       .ilike("creci", data.creci.trim())
       .maybeSingle();
@@ -44,7 +44,6 @@ export const checkInPlantao = createServerFn({ method: "POST" })
     if (!corretor.ativo) throw new Error("Corretor inativo");
     if (!corretor.email) throw new Error("Corretor sem e-mail cadastrado — fale com o coordenador");
 
-    // 2. Validar senha via signInWithPassword em cliente isolado
     const authClient = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_PUBLISHABLE_KEY!,
@@ -56,7 +55,6 @@ export const checkInPlantao = createServerFn({ method: "POST" })
     });
     if (sErr || !signed?.user) throw new Error("Senha incorreta");
 
-    // 3. Carregar empreendimento e verificar método(s) de presença
     const { data: emp, error: eErr } = await supabaseAdmin
       .from("empreendimentos")
       .select("id, nome, latitude, longitude, raio_metros, wifi_ssid, qrcode_token, metodos_presenca")
@@ -64,35 +62,60 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       .single();
     if (eErr || !emp) throw new Error("Empreendimento não encontrado");
 
-    const metodos = (emp.metodos_presenca ?? ["geofence"]) as string[];
-    let metodoOk: string | null = null;
+    const metodos = ((emp.metodos_presenca ?? ["geofence"]) as string[]);
+    type Check = { metodo: string; ok: boolean; detalhe: string };
+    const checks: Check[] = [];
     let distancia: number | null = null;
 
-    if (metodos.includes("geofence") && data.latitude != null && data.longitude != null && emp.latitude != null && emp.longitude != null) {
-      const d = distMeters(data.latitude, data.longitude, emp.latitude, emp.longitude);
-      distancia = Math.round(d);
-      if (d <= (emp.raio_metros ?? 100)) metodoOk = "geofence";
+    if (metodos.includes("geofence")) {
+      if (data.latitude == null || data.longitude == null) {
+        checks.push({ metodo: "geofence", ok: false, detalhe: "Localização não enviada — habilite o GPS no navegador" });
+      } else if (emp.latitude == null || emp.longitude == null) {
+        checks.push({ metodo: "geofence", ok: false, detalhe: "Stand sem coordenadas configuradas" });
+      } else {
+        const d = distMeters(data.latitude, data.longitude, emp.latitude, emp.longitude);
+        distancia = Math.round(d);
+        const raio = emp.raio_metros ?? 100;
+        checks.push({
+          metodo: "geofence",
+          ok: d <= raio,
+          detalhe: d <= raio ? `Dentro do raio (${distancia}m / ${raio}m)` : `Fora do raio: ${distancia}m (máx ${raio}m)`,
+        });
+      }
     }
-    if (!metodoOk && metodos.includes("wifi") && data.wifi_ssid && emp.wifi_ssid) {
-      if (data.wifi_ssid.trim().toLowerCase() === emp.wifi_ssid.trim().toLowerCase()) metodoOk = "wifi";
+    if (metodos.includes("wifi")) {
+      if (!data.wifi_ssid) checks.push({ metodo: "wifi", ok: false, detalhe: "SSID não informado" });
+      else if (!emp.wifi_ssid) checks.push({ metodo: "wifi", ok: false, detalhe: "Stand sem SSID configurado" });
+      else {
+        const ok = data.wifi_ssid.trim().toLowerCase() === emp.wifi_ssid.trim().toLowerCase();
+        checks.push({ metodo: "wifi", ok, detalhe: ok ? `Conectado em "${data.wifi_ssid}"` : `SSID "${data.wifi_ssid}" não confere com o stand` });
+      }
     }
-    if (!metodoOk && metodos.includes("qrcode") && data.qr_token && emp.qrcode_token) {
-      if (data.qr_token === emp.qrcode_token) metodoOk = "qrcode";
+    if (metodos.includes("qrcode")) {
+      if (!data.qr_token) checks.push({ metodo: "qrcode", ok: false, detalhe: "QR Code não escaneado" });
+      else if (!emp.qrcode_token) checks.push({ metodo: "qrcode", ok: false, detalhe: "QR Code do stand não configurado" });
+      else {
+        const ok = data.qr_token === emp.qrcode_token;
+        checks.push({ metodo: "qrcode", ok, detalhe: ok ? "QR Code válido" : "QR Code expirado ou inválido — peça um novo na recepção" });
+      }
     }
-    if (!metodoOk && metodos.includes("pin") && data.pin) {
-      // PIN simples: aceitar enquanto não houver gerador. Mantém presença manual sob log.
-      if (data.pin.length >= 4) metodoOk = "pin";
+    if (metodos.includes("pin")) {
+      if (!data.pin) checks.push({ metodo: "pin", ok: false, detalhe: "PIN não informado" });
+      else {
+        const ok = data.pin.length >= 4;
+        checks.push({ metodo: "pin", ok, detalhe: ok ? "PIN aceito" : "PIN precisa ter ao menos 4 dígitos" });
+      }
     }
+
+    const metodoOk = checks.find((c) => c.ok)?.metodo ?? null;
 
     if (!metodoOk) {
-      const msg =
-        distancia != null
-          ? `Fora do raio permitido (${distancia}m). Verifique localização, Wi-Fi ou QR Code do stand.`
-          : "Não foi possível confirmar sua presença no stand. Verifique localização, Wi-Fi, QR Code ou PIN.";
-      throw new Error(msg);
+      const motivos = checks.length > 0
+        ? checks.map((c) => `• ${c.metodo.toUpperCase()}: ${c.detalhe}`).join("\n")
+        : "Nenhum método de validação foi enviado.";
+      throw new Error(`Não foi possível confirmar sua presença:\n${motivos}`);
     }
 
-    // 4. Garantir plantão de hoje
     const today = todayISO();
     let plantaoId: string | null = null;
     const { data: existing } = await supabaseAdmin
@@ -121,7 +144,6 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       plantaoId = novo.id;
     }
 
-    // 5. Marcar presença
     const { error: upErr } = await supabaseAdmin
       .from("plantoes")
       .update({
@@ -133,15 +155,34 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       .eq("id", plantaoId!);
     if (upErr) throw new Error(upErr.message);
 
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: signed.user.id,
+      user_email: corretor.email,
+      acao: "presenca_confirmada",
+      recurso: `plantao:${plantaoId}`,
+      detalhes: {
+        empreendimento_id: emp.id,
+        corretor_id: corretor.id,
+        metodo_aprovado: metodoOk,
+        distancia_m: distancia,
+        wifi_ssid_informado: data.wifi_ssid ?? null,
+        qrcode_validado: checks.find((c) => c.metodo === "qrcode")?.ok ?? null,
+        pin_aceito: checks.find((c) => c.metodo === "pin")?.ok ?? null,
+        checks: checks.map((c) => ({ metodo: c.metodo, ok: c.ok, detalhe: c.detalhe })),
+      },
+    });
+
     return {
       ok: true,
       metodo: metodoOk,
       distancia,
+      checks,
       corretor: {
         id: corretor.id,
         nome: corretor.nome,
         telefone: corretor.telefone,
         creci: corretor.creci,
+        foto_url: corretor.foto_url,
       },
       empreendimento: { id: emp.id, nome: emp.nome },
     };
@@ -173,7 +214,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
 
     const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
       supabaseAdmin.from("empreendimentos").select("id, nome").eq("id", data.empreendimento_id).maybeSingle(),
-      supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
+      supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo, foto_url").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
       supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
       supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
@@ -195,6 +236,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         nome: c.nome,
         creci: c.creci,
         telefone: c.telefone,
+        foto_url: (c as { foto_url?: string | null }).foto_url ?? null,
         atendimentos_semana: counts[c.id] ?? 0,
         ordem_roleta: c.ordem_roleta ?? 0,
       }))
