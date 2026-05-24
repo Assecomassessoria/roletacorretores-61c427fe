@@ -342,6 +342,17 @@ function PlantaoPage() {
                       >
                         {idx + 1}
                       </span>
+                      {c.foto_url ? (
+                        <img
+                          src={c.foto_url}
+                          alt={c.nome}
+                          className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                          {c.nome.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-foreground">
                           {c.nome}
@@ -365,6 +376,15 @@ function PlantaoPage() {
                   );
                 })}
               </ol>
+            )}
+
+            {roleta && roleta.fila.length > 0 && (
+              <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                <strong className="text-foreground">Auditoria do sorteio:</strong> ordenação por fila justa —
+                menor número de atendimentos na semana, desempate por <code>ordem_roleta</code>. Próximo da vez:{" "}
+                <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
+                {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
+              </footer>
             )}
           </section>
         )}
