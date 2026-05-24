@@ -43,23 +43,6 @@ export function ApresentacaoPage() {
     <div className="min-h-screen bg-navy text-cream">
       <SiteHeader />
 
-      {/* NAVEGAÇÃO SUPERIOR */}
-      <section className="border-b border-orange/20 bg-navy-deep/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-4">
-          {NAV_TOP.map((n) => {
-            const Icon = n.icon;
-            return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className="inline-flex items-center gap-2 rounded-full border border-orange/50 bg-orange/10 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-orange transition hover:bg-orange hover:text-orange-foreground hover:shadow-lg hover:shadow-orange/30"
-              >
-                <Icon className="h-3.5 w-3.5" /> {n.label}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-orange/20">
