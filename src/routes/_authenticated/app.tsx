@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { useAssinatura } from "@/lib/use-assinatura";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
