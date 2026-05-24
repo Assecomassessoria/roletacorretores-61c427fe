@@ -378,12 +378,16 @@ function MenuView({ empNome, onPick, onScan, onReencontro, onGerencia }: {
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Bem-vindo(a)!</h1>
         <p className="mt-2 text-white/70">Toque na opção que descreve sua visita hoje.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((t) => (
           <button
             key={t.code}
             onClick={t.onClick}
-            className="group rounded-2xl border-2 border-white/10 bg-gradient-to-br from-white/5 to-black/40 p-6 text-left transition hover:border-orange/60 hover:bg-orange/10"
+            className={`group rounded-2xl border-2 p-6 text-left transition ${
+              t.highlight
+                ? "border-orange/50 bg-gradient-to-br from-orange/15 to-black/40 hover:border-orange hover:bg-orange/20"
+                : "border-white/10 bg-gradient-to-br from-white/5 to-black/40 hover:border-orange/60 hover:bg-orange/10"
+            }`}
           >
             <div className="flex items-center justify-between">
               <div className="rounded-xl bg-orange/20 p-3 text-orange ring-1 ring-orange/40">
