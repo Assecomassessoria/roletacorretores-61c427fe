@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PlantaoRouteImport } from './routes/plantao'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LgpdRouteImport } from './routes/lgpd'
@@ -38,6 +39,11 @@ const SetupRoute = SetupRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlantaoRoute = PlantaoRouteImport.update({
+  id: '/plantao',
+  path: '/plantao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanosRoute = PlanosRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/app': typeof AuthenticatedAppRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
+  '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/plantao'
     | '/reset-password'
     | '/setup'
     | '/app'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/plantao'
     | '/reset-password'
     | '/setup'
     | '/app'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/lgpd'
     | '/login'
     | '/planos'
+    | '/plantao'
     | '/reset-password'
     | '/setup'
     | '/_authenticated/app'
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
+  PlantaoRoute: typeof PlantaoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
@@ -295,6 +308,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plantao': {
+      id: '/plantao'
+      path: '/plantao'
+      fullPath: '/plantao'
+      preLoaderRoute: typeof PlantaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planos': {
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
+  PlantaoRoute: PlantaoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
@@ -470,13 +491,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
