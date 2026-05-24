@@ -29,7 +29,7 @@ export const Route = createFileRoute("/totem")({
   }),
 });
 
-type Mode = "menu" | "form" | "qr" | "scanner" | "result";
+type Mode = "menu" | "form" | "qr" | "scanner" | "result" | "reencontro" | "gerencia" | "reencontroResult" | "gerenciaResult";
 
 function TotemPage() {
   const navigate = useNavigate();
@@ -39,15 +39,23 @@ function TotemPage() {
   const [opcao, setOpcao] = useState<"B" | "D" | "E">("B");
   const [nome, setNome] = useState("");
   const [whats, setWhats] = useState("");
+  const [email, setEmail] = useState("");
+  const [corretorNome, setCorretorNome] = useState("");
+  const [corretorWhats, setCorretorWhats] = useState("");
+  const [corretorCreci, setCorretorCreci] = useState("");
+  const [motivoGerencia, setMotivoGerencia] = useState("");
   const [busy, setBusy] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [reencontroData, setReencontroData] = useState<any>(null);
   const [staffOpen, setStaffOpen] = useState(false);
   const [staffPass, setStaffPass] = useState("");
 
   const listar = useServerFn(listarEmpreendimentosTotem);
   const criar = useServerFn(criarTriagemTotem);
   const disparar = useServerFn(dispararTriagemTotem);
+  const reencontrar = useServerFn(reencontrarCorretorTotem);
+  const solicitarGerencia = useServerFn(solicitarGerenciaTotem);
 
   useEffect(() => {
     (async () => {
