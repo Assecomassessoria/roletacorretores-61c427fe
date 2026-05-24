@@ -818,6 +818,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assinatura_status: {
+        Args: { _uid?: string }
+        Returns: {
+          assinatura_id: string
+          dias_duracao: number
+          dias_restantes: number
+          expira_em: string
+          plano_codigo: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
