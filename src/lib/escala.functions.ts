@@ -9,9 +9,8 @@ function isoDate(d: Date) {
 }
 
 function semanaUteis(base = new Date()): string[] {
-  // Segunda a sexta da semana corrente (segunda = 1)
   const d = new Date(base);
-  const dow = d.getDay(); // 0..6
+  const dow = d.getDay();
   const diffSeg = dow === 0 ? -6 : 1 - dow;
   const seg = new Date(d);
   seg.setDate(d.getDate() + diffSeg);
@@ -70,51 +69,43 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
 const InscreverInput = z.object({
   empreendimento_id: z.string().uuid(),
   equipe: z.enum(["alfa", "beta"]),
-  creci: z.string().trim().min(2).max(40),
-  senha: z.string().min(4).max(64),
+  nome: z.string().trim().min(2).max(120),
+  data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
 export const inscreverEscala = createServerFn({ method: "POST" })
   .inputValidator((d) => InscreverInput.parse(d))
   .handler(async ({ data }) => {
-    const { createClient } = await import("@supabase/supabase-js");
-
-    const { data: corretor } = await supabaseAdmin
-      .from("corretores")
-      .select("id, nome, email, ativo")
-      .eq("empreendimento_id", data.empreendimento_id)
-      .ilike("creci", data.creci.trim())
-      .maybeSingle();
-    if (!corretor) throw new Error("CRECI não encontrado neste empreendimento");
-    if (!corretor.ativo) throw new Error("Corretor inativo");
-    if (!corretor.email) throw new Error("Corretor sem e-mail cadastrado");
-
-    const auth = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const { data: signed, error: sErr } = await auth.auth.signInWithPassword({
-      email: corretor.email,
-      password: data.senha,
-    });
-    if (sErr || !signed?.user) throw new Error("Senha incorreta");
-
     const dias = semanaUteis();
+    if (!dias.includes(data.data)) throw new Error("Selecione um dia útil da semana corrente");
+
     const { data: fer } = await supabaseAdmin
       .from("feriados")
       .select("data")
       .eq("empreendimento_id", data.empreendimento_id)
-      .in("data", dias);
-    const feriadoSet = new Set((fer ?? []).map((f) => f.data as string));
-    const diasUteis = dias.filter((d) => !feriadoSet.has(d));
+      .eq("data", data.data);
+    if ((fer ?? []).length) throw new Error("Esse dia é feriado");
+
+    const termo = data.nome.trim();
+    const { data: matches } = await supabaseAdmin
+      .from("corretores")
+      .select("id, nome, ativo")
+      .eq("empreendimento_id", data.empreendimento_id)
+      .ilike("nome", `%${termo}%`)
+      .limit(5);
+    if (!matches || matches.length === 0) throw new Error("Corretor não encontrado neste empreendimento");
+    const exato = matches.find((m) => m.nome.toLowerCase() === termo.toLowerCase());
+    if (matches.length > 1 && !exato) throw new Error("Mais de um corretor encontrado — informe o nome completo");
+    const corretor = exato ?? matches[0];
+    if (!corretor.ativo) throw new Error("Corretor inativo");
 
     const { data: existentes } = await supabaseAdmin
       .from("escala_semanal")
-      .select("data, corretor_id")
+      .select("id, data, corretor_id")
       .eq("empreendimento_id", data.empreendimento_id)
       .eq("equipe", data.equipe)
-      .in("data", diasUteis);
+      .in("data", dias);
 
-    // Já inscrito esta semana?
     const jaInscrito = (existentes ?? []).find((s) => s.corretor_id === corretor.id);
     if (jaInscrito) {
       const dt = new Date(`${jaInscrito.data}T12:00:00`);
@@ -124,30 +115,30 @@ export const inscreverEscala = createServerFn({ method: "POST" })
         data: jaInscrito.data,
         data_br: dt.toLocaleDateString("pt-BR"),
         dia_semana: DIAS[dt.getDay()],
+        corretor_nome: corretor.nome,
       };
     }
 
-    const ocupados = new Set((existentes ?? []).filter((s) => s.corretor_id).map((s) => s.data as string));
-    const proxima = diasUteis.find((d) => !ocupados.has(d));
-    if (!proxima) throw new Error("Escala da Equipe " + data.equipe.toUpperCase() + " já está completa esta semana");
+    const ocupadoNoDia = (existentes ?? []).find((s) => s.data === data.data && s.corretor_id);
+    if (ocupadoNoDia) throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
 
     const { error: insErr } = await supabaseAdmin
       .from("escala_semanal")
       .insert({
         empreendimento_id: data.empreendimento_id,
         equipe: data.equipe,
-        data: proxima,
+        data: data.data,
         corretor_id: corretor.id,
-        criado_por: signed.user.id,
       });
     if (insErr) throw new Error(insErr.message);
 
-    const dt = new Date(`${proxima}T12:00:00`);
+    const dt = new Date(`${data.data}T12:00:00`);
     return {
       ok: true,
       ja_inscrito: false,
-      data: proxima,
+      data: data.data,
       data_br: dt.toLocaleDateString("pt-BR"),
       dia_semana: DIAS[dt.getDay()],
+      corretor_nome: corretor.nome,
     };
   });
