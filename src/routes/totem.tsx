@@ -209,15 +209,25 @@ function TotemPage() {
               <div className="text-sm font-extrabold tracking-wide">ROLETA CORRETOR — Recepção Digital</div>
             </div>
           </div>
-          {empreendimentos.length > 1 && mode === "menu" && (
-            <select
-              value={empId}
-              onChange={(e) => setEmpId(e.target.value)}
-              className="rounded-md border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white"
+          <div className="flex items-center gap-3">
+            {empreendimentos.length > 1 && mode === "menu" && (
+              <select
+                value={empId}
+                onChange={(e) => setEmpId(e.target.value)}
+                className="rounded-md border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white"
+              >
+                {empreendimentos.map((e) => <option key={e.id} value={e.id}>{e.nome}</option>)}
+              </select>
+            )}
+            <button
+              onClick={() => navigate({ to: "/" })}
+              className="grid h-8 w-8 place-items-center rounded-md border border-white/20 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition"
+              aria-label="Fechar totem"
+              title="Fechar totem"
             >
-              {empreendimentos.map((e) => <option key={e.id} value={e.id}>{e.nome}</option>)}
-            </select>
-          )}
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </header>
 
