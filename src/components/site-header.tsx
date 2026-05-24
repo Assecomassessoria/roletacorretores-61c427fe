@@ -7,11 +7,13 @@ import { useNavigate } from "@tanstack/react-router";
 type Nav = { label: string; to: string; tone?: "default" | "orange" | "gold" };
 
 const NAV_PUBLIC: Nav[] = [
+  { label: "APRESENTAÇÃO", to: "/apresentacao", tone: "gold" },
   { label: "ÁREA DO CORRETOR", to: "/corretor", tone: "orange" },
   { label: "PLANTÃO / PRESENÇA", to: "/plantao", tone: "orange" },
   { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia" },
   { label: "INCORPORADORA (SETUP)", to: "/setup", tone: "gold" },
 ];
+
 
 export function SiteHeader() {
   const { session, signOut } = useAuth();
