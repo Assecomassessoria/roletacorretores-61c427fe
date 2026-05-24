@@ -7,7 +7,7 @@ import { useNavigate } from "@tanstack/react-router";
 type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" };
 
 const NAV_TOP: Nav[] = [
-  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "orange" },
+  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
   { label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
   { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
   { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
