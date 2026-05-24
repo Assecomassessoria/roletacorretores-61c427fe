@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TotemRouteImport } from './routes/totem'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlantaoRouteImport } from './routes/plantao'
@@ -35,6 +36,11 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
 
+const TotemRoute = TotemRouteImport.update({
+  id: '/totem',
+  path: '/totem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SetupRoute = SetupRouteImport.update({
   id: '/setup',
   path: '/setup',
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/totem': typeof TotemRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/totem': typeof TotemRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/totem': typeof TotemRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/_authenticated/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/totem'
     | '/app'
     | '/atendimentos'
     | '/coordenador'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/totem'
     | '/app'
     | '/atendimentos'
     | '/coordenador'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/totem'
     | '/_authenticated/app'
     | '/_authenticated/atendimentos'
     | '/_authenticated/coordenador'
@@ -339,12 +351,20 @@ export interface RootRouteChildren {
   PlantaoRoute: typeof PlantaoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
+  TotemRoute: typeof TotemRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/totem': {
+      id: '/totem'
+      path: '/totem'
+      fullPath: '/totem'
+      preLoaderRoute: typeof TotemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/setup': {
       id: '/setup'
       path: '/setup'
@@ -569,9 +589,20 @@ const rootRouteChildren: RootRouteChildren = {
   PlantaoRoute: PlantaoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
+  TotemRoute: TotemRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
