@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as GerenciaRouteImport } from './routes/gerencia'
 import { Route as CorretorRouteImport } from './routes/corretor'
+import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
@@ -71,6 +72,11 @@ const GerenciaRoute = GerenciaRouteImport.update({
 const CorretorRoute = CorretorRouteImport.update({
   id: '/corretor',
   path: '/corretor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApresentacaoRoute = ApresentacaoRouteImport.update({
+  id: '/apresentacao',
+  path: '/apresentacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -155,6 +161,7 @@ const ApiPublicHooksAvisosRenovacaoRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/apresentacao'
     | '/corretor'
     | '/gerencia'
     | '/lgpd'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/apresentacao'
     | '/corretor'
     | '/gerencia'
     | '/lgpd'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/apresentacao'
     | '/corretor'
     | '/gerencia'
     | '/lgpd'
@@ -306,6 +318,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ApresentacaoRoute: typeof ApresentacaoRoute
   CorretorRoute: typeof CorretorRoute
   GerenciaRoute: typeof GerenciaRoute
   LgpdRoute: typeof LgpdRoute
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/corretor'
       fullPath: '/corretor'
       preLoaderRoute: typeof CorretorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apresentacao': {
+      id: '/apresentacao'
+      path: '/apresentacao'
+      fullPath: '/apresentacao'
+      preLoaderRoute: typeof ApresentacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -519,6 +539,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ApresentacaoRoute: ApresentacaoRoute,
   CorretorRoute: CorretorRoute,
   GerenciaRoute: GerenciaRoute,
   LgpdRoute: LgpdRoute,
