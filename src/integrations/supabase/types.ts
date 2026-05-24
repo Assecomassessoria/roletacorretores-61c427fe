@@ -557,6 +557,53 @@ export type Database = {
         }
         Relationships: []
       }
+      mensagens: {
+        Row: {
+          ativa: boolean
+          autor_id: string | null
+          canal: string
+          corpo: string
+          created_at: string
+          destinatarios: string
+          empreendimento_id: string
+          id: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          ativa?: boolean
+          autor_id?: string | null
+          canal?: string
+          corpo: string
+          created_at?: string
+          destinatarios?: string
+          empreendimento_id: string
+          id?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          ativa?: boolean
+          autor_id?: string | null
+          canal?: string
+          corpo?: string
+          created_at?: string
+          destinatarios?: string
+          empreendimento_id?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opcoes_triagem: {
         Row: {
           action: string
