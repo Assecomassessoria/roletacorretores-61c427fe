@@ -3,13 +3,13 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
-import { MapPin, ShieldCheck, Wifi, QrCode, KeyRound, Loader2, RotateCcw } from "lucide-react";
+import { MapPin, ShieldCheck, Wifi, QrCode, KeyRound, Loader2, RotateCcw, Trophy, Users, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SiteHeader } from "@/components/site-header";
-import { checkInPlantao, listarEmpreendimentosPublico } from "@/lib/plantao.functions";
+import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
 
 export const Route = createFileRoute("/plantao")({
   component: PlantaoPage,
