@@ -1,6 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+const PUBLIC_RE = /\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/;
+async function signFoto(urlOrPath: string | null): Promise<string | null> {
+  if (!urlOrPath) return null;
+  let path = urlOrPath;
+  if (urlOrPath.startsWith("http")) {
+    const m = urlOrPath.match(PUBLIC_RE);
+    if (!m || m[1] !== "corretores") return null;
+    path = decodeURIComponent(m[2]);
+  }
+  const { data, error } = await supabaseAdmin.storage.from("corretores").createSignedUrl(path, 3600);
+  if (error) return null;
+  return data.signedUrl;
+}
 
 const Input = z.object({
   data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
