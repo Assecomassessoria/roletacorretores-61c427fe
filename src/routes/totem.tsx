@@ -352,12 +352,18 @@ function TotemPage() {
 
 // ====================== VIEWS ======================
 
-function MenuView({ empNome, onPick, onScan }: {
-  empNome: string; onPick: (op: "B" | "D" | "E") => void; onScan: () => void;
+function MenuView({ empNome, onPick, onScan, onReencontro, onGerencia }: {
+  empNome: string;
+  onPick: (op: "B" | "D" | "E") => void;
+  onScan: () => void;
+  onReencontro: () => void;
+  onGerencia: () => void;
 }) {
-  const tiles: { code: "B" | "D" | "E" | "SCAN"; title: string; sub: string; Icon: any; onClick: () => void }[] = [
+  const tiles: { code: string; title: string; sub: string; Icon: any; onClick: () => void; highlight?: boolean }[] = [
     { code: "B", title: "1ª Vista", sub: "Quero ser atendido agora", Icon: UserPlus, onClick: () => onPick("B") },
     { code: "SCAN", title: "Já tenho QR", sub: "Apontar código de atendimento", Icon: QrCode, onClick: onScan },
+    { code: "A", title: "Já sou atendido", sub: "Esqueci meu QR / retornei ao stand", Icon: SearchX, onClick: onReencontro, highlight: true },
+    { code: "G", title: "Falar c/ Gerência", sub: "Coordenação / Gerência do stand", Icon: Shield, onClick: onGerencia, highlight: true },
     { code: "E", title: "Parcerias", sub: "Sou corretor parceiro / visita", Icon: HandshakeIcon, onClick: () => onPick("E") },
     { code: "D", title: "Serviços", sub: "Outros / Fornecedor", Icon: Briefcase, onClick: () => onPick("D") },
   ];
