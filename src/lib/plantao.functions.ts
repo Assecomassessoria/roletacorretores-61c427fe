@@ -196,7 +196,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
         nome: corretor.nome,
         telefone: corretor.telefone,
         creci: corretor.creci,
-        foto_url: corretor.foto_url,
+        foto_url: await signFoto(corretor.foto_url),
       },
       empreendimento: { id: emp.id, nome: emp.nome },
     };
