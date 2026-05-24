@@ -426,6 +426,60 @@ export type Database = {
         }
         Relationships: []
       }
+      escala_semanal: {
+        Row: {
+          corretor_id: string | null
+          created_at: string
+          criado_por: string | null
+          data: string
+          empreendimento_id: string
+          equipe: string
+          id: string
+        }
+        Insert: {
+          corretor_id?: string | null
+          created_at?: string
+          criado_por?: string | null
+          data: string
+          empreendimento_id: string
+          equipe: string
+          id?: string
+        }
+        Update: {
+          corretor_id?: string | null
+          created_at?: string
+          criado_por?: string | null
+          data?: string
+          empreendimento_id?: string
+          equipe?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      feriados: {
+        Row: {
+          created_at: string
+          data: string
+          descricao: string | null
+          empreendimento_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          descricao?: string | null
+          empreendimento_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          empreendimento_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       historico_semanal: {
         Row: {
           created_at: string
