@@ -6,14 +6,16 @@ import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
 import {
   ScanLine, UserPlus, QrCode, Briefcase, HandshakeIcon, Lock, ArrowLeft,
-  CheckCircle2, Loader2, Camera, RefreshCw, Building2,
+  CheckCircle2, Loader2, Camera, RefreshCw, Building2, SearchX, Phone, MessageCircle, Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   criarTriagemTotem, dispararTriagemTotem, listarEmpreendimentosTotem,
+  reencontrarCorretorTotem, solicitarGerenciaTotem,
 } from "@/lib/totem.functions";
 
 export const Route = createFileRoute("/totem")({
