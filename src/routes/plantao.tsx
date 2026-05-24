@@ -337,16 +337,46 @@ function PlantaoPage() {
                       </table>
                     </div>
                   ))}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  onClick={inscreverNaEscala}
-                  disabled={escalaBusy}
-                >
-                  {escalaBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarDays className="mr-2 h-4 w-4" />}
-                  Entrar na escala (Equipe {equipeSel.toUpperCase()})
-                </Button>
+                <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/20 p-3">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Seu nome</Label>
+                      <Input
+                        className="h-8 text-xs"
+                        placeholder="Nome do corretor"
+                        value={escalaNome}
+                        onChange={(e) => setEscalaNome(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Dia da semana</Label>
+                      <Select value={escalaData} onValueChange={setEscalaData}>
+                        <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione um dia" /></SelectTrigger>
+                        <SelectContent>
+                          {escala.escala
+                            .filter((e) => e.equipe === equipeSel)
+                            .flatMap((e) => e.itens)
+                            .map((i) => (
+                              <SelectItem key={i.data} value={i.data} disabled={!!i.corretor}>
+                                {i.dia_semana} · {i.data_br}{i.corretor ? " (ocupado)" : ""}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    onClick={inscreverNaEscala}
+                    disabled={escalaBusy}
+                  >
+                    {escalaBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarDays className="mr-2 h-4 w-4" />}
+                    Entrar na escala (Equipe {equipeSel.toUpperCase()})
+                  </Button>
+                </div>
+
               </>
             )}
           </section>
