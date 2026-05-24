@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SiteHeader } from "@/components/site-header";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
 import { inscreverEscala, listarEscalaSemanal } from "@/lib/escala.functions";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/plantao")({
   component: PlantaoPage,
