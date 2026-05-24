@@ -24,6 +24,7 @@ const CARDS: CardDef[] = [
   { to: "/atendimentos", title: "Atendimentos", desc: "Histórico filtrável por cliente e CNPJ.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/integracoes", title: "Integrações CRM", desc: "Webhooks Zapier, Make, n8n, CRM próprio.", roles: ["incorporadora", "gerente"] },
   { to: "/usuarios", title: "Usuários & Papéis", desc: "Atribua acesso a novos membros.", roles: ["incorporadora", "gerente", "coordenador"] },
+  { to: "/mensagens", title: "Central de Comunicados", desc: "Envie pelo sistema, WhatsApp manual, impressão ou PDF.", roles: ["incorporadora", "gerente", "coordenador"] },
 ];
 
 function AppDashboard() {
