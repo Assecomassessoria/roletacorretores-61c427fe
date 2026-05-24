@@ -912,6 +912,7 @@ export type Database = {
       }
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_master_email: { Args: { _email: string }; Returns: boolean }
+      reset_escala_semanal: { Args: never; Returns: undefined }
       user_in_empreendimento: {
         Args: { _emp: string; _uid: string }
         Returns: boolean
