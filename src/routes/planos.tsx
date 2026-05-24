@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft, Check, Zap } from "lucide-react";
+import { useAssinatura } from "@/lib/use-assinatura";
 
 export const Route = createFileRoute("/planos")({
   component: Planos,
@@ -91,6 +92,11 @@ const PLANOS = [
 ];
 
 function Planos() {
+  const assinatura = useAssinatura();
+  // Assinante já ativo (sem janela de renovação) não precisa ver planos.
+  if (!assinatura.loading && assinatura.status === "ativa") {
+    return <Navigate to="/app" />;
+  }
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />

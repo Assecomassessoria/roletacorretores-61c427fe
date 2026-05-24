@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ChevronRight, Headphones, Mail, Phone, Sparkles, User, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import lorenzaImg from "@/assets/lorenza.jpg";
+import { useAssinatura } from "@/lib/use-assinatura";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -64,8 +65,14 @@ function CountdownCell({ value, label }: { value: number; label: string }) {
 /* ---------- Page ---------- */
 function Landing() {
   const c = useCountdown();
+  const assinatura = useAssinatura();
   const [plano, setPlano] = useState<"auto" | "padrao">("auto");
   const [form, setForm] = useState({ nome: "", imobiliaria: "", cpf: "", whatsapp: "", email: "" });
+
+  // Assinante ativo (fora da janela de renovação) vai direto pro painel.
+  if (!assinatura.loading && assinatura.status === "ativa") {
+    return <Navigate to="/app" />;
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
