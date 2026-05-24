@@ -29,6 +29,20 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+const PUBLIC_RE = /\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/;
+async function signFoto(urlOrPath: string | null): Promise<string | null> {
+  if (!urlOrPath) return null;
+  let path = urlOrPath;
+  if (urlOrPath.startsWith("http")) {
+    const m = urlOrPath.match(PUBLIC_RE);
+    if (!m || m[1] !== "corretores") return null;
+    path = decodeURIComponent(m[2]);
+  }
+  const { data, error } = await supabaseAdmin.storage.from("corretores").createSignedUrl(path, 3600);
+  if (error) return null;
+  return data.signedUrl;
+}
+
 export const checkInPlantao = createServerFn({ method: "POST" })
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }) => {
