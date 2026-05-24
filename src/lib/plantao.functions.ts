@@ -29,6 +29,20 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+const PUBLIC_RE = /\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/;
+async function signFoto(urlOrPath: string | null): Promise<string | null> {
+  if (!urlOrPath) return null;
+  let path = urlOrPath;
+  if (urlOrPath.startsWith("http")) {
+    const m = urlOrPath.match(PUBLIC_RE);
+    if (!m || m[1] !== "corretores") return null;
+    path = decodeURIComponent(m[2]);
+  }
+  const { data, error } = await supabaseAdmin.storage.from("corretores").createSignedUrl(path, 3600);
+  if (error) return null;
+  return data.signedUrl;
+}
+
 export const checkInPlantao = createServerFn({ method: "POST" })
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }) => {
@@ -182,7 +196,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
         nome: corretor.nome,
         telefone: corretor.telefone,
         creci: corretor.creci,
-        foto_url: corretor.foto_url,
+        foto_url: await signFoto(corretor.foto_url),
       },
       empreendimento: { id: emp.id, nome: emp.nome },
     };
@@ -230,7 +244,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       (ps ?? []).some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
     );
 
-    const fila = presentes
+    const filaBase = presentes
       .map((c) => ({
         id: c.id,
         nome: c.nome,
@@ -241,6 +255,8 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         ordem_roleta: c.ordem_roleta ?? 0,
       }))
       .sort((a, b) => a.atendimentos_semana - b.atendimentos_semana || a.ordem_roleta - b.ordem_roleta);
+
+    const fila = await Promise.all(filaBase.map(async (c) => ({ ...c, foto_url: await signFoto(c.foto_url) })));
 
     return {
       empreendimento: emp,

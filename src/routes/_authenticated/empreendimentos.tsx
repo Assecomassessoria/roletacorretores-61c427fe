@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X } from "lucide-react";
+import { SignedImg } from "@/components/signed-img";
 
 type Metodo = "geofence" | "wifi" | "qrcode" | "pin";
 
@@ -270,7 +271,8 @@ function EmpreendimentosPage() {
                     >
                       {editing?.logo_url ? (
                         <div className="flex items-center gap-3">
-                          <img
+                          <SignedImg
+                            bucket="empreendimento-brand"
                             src={editing.logo_url}
                             alt="Logo"
                             className="h-16 w-16 rounded-md border border-border object-contain bg-white p-1"
@@ -333,7 +335,7 @@ function EmpreendimentosPage() {
                       }}
                     >
                       {editing?.logo_url && (
-                        <img src={editing.logo_url} alt="" className="h-10 w-10 rounded bg-white object-contain p-1" />
+                        <SignedImg bucket="empreendimento-brand" src={editing.logo_url} className="h-10 w-10 rounded bg-white object-contain p-1" />
                       )}
                       <div className="flex-1">
                         <div className="text-sm font-bold text-white drop-shadow">

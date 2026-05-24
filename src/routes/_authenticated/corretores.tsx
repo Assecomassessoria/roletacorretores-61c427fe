@@ -14,6 +14,7 @@ import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react"
 import { useServerFn } from "@tanstack/react-start";
 import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
 import { QRCodeCanvas } from "qrcode.react";
+import { SignedImg } from "@/components/signed-img";
 
 type Corretor = {
   id: string;
@@ -76,6 +77,9 @@ function CorretoresPage() {
       const path = `${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (error) throw error;
+      // Bucket privado: armazenamos a URL pública legada apenas como referência
+      // do path; a leitura usa createSignedUrl. Persistir a URL pública mantém
+      // compatibilidade — o helper extrai o path automaticamente.
       const { data } = supabase.storage.from("corretores").getPublicUrl(path);
       setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
       toast.success("Foto enviada");
@@ -191,7 +195,7 @@ function CorretoresPage() {
                   >
                     {editing?.foto_url ? (
                       <div className="relative">
-                        <img src={editing.foto_url} alt="" className="h-16 w-16 rounded-full object-cover" />
+                        <SignedImg bucket="corretores" src={editing.foto_url} className="h-16 w-16 rounded-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setEditing((s) => ({ ...s, foto_url: null }))}
