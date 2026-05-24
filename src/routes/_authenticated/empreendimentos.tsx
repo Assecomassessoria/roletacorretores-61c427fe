@@ -271,7 +271,8 @@ function EmpreendimentosPage() {
                     >
                       {editing?.logo_url ? (
                         <div className="flex items-center gap-3">
-                          <img
+                          <SignedImg
+                            bucket="empreendimento-brand"
                             src={editing.logo_url}
                             alt="Logo"
                             className="h-16 w-16 rounded-md border border-border object-contain bg-white p-1"
