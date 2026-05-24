@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft, Check, Zap } from "lucide-react";
+import { useAssinatura } from "@/lib/use-assinatura";
 
 export const Route = createFileRoute("/planos")({
   component: Planos,
