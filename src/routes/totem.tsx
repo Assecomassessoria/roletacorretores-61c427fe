@@ -6,14 +6,16 @@ import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
 import {
   ScanLine, UserPlus, QrCode, Briefcase, HandshakeIcon, Lock, ArrowLeft,
-  CheckCircle2, Loader2, Camera, RefreshCw, Building2,
+  CheckCircle2, Loader2, Camera, RefreshCw, Building2, SearchX, Phone, MessageCircle, Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   criarTriagemTotem, dispararTriagemTotem, listarEmpreendimentosTotem,
+  reencontrarCorretorTotem, solicitarGerenciaTotem,
 } from "@/lib/totem.functions";
 
 export const Route = createFileRoute("/totem")({
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/totem")({
   }),
 });
 
-type Mode = "menu" | "form" | "qr" | "scanner" | "result";
+type Mode = "menu" | "form" | "qr" | "scanner" | "result" | "reencontro" | "gerencia" | "reencontroResult" | "gerenciaResult";
 
 function TotemPage() {
   const navigate = useNavigate();
@@ -37,15 +39,23 @@ function TotemPage() {
   const [opcao, setOpcao] = useState<"B" | "D" | "E">("B");
   const [nome, setNome] = useState("");
   const [whats, setWhats] = useState("");
+  const [email, setEmail] = useState("");
+  const [corretorNome, setCorretorNome] = useState("");
+  const [corretorWhats, setCorretorWhats] = useState("");
+  const [corretorCreci, setCorretorCreci] = useState("");
+  const [motivoGerencia, setMotivoGerencia] = useState("");
   const [busy, setBusy] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [reencontroData, setReencontroData] = useState<any>(null);
   const [staffOpen, setStaffOpen] = useState(false);
   const [staffPass, setStaffPass] = useState("");
 
   const listar = useServerFn(listarEmpreendimentosTotem);
   const criar = useServerFn(criarTriagemTotem);
   const disparar = useServerFn(dispararTriagemTotem);
+  const reencontrar = useServerFn(reencontrarCorretorTotem);
+  const solicitarGerencia = useServerFn(solicitarGerenciaTotem);
 
   useEffect(() => {
     (async () => {
@@ -114,8 +124,67 @@ function TotemPage() {
     setMode("menu");
     setQrUrl(null);
     setResult(null);
-    setNome(""); setWhats("");
+    setReencontroData(null);
+    setNome(""); setWhats(""); setEmail("");
+    setCorretorNome(""); setCorretorWhats(""); setCorretorCreci("");
+    setMotivoGerencia("");
   }
+
+  async function submeterReencontro() {
+    if (!empId) return toast.error("Selecione o stand");
+    if (nome.trim().length < 2) return toast.error("Informe seu nome");
+    if (whats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp inválido");
+    if (corretorNome.trim().length < 2) return toast.error("Informe o nome do corretor");
+    if (corretorWhats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp do corretor inválido");
+    if (corretorCreci.trim().length < 2) return toast.error("Informe o CRECI do corretor");
+    setBusy(true);
+    try {
+      const r = await reencontrar({
+        data: {
+          empreendimento_id: empId,
+          cliente_nome: nome.trim(),
+          cliente_telefone: whats.trim(),
+          cliente_email: email.trim() ? email.trim() : null,
+          corretor_nome: corretorNome.trim(),
+          corretor_whatsapp: corretorWhats.trim(),
+          corretor_creci: corretorCreci.trim(),
+        },
+      });
+      setReencontroData(r);
+      setMode("reencontroResult");
+      // Se em plantão, abre WhatsApp automaticamente em nova aba
+      if (r.em_plantao && r.whatsapp_url && typeof window !== "undefined") {
+        window.open(r.whatsapp_url, "_blank", "noopener,noreferrer");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao registrar");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submeterGerencia() {
+    if (!empId) return toast.error("Selecione o stand");
+    if (nome.trim().length < 2) return toast.error("Informe seu nome");
+    if (whats.replace(/\D/g, "").length < 8) return toast.error("WhatsApp inválido");
+    setBusy(true);
+    try {
+      await solicitarGerencia({
+        data: {
+          empreendimento_id: empId,
+          cliente_nome: nome.trim(),
+          cliente_telefone: whats.trim(),
+          motivo: motivoGerencia.trim() || null,
+        },
+      });
+      setMode("gerenciaResult");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao registrar");
+    } finally {
+      setBusy(false);
+    }
+  }
+
 
   function abrirStaff() {
     const senha = staffPass.trim();
@@ -157,6 +226,8 @@ function TotemPage() {
             empNome={empreendimentos.find(e => e.id === empId)?.nome ?? "—"}
             onPick={(op) => { setOpcao(op); setMode("form"); }}
             onScan={() => setMode("scanner")}
+            onReencontro={() => setMode("reencontro")}
+            onGerencia={() => setMode("gerencia")}
           />
         )}
 
@@ -204,6 +275,39 @@ function TotemPage() {
         {mode === "result" && result && (
           <ResultView result={result} onBack={reset} />
         )}
+
+        {mode === "reencontro" && (
+          <ReencontroForm
+            nome={nome} setNome={setNome}
+            whats={whats} setWhats={setWhats}
+            email={email} setEmail={setEmail}
+            corretorNome={corretorNome} setCorretorNome={setCorretorNome}
+            corretorWhats={corretorWhats} setCorretorWhats={setCorretorWhats}
+            corretorCreci={corretorCreci} setCorretorCreci={setCorretorCreci}
+            busy={busy}
+            onSubmit={submeterReencontro}
+            onBack={() => setMode("menu")}
+          />
+        )}
+
+        {mode === "reencontroResult" && reencontroData && (
+          <ReencontroResult data={reencontroData} onBack={reset} />
+        )}
+
+        {mode === "gerencia" && (
+          <GerenciaForm
+            nome={nome} setNome={setNome}
+            whats={whats} setWhats={setWhats}
+            motivo={motivoGerencia} setMotivo={setMotivoGerencia}
+            busy={busy}
+            onSubmit={submeterGerencia}
+            onBack={() => setMode("menu")}
+          />
+        )}
+
+        {mode === "gerenciaResult" && (
+          <GerenciaResult nome={nome} onBack={reset} />
+        )}
       </main>
 
       {/* RODAPÉ — acesso restrito staff */}
@@ -250,12 +354,18 @@ function TotemPage() {
 
 // ====================== VIEWS ======================
 
-function MenuView({ empNome, onPick, onScan }: {
-  empNome: string; onPick: (op: "B" | "D" | "E") => void; onScan: () => void;
+function MenuView({ empNome, onPick, onScan, onReencontro, onGerencia }: {
+  empNome: string;
+  onPick: (op: "B" | "D" | "E") => void;
+  onScan: () => void;
+  onReencontro: () => void;
+  onGerencia: () => void;
 }) {
-  const tiles: { code: "B" | "D" | "E" | "SCAN"; title: string; sub: string; Icon: any; onClick: () => void }[] = [
+  const tiles: { code: string; title: string; sub: string; Icon: any; onClick: () => void; highlight?: boolean }[] = [
     { code: "B", title: "1ª Vista", sub: "Quero ser atendido agora", Icon: UserPlus, onClick: () => onPick("B") },
     { code: "SCAN", title: "Já tenho QR", sub: "Apontar código de atendimento", Icon: QrCode, onClick: onScan },
+    { code: "A", title: "Já sou atendido", sub: "Esqueci meu QR / retornei ao stand", Icon: SearchX, onClick: onReencontro, highlight: true },
+    { code: "G", title: "Falar c/ Gerência", sub: "Coordenação / Gerência do stand", Icon: Shield, onClick: onGerencia, highlight: true },
     { code: "E", title: "Parcerias", sub: "Sou corretor parceiro / visita", Icon: HandshakeIcon, onClick: () => onPick("E") },
     { code: "D", title: "Serviços", sub: "Outros / Fornecedor", Icon: Briefcase, onClick: () => onPick("D") },
   ];
@@ -268,12 +378,16 @@ function MenuView({ empNome, onPick, onScan }: {
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Bem-vindo(a)!</h1>
         <p className="mt-2 text-white/70">Toque na opção que descreve sua visita hoje.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((t) => (
           <button
             key={t.code}
             onClick={t.onClick}
-            className="group rounded-2xl border-2 border-white/10 bg-gradient-to-br from-white/5 to-black/40 p-6 text-left transition hover:border-orange/60 hover:bg-orange/10"
+            className={`group rounded-2xl border-2 p-6 text-left transition ${
+              t.highlight
+                ? "border-orange/50 bg-gradient-to-br from-orange/15 to-black/40 hover:border-orange hover:bg-orange/20"
+                : "border-white/10 bg-gradient-to-br from-white/5 to-black/40 hover:border-orange/60 hover:bg-orange/10"
+            }`}
           >
             <div className="flex items-center justify-between">
               <div className="rounded-xl bg-orange/20 p-3 text-orange ring-1 ring-orange/40">
@@ -445,3 +559,181 @@ function ResultView({ result, onBack }: any) {
     </section>
   );
 }
+
+// ====================== REENCONTRO (Esqueci o QR / Já sou atendido) ======================
+
+function ReencontroForm({
+  nome, setNome, whats, setWhats, email, setEmail,
+  corretorNome, setCorretorNome, corretorWhats, setCorretorWhats, corretorCreci, setCorretorCreci,
+  busy, onSubmit, onBack,
+}: any) {
+  return (
+    <section className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-black/40 p-6 shadow-xl">
+      <button onClick={onBack} className="mb-4 flex items-center gap-1 text-xs text-white/60 hover:text-white">
+        <ArrowLeft className="h-3 w-3" /> voltar
+      </button>
+      <Badge className="border-orange/40 bg-orange/15 text-orange">
+        <SearchX className="mr-1 h-3 w-3" /> Já sou atendido
+      </Badge>
+      <h2 className="mt-3 text-2xl font-extrabold">Esqueci meu QR Code</h2>
+      <p className="mt-1 text-sm text-white/60">
+        Informe seus dados e os dados do corretor que já está te atendendo. Se ele estiver em
+        plantão hoje, abrimos o WhatsApp dele automaticamente para retomar o atendimento.
+      </p>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="space-y-3 rounded-xl border border-white/10 bg-black/30 p-4">
+          <div className="text-xs font-mono uppercase tracking-widest text-orange/80">Seus dados</div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">Nome</Label>
+            <Input value={nome} onChange={(e) => setNome(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="Seu nome completo" />
+          </div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">WhatsApp</Label>
+            <Input value={whats} onChange={(e) => setWhats(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="(11) 99999-9999" />
+          </div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">E-mail (opcional)</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="seu@email.com" />
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-white/10 bg-black/30 p-4">
+          <div className="text-xs font-mono uppercase tracking-widest text-orange/80">Dados do corretor</div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">Nome do corretor</Label>
+            <Input value={corretorNome} onChange={(e) => setCorretorNome(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="Ex: João Silva" />
+          </div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">WhatsApp</Label>
+            <Input value={corretorWhats} onChange={(e) => setCorretorWhats(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="(11) 99999-9999" />
+          </div>
+          <div>
+            <Label className="text-xs font-bold uppercase tracking-wider text-white/70">CRECI</Label>
+            <Input value={corretorCreci} onChange={(e) => setCorretorCreci(e.target.value)} className="mt-1 h-11 bg-black/40" placeholder="Ex: 123456-F" />
+          </div>
+        </div>
+      </div>
+
+      <Button onClick={onSubmit} disabled={busy} className="mt-5 h-14 w-full bg-orange text-base font-extrabold uppercase tracking-widest hover:bg-orange/90">
+        {busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <MessageCircle className="mr-2 h-5 w-5" />}
+        Localizar meu corretor
+      </Button>
+    </section>
+  );
+}
+
+function ReencontroResult({ data, onBack }: any) {
+  const ok = data.em_plantao && data.corretor;
+  return (
+    <section className="mx-auto max-w-xl rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-950/40 to-black/60 p-8 text-center shadow-2xl">
+      {ok ? (
+        <>
+          <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-400" />
+          <h2 className="mt-3 text-2xl font-extrabold">Corretor localizado em plantão!</h2>
+          <p className="mt-1 text-sm text-white/70">
+            Abrimos o WhatsApp de <strong>{data.corretor.nome}</strong> em uma nova aba. Se não
+            abriu automaticamente, toque no botão abaixo.
+          </p>
+          <div className="mx-auto mt-5 flex max-w-sm items-center gap-4 rounded-xl border border-emerald-400/30 bg-black/40 p-4 text-left">
+            {data.corretor.foto_url ? (
+              <img src={data.corretor.foto_url} alt={data.corretor.nome} className="h-16 w-16 rounded-full object-cover ring-2 ring-emerald-400/40" />
+            ) : (
+              <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-400/20 text-xl font-extrabold text-emerald-300">
+                {data.corretor.nome?.[0] ?? "?"}
+              </div>
+            )}
+            <div>
+              <div className="text-lg font-extrabold">{data.corretor.nome}</div>
+              {data.corretor.creci && <div className="text-xs text-white/60">CRECI {data.corretor.creci}</div>}
+              {data.corretor.telefone && <div className="text-xs text-white/60">{data.corretor.telefone}</div>}
+            </div>
+          </div>
+          <a
+            href={data.whatsapp_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-emerald-500 font-extrabold uppercase tracking-widest text-white hover:bg-emerald-600"
+          >
+            <Phone className="h-4 w-4" /> Abrir WhatsApp do corretor
+          </a>
+        </>
+      ) : (
+        <>
+          <RefreshCw className="mx-auto h-14 w-14 text-amber-400" />
+          <h2 className="mt-3 text-2xl font-extrabold">
+            {data.corretor_encontrado ? "Corretor sem plantão hoje" : "Corretor não localizado"}
+          </h2>
+          <p className="mt-2 text-sm text-white/70">
+            {data.corretor_encontrado
+              ? "O corretor informado não tem presença confirmada no plantão de hoje. A recepção foi notificada e fará o direcionamento."
+              : "Não encontramos esse corretor pelos dados informados. A recepção foi notificada e vai te ajudar."}
+          </p>
+        </>
+      )}
+      <Button onClick={onBack} className="mt-6 h-12 w-full bg-orange hover:bg-orange/90">
+        Concluir e voltar ao início
+      </Button>
+    </section>
+  );
+}
+
+// ====================== GERÊNCIA / COORDENAÇÃO ======================
+
+function GerenciaForm({ nome, setNome, whats, setWhats, motivo, setMotivo, busy, onSubmit, onBack }: any) {
+  return (
+    <section className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-black/40 p-6 shadow-xl">
+      <button onClick={onBack} className="mb-4 flex items-center gap-1 text-xs text-white/60 hover:text-white">
+        <ArrowLeft className="h-3 w-3" /> voltar
+      </button>
+      <Badge className="border-orange/40 bg-orange/15 text-orange">
+        <Shield className="mr-1 h-3 w-3" /> Gerência / Coordenação
+      </Badge>
+      <h2 className="mt-3 text-2xl font-extrabold">Falar com a Gerência</h2>
+      <p className="mt-1 text-sm text-white/60">
+        Registre sua solicitação. A Coordenação/Gerência será notificada e virá até você o quanto antes.
+      </p>
+      <div className="mt-5 space-y-4">
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-white/70">Seu nome</Label>
+          <Input value={nome} onChange={(e) => setNome(e.target.value)} className="mt-1 h-12 bg-black/40" placeholder="Nome completo" />
+        </div>
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-white/70">WhatsApp</Label>
+          <Input value={whats} onChange={(e) => setWhats(e.target.value)} className="mt-1 h-12 bg-black/40" placeholder="(11) 99999-9999" />
+        </div>
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-white/70">Motivo (opcional)</Label>
+          <Textarea
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+            className="mt-1 min-h-24 bg-black/40"
+            placeholder="Conte brevemente o que você precisa…"
+            maxLength={400}
+          />
+        </div>
+        <Button onClick={onSubmit} disabled={busy} className="h-14 w-full bg-orange text-base font-extrabold uppercase tracking-widest hover:bg-orange/90">
+          {busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Shield className="mr-2 h-5 w-5" />}
+          Solicitar atendimento
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function GerenciaResult({ nome, onBack }: { nome: string; onBack: () => void }) {
+  return (
+    <section className="mx-auto max-w-xl rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-950/40 to-black/60 p-8 text-center shadow-2xl">
+      <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-400" />
+      <h2 className="mt-3 text-2xl font-extrabold">Solicitação registrada!</h2>
+      <p className="mt-2 text-sm text-white/70">
+        {nome ? `${nome}, ` : ""}a Gerência/Coordenação foi notificada e virá até você em instantes.
+        Por favor aguarde na recepção.
+      </p>
+      <Button onClick={onBack} className="mt-6 h-12 w-full bg-orange hover:bg-orange/90">
+        Concluir e voltar ao início
+      </Button>
+    </section>
+  );
+}
+

@@ -198,3 +198,164 @@ export const listarEmpreendimentosTotem = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { empreendimentos: data ?? [] };
   });
+
+// =====================================================================
+// "Já estou sendo atendido / Esqueci o QR Code"
+// O cliente informa seus dados + dados do corretor (Nome, WhatsApp, CRECI).
+// Se localizarmos o corretor por CRECI e ele estiver em plantão hoje
+// (presença confirmada), criamos o atendimento e devolvemos um link
+// wa.me pronto. Caso contrário, registramos triagem em "aguardando"
+// para a recepção tratar manualmente.
+// =====================================================================
+const ReencontroSchema = z.object({
+  empreendimento_id: z.string().uuid(),
+  cliente_nome: z.string().trim().min(2).max(120),
+  cliente_telefone: z.string().trim().min(8).max(20).regex(/^[0-9+()\-\s]+$/),
+  cliente_email: z.string().trim().email().max(180).optional().nullable(),
+  corretor_nome: z.string().trim().min(2).max(120),
+  corretor_whatsapp: z.string().trim().min(8).max(20).regex(/^[0-9+()\-\s]+$/),
+  corretor_creci: z.string().trim().min(2).max(40),
+});
+
+export const reencontrarCorretorTotem = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ReencontroSchema.parse(input))
+  .handler(async ({ data }) => {
+    // 1) Busca corretor por CRECI (mais confiável que nome)
+    const { data: corretor } = await supabaseAdmin
+      .from("corretores")
+      .select("id, nome, telefone, creci, foto_url")
+      .eq("empreendimento_id", data.empreendimento_id)
+      .eq("ativo", true)
+      .eq("creci", data.corretor_creci)
+      .maybeSingle();
+
+    // 2) Plantão de hoje com presença confirmada?
+    let emPlantao = false;
+    let plantaoId: string | null = null;
+    if (corretor) {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: plantao } = await supabaseAdmin
+        .from("plantoes")
+        .select("id, presenca_confirmada_em")
+        .eq("corretor_id", corretor.id)
+        .eq("data", today)
+        .not("presenca_confirmada_em", "is", null)
+        .maybeSingle();
+      emPlantao = !!plantao;
+      plantaoId = plantao?.id ?? null;
+    }
+
+    // 3) Registra triagem A (Atendido por corretor)
+    const { data: triagem, error: triErr } = await supabaseAdmin
+      .from("triagens")
+      .insert({
+        empreendimento_id: data.empreendimento_id,
+        opcao_codigo: "A",
+        acao: "verificar_presenca",
+        origem: "painel",
+        status: emPlantao ? "atendido" : "aguardando",
+        cliente_nome: data.cliente_nome,
+        cliente_telefone: data.cliente_telefone,
+        payload: {
+          origem_canal: "totem_reencontro",
+          cliente_email: data.cliente_email ?? null,
+          corretor_informado: {
+            nome: data.corretor_nome,
+            whatsapp: data.corretor_whatsapp,
+            creci: data.corretor_creci,
+          },
+          corretor_match_id: corretor?.id ?? null,
+          em_plantao: emPlantao,
+        } as never,
+      })
+      .select("id")
+      .single();
+    if (triErr) throw new Error(triErr.message);
+
+    // 4) Se em plantão, abre atendimento vinculado
+    let atendimentoId: string | null = null;
+    if (corretor && emPlantao) {
+      const { data: atd, error: atdErr } = await supabaseAdmin
+        .from("atendimentos")
+        .insert({
+          empreendimento_id: data.empreendimento_id,
+          corretor_id: corretor.id,
+          plantao_id: plantaoId,
+          cliente_nome: data.cliente_nome,
+          cliente_telefone: data.cliente_telefone,
+          cliente_email: data.cliente_email ?? null,
+          observacoes:
+            "Retorno via Totem (cliente esqueceu o QR). Encaminhado pelo WhatsApp da roleta.",
+        })
+        .select("id")
+        .single();
+      if (atdErr) throw new Error(atdErr.message);
+      atendimentoId = atd?.id ?? null;
+      await supabaseAdmin
+        .from("triagens")
+        .update({ atendimento_id: atendimentoId })
+        .eq("id", triagem.id);
+    }
+
+    // 5) Monta link wa.me pronto (preferindo telefone do cadastro)
+    const numeroBruto = (corretor?.telefone ?? data.corretor_whatsapp).replace(/\D/g, "");
+    const numeroBR = numeroBruto.startsWith("55") ? numeroBruto : `55${numeroBruto}`;
+    const msg = encodeURIComponent(
+      `Olá ${corretor?.nome ?? data.corretor_nome}, aqui é ${data.cliente_nome}. ` +
+      `Retornei ao stand e fui direcionado pela recepção da Roleta. Pode me atender?`,
+    );
+    const whatsapp_url = `https://wa.me/${numeroBR}?text=${msg}`;
+
+    return {
+      triagem_id: triagem.id,
+      corretor_encontrado: !!corretor,
+      em_plantao: emPlantao,
+      corretor: corretor
+        ? {
+            id: corretor.id,
+            nome: corretor.nome,
+            foto_url: corretor.foto_url ?? null,
+            creci: corretor.creci ?? null,
+            telefone: corretor.telefone ?? null,
+          }
+        : null,
+      whatsapp_url,
+      atendimento_id: atendimentoId,
+    };
+  });
+
+// =====================================================================
+// "Falar com Gerência / Coordenador" — registra triagem D com flag
+// e devolve confirmação para o cliente aguardar a recepção.
+// =====================================================================
+const GerenciaSchema = z.object({
+  empreendimento_id: z.string().uuid(),
+  cliente_nome: z.string().trim().min(2).max(120),
+  cliente_telefone: z.string().trim().min(8).max(20).regex(/^[0-9+()\-\s]+$/),
+  motivo: z.string().trim().max(400).optional().nullable(),
+});
+
+export const solicitarGerenciaTotem = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => GerenciaSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { data: triagem, error } = await supabaseAdmin
+      .from("triagens")
+      .insert({
+        empreendimento_id: data.empreendimento_id,
+        opcao_codigo: "D",
+        acao: "encaminhar_coordenador",
+        origem: "painel",
+        status: "aguardando",
+        cliente_nome: data.cliente_nome,
+        cliente_telefone: data.cliente_telefone,
+        payload: {
+          origem_canal: "totem_gerencia",
+          motivo: data.motivo ?? null,
+        } as never,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { triagem_id: triagem.id };
+  });
+
