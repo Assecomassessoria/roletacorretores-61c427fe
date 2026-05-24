@@ -102,11 +102,14 @@ function PlantaoPage() {
 
   async function inscreverNaEscala() {
     if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
-    if (!form.creci || !form.senha) return toast.error("Informe CRECI e senha primeiro");
+    if (!escalaNome.trim()) return toast.error("Digite seu nome");
+    if (!escalaData) return toast.error("Selecione o dia da semana");
     setEscalaBusy(true);
     try {
-      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, creci: form.creci, senha: form.senha } });
-      toast.success(r.ja_inscrito ? `Já escalado em ${r.data_br} (${r.dia_semana})` : `Escalado para ${r.data_br} — ${r.dia_semana}`);
+      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData } });
+      toast.success(r.ja_inscrito ? `${r.corretor_nome} já está em ${r.data_br} (${r.dia_semana})` : `${r.corretor_nome} escalado(a) para ${r.data_br} — ${r.dia_semana}`);
+      setEscalaNome("");
+      setEscalaData("");
       await refreshEscala(form.empreendimento_id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao entrar na escala");
@@ -114,6 +117,7 @@ function PlantaoPage() {
       setEscalaBusy(false);
     }
   }
+
 
 
   useEffect(() => {
