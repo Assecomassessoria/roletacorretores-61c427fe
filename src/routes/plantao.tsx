@@ -84,6 +84,35 @@ function PlantaoPage() {
     listEmps({}).then((r) => setEmps(r.empreendimentos)).catch(() => {});
   }, [listEmps]);
 
+  const refreshEscala = async (empId: string) => {
+    try {
+      const r = (await carregarEscala({ data: { empreendimento_id: empId } })) as Escala;
+      setEscala(r);
+    } catch { /* silencioso */ }
+  };
+
+  useEffect(() => {
+    if (!form.empreendimento_id) { setEscala(null); return; }
+    refreshEscala(form.empreendimento_id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.empreendimento_id]);
+
+  async function inscreverNaEscala() {
+    if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
+    if (!form.creci || !form.senha) return toast.error("Informe CRECI e senha primeiro");
+    setEscalaBusy(true);
+    try {
+      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, creci: form.creci, senha: form.senha } });
+      toast.success(r.ja_inscrito ? `Já escalado em ${r.data_br} (${r.dia_semana})` : `Escalado para ${r.data_br} — ${r.dia_semana}`);
+      await refreshEscala(form.empreendimento_id);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao entrar na escala");
+    } finally {
+      setEscalaBusy(false);
+    }
+  }
+
+
   useEffect(() => {
     if (!navigator.geolocation) {
       setCoordsErr("Geolocalização indisponível neste dispositivo");
