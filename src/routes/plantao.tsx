@@ -30,9 +30,26 @@ type CheckInResult = {
   empreendimento: { id: string; nome: string };
 };
 
+type RoletaItem = {
+  id: string;
+  nome: string;
+  creci: string | null;
+  telefone: string | null;
+  atendimentos_semana: number;
+  ordem_roleta: number;
+};
+type RoletaDia = {
+  empreendimento: { id: string; nome: string };
+  data: string;
+  total_presentes: number;
+  proximo_id: string | null;
+  fila: RoletaItem[];
+};
+
 function PlantaoPage() {
   const listEmps = useServerFn(listarEmpreendimentosPublico);
   const checkIn = useServerFn(checkInPlantao);
+  const carregarRoleta = useServerFn(roletaDoDiaPublico);
 
   const [emps, setEmps] = useState<Emp[]>([]);
   const [form, setForm] = useState({ empreendimento_id: "", creci: "", senha: "", wifi_ssid: "", pin: "" });
@@ -40,6 +57,8 @@ function PlantaoPage() {
   const [coordsErr, setCoordsErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
+  const [roleta, setRoleta] = useState<RoletaDia | null>(null);
+  const [loadingRoleta, setLoadingRoleta] = useState(false);
 
   useEffect(() => {
     listEmps({}).then((r) => setEmps(r.empreendimentos)).catch(() => {});
