@@ -135,10 +135,13 @@ function CoordenadorPage() {
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativo" | "desativado">("todos");
   const [filtroEquipe, setFiltroEquipe] = useState<"todas" | "alfa" | "beta" | "sem">("todas");
   const fileRef = useRef<HTMLInputElement>(null);
+  const propagandaFileRef = useRef<HTMLInputElement>(null);
+  const [propagandas, setPropagandas] = useState<Propaganda[]>([]);
+  const [novoTituloProp, setNovoTituloProp] = useState("");
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
-  useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); } }, [empId]);
+  useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); void carregarPropagandas(); } }, [empId]);
 
   useEffect(() => {
     if (!emp?.qrcode_token) { setQrSvg(""); return; }
