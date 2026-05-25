@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TotemRouteImport } from './routes/totem'
+import { Route as SistemaRouteImport } from './routes/sistema'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlantaoRouteImport } from './routes/plantao'
@@ -39,6 +40,11 @@ import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/
 const TotemRoute = TotemRouteImport.update({
   id: '/totem',
   path: '/totem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SistemaRoute = SistemaRouteImport.update({
+  id: '/sistema',
+  path: '/sistema',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SetupRoute = SetupRouteImport.update({
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sistema': typeof SistemaRoute
   '/totem': typeof TotemRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sistema': typeof SistemaRoute
   '/totem': typeof TotemRoute
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/plantao': typeof PlantaoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
+  '/sistema': typeof SistemaRoute
   '/totem': typeof TotemRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/sistema'
     | '/totem'
     | '/app'
     | '/atendimentos'
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/sistema'
     | '/totem'
     | '/app'
     | '/atendimentos'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/plantao'
     | '/reset-password'
     | '/setup'
+    | '/sistema'
     | '/totem'
     | '/_authenticated/app'
     | '/_authenticated/atendimentos'
@@ -351,6 +363,7 @@ export interface RootRouteChildren {
   PlantaoRoute: typeof PlantaoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
+  SistemaRoute: typeof SistemaRoute
   TotemRoute: typeof TotemRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/totem'
       fullPath: '/totem'
       preLoaderRoute: typeof TotemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sistema': {
+      id: '/sistema'
+      path: '/sistema'
+      fullPath: '/sistema'
+      preLoaderRoute: typeof SistemaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/setup': {
@@ -589,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlantaoRoute: PlantaoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
+  SistemaRoute: SistemaRoute,
   TotemRoute: TotemRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,

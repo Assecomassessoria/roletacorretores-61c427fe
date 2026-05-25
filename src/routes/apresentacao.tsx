@@ -2,15 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { NavActions } from "@/components/nav-actions";
-import { ArrowRight, QrCode, Users, Sparkles, ShieldCheck, Building2, Tag } from "lucide-react";
+import { ArrowRight, QrCode, Users, Sparkles, LayoutGrid, Tag } from "lucide-react";
 import heroImg from "@/assets/apresentacao-hero.png";
 import caosImg from "@/assets/apresentacao-caos.png";
 import qrcodeImg from "@/assets/apresentacao-qrcode.png";
 import filaImg from "@/assets/apresentacao-fila.png";
 
 const NAV_BOTTOM = [
-  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
-  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
+  { label: "Conhecer o Sistema", to: "/sistema", icon: LayoutGrid, tone: "default" },
   { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
 ];
 
@@ -61,10 +60,10 @@ export function ApresentacaoPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/planos"
+                to="/sistema"
                 className="inline-flex items-center gap-2 rounded-full bg-orange px-6 py-3 text-sm font-bold uppercase tracking-wider text-navy shadow-lg shadow-orange/30 transition hover:scale-[1.02] hover:bg-orange/90"
               >
-                Conhecer o ecossistema <ArrowRight className="h-4 w-4" />
+                Conhecer o Sistema <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/plantao"
@@ -225,10 +224,16 @@ export function ApresentacaoPage() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
-            to="/planos"
+            to="/sistema"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange to-orange/80 px-7 py-3 text-sm font-bold uppercase tracking-wider text-navy shadow-xl shadow-orange/30 transition hover:scale-[1.02]"
           >
-            Ver planos & assinar <ArrowRight className="h-4 w-4" />
+            <LayoutGrid className="h-4 w-4" /> Conhecer o Sistema <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/planos"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-gold px-7 py-3 text-sm font-bold uppercase tracking-wider text-gold-foreground shadow-lg shadow-gold/30 transition hover:brightness-110"
+          >
+            <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
           <Link
             to="/"

@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
@@ -26,6 +26,8 @@ export function SiteHeader() {
   const { session, signOut } = useAuth();
   const assinatura = useAssinatura();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isApresentacao = pathname === "/" || pathname === "/apresentacao";
 
   const ativa = assinatura.status === "ativa";
   const renovacao = assinatura.status === "renovacao";
@@ -88,6 +90,26 @@ export function SiteHeader() {
                   >
                     <LogOut className="h-3.5 w-3.5" /> Sair
                   </button>
+                </li>
+              </ul>
+            ) : isApresentacao ? (
+              <ul className="flex flex-wrap items-center justify-center gap-2">
+                <li>
+                  <Link
+                    to="/sistema"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-orange/60 bg-orange px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-orange-foreground transition hover:bg-orange/90"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" /> Conhecer o Sistema
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/planos"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gold/60 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-gold-foreground shadow-md shadow-gold/20 gold-shimmer hover:brightness-110"
+                  >
+                    <Tag className="h-3.5 w-3.5" /> Planos & Assinar
+                  </Link>
                 </li>
               </ul>
             ) : (
