@@ -52,7 +52,8 @@ function CorretoresPage() {
   async function load() {
     setLoading(true);
     const [{ data: cs }, { data: es }] = await Promise.all([
-      supabase.from("corretores").select("*").order("ordem_roleta"),
+      // Inclui e-mail (coluna restrita) — gestor lê via cliente autorizado pelo RLS de admins.
+      supabase.from("corretores").select("id,nome,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe").order("ordem_roleta"),
       supabase.from("empreendimentos").select("id,nome,cnpj").eq("ativo", true).order("nome"),
     ]);
     setRows((cs as Corretor[]) ?? []);
