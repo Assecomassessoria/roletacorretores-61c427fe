@@ -319,6 +319,7 @@ function TotemPage() {
         {mode === "gerenciaResult" && (
           <GerenciaResult nome={nome} onBack={reset} />
         )}
+        <NavActions className="text-white/70" />
       </main>
 
       {/* RODAPÉ — acesso restrito staff */}
