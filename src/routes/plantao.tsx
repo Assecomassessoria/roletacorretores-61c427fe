@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SiteHeader } from "@/components/site-header";
+import { NavActions } from "@/components/nav-actions";
+import { SugestoesPanel } from "@/components/sugestoes-panel";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
