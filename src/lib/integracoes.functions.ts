@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createHmac } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const TestSchema = z.object({ integracao_id: z.string().uuid() });
 const DispatchSchema = z.object({ atendimento_id: z.string().uuid() });
