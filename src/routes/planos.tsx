@@ -12,7 +12,8 @@ export const Route = createFileRoute("/planos")({
       { title: "Planos — Roleta Corretor Elite 4.0" },
       {
         name: "description",
-        content: "Planos profissionais e solução de escala: 30 Teste Elite, Experiência 7 dias, Mensal Elite e Anual Executivo.",
+        content:
+          "Planos profissionais e solução de escala: 30 Teste Elite, Experiência 7 dias, Mensal Elite e Anual Executivo.",
       },
     ],
     scripts: [
@@ -45,7 +46,7 @@ const PLANOS = [
     cta: "Assinar 30 dias experiência",
   },
   {
-    nome: "Experiência 7 dias",
+    nome: "Experiência 90 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
     preco: "R$ 179,90",
@@ -57,7 +58,7 @@ const PLANOS = [
       "Roleta automatizada por escala",
       "Auditoria e relatórios para incorporadora",
     ],
-    cta: "Assinar plano experiência (7 dias)",
+    cta: "Assinar plano experiência (90 dias)",
   },
   {
     nome: "Plano Mensal Elite",
@@ -210,7 +211,6 @@ function Planos() {
 
         <NavActions />
       </main>
-
 
       <SiteFooter />
     </div>
