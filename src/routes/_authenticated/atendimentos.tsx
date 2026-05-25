@@ -482,6 +482,7 @@ function MesaTriagem() {
           </Button>
         </div>
       </section>
+      <NavActions />
     </main>
   );
 }
