@@ -219,6 +219,19 @@ function IntegracoesPage() {
         <Step n={5} title="Segurança (opcional, recomendado)">
           Defina um <strong>Secret</strong>. Cada chamada incluirá o header <code>X-Roleta-Signature</code> com o HMAC-SHA256 do corpo. Valide no destino para evitar requisições falsas.
         </Step>
+        <Step n={6} title="Exemplo: integração com CV CRM">
+          Se você utiliza o CV CRM, abaixo está um exemplo de como enviar um lead usando o payload recebido pelo webhook:
+        </Step>
+
+        <div className="rounded-md border border-border bg-muted/40 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Exemplo CV CRM (Node.js)</span>
+            <Button size="sm" variant="ghost" className="gap-1" onClick={() => { navigator.clipboard.writeText(CV_CRM_SAMPLE); toast.success("Copiado."); }}>
+              <Copy className="h-3 w-3" /> Copiar
+            </Button>
+          </div>
+          <Textarea readOnly value={CV_CRM_SAMPLE} className="mt-2 font-mono text-xs h-56" />
+        </div>
 
         <div className="rounded-md border border-border bg-muted/40 p-4">
           <div className="flex items-center justify-between">
@@ -245,6 +258,36 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
     </div>
   );
 }
+
+const CV_CRM_SAMPLE = `const axios = require('axios');
+
+async function enviarLeadParaCV() {
+  const url = 'https://{dominiodocliente}.cvcrm.com.br/api/v1/integracoes/webhooks'; // Verifique a URL na documentação oficial
+  const token = 'SEU_TOKEN_DE_AUTORIZACAO_AQUI';
+
+  const dadosLead = {
+    nome: 'Nome do Cliente',
+    email: 'cliente@email.com',
+    telefone: '(11) 99999-9999',
+    mensagem: 'Tenho interesse em comprar um apartamento.',
+    origem: 'Site Oficial',
+    id_empreendimento: 123 // ID do empreendimento de interesse
+  };
+
+  try {
+    const response = await axios.post(url, dadosLead, {
+      headers: {
+        'Authorization': \`Bearer \${token}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Lead enviado com sucesso:', response.data);
+  } catch (error) {
+    console.error('Erro ao integrar com o CV CRM:', error.response?.data || error.message);
+  }
+}
+
+enviarLeadParaCV();`;
 
 const SAMPLE = `{
   "evento": "atendimento.enviado",
