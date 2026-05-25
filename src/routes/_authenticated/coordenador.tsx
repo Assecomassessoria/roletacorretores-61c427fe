@@ -47,6 +47,7 @@ type Corretor = {
   nome: string;
   email: string | null;
   telefone: string | null;
+  creci: string | null;
   ativo: boolean;
   status_habilitacao: "pendente" | "ativo" | "desativado";
   equipe: "alfa" | "beta" | null;
