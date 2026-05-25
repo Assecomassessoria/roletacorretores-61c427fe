@@ -22,6 +22,7 @@ import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
@@ -100,6 +101,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TotemPropagandaRoute = TotemPropagandaRouteImport.update({
+  id: '/propaganda',
+  path: '/propaganda',
+  getParentRoute: () => TotemRoute,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
@@ -189,7 +195,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
-  '/totem': typeof TotemRoute
+  '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
@@ -217,7 +224,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
-  '/totem': typeof TotemRoute
+  '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
@@ -247,7 +255,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
-  '/totem': typeof TotemRoute
+  '/totem': typeof TotemRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
   '/_authenticated/coordenador': typeof AuthenticatedCoordenadorRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/roleta'
     | '/usuarios'
+    | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
   fileRoutesByTo: FileRoutesByTo
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/roleta'
     | '/usuarios'
+    | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
   id:
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
+    | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
   fileRoutesById: FileRoutesById
@@ -364,7 +376,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   SistemaRoute: typeof SistemaRoute
-  TotemRoute: typeof TotemRoute
+  TotemRoute: typeof TotemRouteWithChildren
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
 }
@@ -461,6 +473,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/totem/propaganda': {
+      id: '/totem/propaganda'
+      path: '/propaganda'
+      fullPath: '/totem/propaganda'
+      preLoaderRoute: typeof TotemPropagandaRouteImport
+      parentRoute: typeof TotemRoute
     }
     '/_authenticated/usuarios': {
       id: '/_authenticated/usuarios'
@@ -597,6 +616,16 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface TotemRouteChildren {
+  TotemPropagandaRoute: typeof TotemPropagandaRoute
+}
+
+const TotemRouteChildren: TotemRouteChildren = {
+  TotemPropagandaRoute: TotemPropagandaRoute,
+}
+
+const TotemRouteWithChildren = TotemRoute._addFileChildren(TotemRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -610,7 +639,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   SistemaRoute: SistemaRoute,
-  TotemRoute: TotemRoute,
+  TotemRoute: TotemRouteWithChildren,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
 }

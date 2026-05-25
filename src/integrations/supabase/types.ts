@@ -367,6 +367,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           metodos_presenca: string[]
+          modo_propaganda: boolean
           nome: string
           pin_intervalo_min: number
           qrcode_token: string | null
@@ -402,6 +403,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           metodos_presenca?: string[]
+          modo_propaganda?: boolean
           nome: string
           pin_intervalo_min?: number
           qrcode_token?: string | null
@@ -437,6 +439,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           metodos_presenca?: string[]
+          modo_propaganda?: boolean
           nome?: string
           pin_intervalo_min?: number
           qrcode_token?: string | null
@@ -870,6 +873,48 @@ export type Database = {
           id?: string
           nome?: string
           telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      propagandas: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          criado_por: string | null
+          duracao_segundos: number
+          empreendimento_id: string
+          id: string
+          midia_tipo: string
+          midia_url: string
+          ordem: number
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          duracao_segundos?: number
+          empreendimento_id: string
+          id?: string
+          midia_tipo?: string
+          midia_url: string
+          ordem?: number
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          criado_por?: string | null
+          duracao_segundos?: number
+          empreendimento_id?: string
+          id?: string
+          midia_tipo?: string
+          midia_url?: string
+          ordem?: number
+          titulo?: string
           updated_at?: string
         }
         Relationships: []

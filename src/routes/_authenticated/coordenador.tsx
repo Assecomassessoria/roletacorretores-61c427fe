@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import {
   Save, Printer, MessageCircle, RefreshCw, Shield, MapPin, QrCode, Wifi,
   KeyRound, FileUp, Settings2, Users, UserCheck, UserX, Trash2, Sparkles,
-  LogOut, Clock, Plus, Timer, Zap, Search,
+  LogOut, Clock, Plus, Timer, Zap, Search, Tv, Image as ImageIcon, ExternalLink,
 } from "lucide-react";
 
 type Emp = {
@@ -40,6 +40,18 @@ type Emp = {
   equipe_beta_nome: string;
   roleta_automatica: boolean;
   roleta_auto_horarios: string[];
+  modo_propaganda: boolean;
+};
+
+type Propaganda = {
+  id: string;
+  empreendimento_id: string;
+  titulo: string;
+  midia_url: string;
+  midia_tipo: "image" | "video";
+  duracao_segundos: number;
+  ordem: number;
+  ativo: boolean;
 };
 
 type Corretor = {
@@ -123,10 +135,13 @@ function CoordenadorPage() {
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativo" | "desativado">("todos");
   const [filtroEquipe, setFiltroEquipe] = useState<"todas" | "alfa" | "beta" | "sem">("todas");
   const fileRef = useRef<HTMLInputElement>(null);
+  const propagandaFileRef = useRef<HTMLInputElement>(null);
+  const [propagandas, setPropagandas] = useState<Propaganda[]>([]);
+  const [novoTituloProp, setNovoTituloProp] = useState("");
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
-  useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); } }, [empId]);
+  useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); void carregarPropagandas(); } }, [empId]);
 
   useEffect(() => {
     if (!emp?.qrcode_token) { setQrSvg(""); return; }
@@ -184,12 +199,65 @@ function CoordenadorPage() {
       equipe_alfa_nome: emp.equipe_alfa_nome, equipe_beta_nome: emp.equipe_beta_nome,
       roleta_automatica: emp.roleta_automatica,
       roleta_auto_horarios: emp.roleta_auto_horarios,
+      modo_propaganda: emp.modo_propaganda,
     } as any).eq("id", emp.id);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Configurações salvas");
     setDirty(false);
   }
+
+  async function carregarPropagandas() {
+    const { data, error } = await (supabase as any)
+      .from("propagandas")
+      .select("*")
+      .eq("empreendimento_id", empId)
+      .order("ordem");
+    if (error) { toast.error(error.message); return; }
+    setPropagandas((data ?? []) as Propaganda[]);
+  }
+
+  async function uploadPropaganda(file: File) {
+    if (!emp) return;
+    const titulo = novoTituloProp.trim() || file.name.replace(/\.[^.]+$/, "");
+    const tipo: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
+    const ext = file.name.split(".").pop() ?? "bin";
+    const path = `${emp.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const up = await supabase.storage.from("propaganda-midias")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (up.error) return toast.error(up.error.message);
+    const signed = await supabase.storage.from("propaganda-midias")
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
+    const url = signed.data?.signedUrl ?? path;
+    const ins = await (supabase as any).from("propagandas").insert({
+      empreendimento_id: emp.id,
+      titulo,
+      midia_url: url,
+      midia_tipo: tipo,
+      duracao_segundos: tipo === "video" ? 0 : 8,
+      ordem: propagandas.length,
+      ativo: true,
+    });
+    if (ins.error) return toast.error(ins.error.message);
+    setNovoTituloProp("");
+    toast.success("Propaganda anexada");
+    carregarPropagandas();
+  }
+
+  async function togglePropaganda(p: Propaganda) {
+    const { error } = await (supabase as any).from("propagandas")
+      .update({ ativo: !p.ativo }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    carregarPropagandas();
+  }
+
+  async function removerPropaganda(p: Propaganda) {
+    if (!confirm(`Remover "${p.titulo}"?`)) return;
+    const { error } = await (supabase as any).from("propagandas").delete().eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Removida"); carregarPropagandas();
+  }
+
 
   function novoToken() { patch("qrcode_token", gerarToken()); toast.message("Token gerado — Salvar para persistir."); }
 
@@ -573,6 +641,93 @@ function CoordenadorPage() {
                 </ul>
               </div>
             )}
+          </Card>
+
+          {/* PROPAGANDA DO EMPREENDIMENTO (TOTEM) */}
+          <Card title="Propaganda do totem (vinculada ao CNPJ deste empreendimento)" icon={<Tv className="h-4 w-4" />}>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={emp.modo_propaganda}
+                  onCheckedChange={(v) => patch("modo_propaganda", v)}
+                />
+                <div>
+                  <div className="text-sm font-semibold">
+                    Modo Propaganda {emp.modo_propaganda ? "ATIVO" : "desligado"}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Exibe vídeos/imagens institucionais do empreendimento no totem quando não houver atendimento ativo.
+                  </div>
+                </div>
+              </div>
+              <a
+                href={`/totem/propaganda?emp=${emp.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Abrir tela do totem
+              </a>
+            </div>
+
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <Label className="text-xs">Título da mídia (opcional)</Label>
+                <Input
+                  value={novoTituloProp}
+                  onChange={(e) => setNovoTituloProp(e.target.value)}
+                  placeholder="Ex.: Tour 360° do apartamento decorado"
+                />
+              </div>
+              <input
+                ref={propagandaFileRef}
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPropaganda(f); e.currentTarget.value = ""; }}
+              />
+              <Button onClick={() => propagandaFileRef.current?.click()}>
+                <FileUp className="mr-1 h-4 w-4" /> Anexar mídia (imagem/vídeo)
+              </Button>
+            </div>
+
+            {propagandas.length === 0 ? (
+              <p className="rounded border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                Nenhuma propaganda cadastrada para este empreendimento.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {propagandas.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-3 rounded border border-border bg-card px-3 py-2">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {p.midia_tipo === "image" ? (
+                        <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <Tv className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                      <div className="overflow-hidden">
+                        <div className="truncate text-sm font-medium">{p.titulo}</div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {p.midia_tipo === "image" ? `imagem · ${p.duracao_segundos}s` : "vídeo"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={p.ativo ? "default" : "outline"} className={p.ativo ? "bg-emerald-600 hover:bg-emerald-600" : ""}>
+                        {p.ativo ? "ativa" : "pausada"}
+                      </Badge>
+                      <Switch checked={p.ativo} onCheckedChange={() => togglePropaganda(p)} />
+                      <Button size="sm" variant="ghost" onClick={() => removerPropaganda(p)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              <strong>Privacidade:</strong> as mídias ficam vinculadas ao CNPJ deste empreendimento. Outros coordenadores/incorporadoras não conseguem vê-las nem alterá-las.
+            </p>
           </Card>
 
           {/* AUDITORIA & AUTOMAÇÃO (CRON) */}
