@@ -207,7 +207,10 @@ function Planos() {
         <p className="mt-8 text-center text-[10px] text-muted-foreground">
           Pagamento processado por Mercado Pago · cancelamento a qualquer momento · suporte por WhatsApp.
         </p>
+
+        <NavActions />
       </main>
+
 
       <SiteFooter />
     </div>
