@@ -72,7 +72,7 @@ export const enviarAtendimentoCRM = createServerFn({ method: "POST" })
 
     const [empRes, corRes] = await Promise.all([
       supabase.from("empreendimentos").select("nome,cnpj,endereco").eq("id", at.empreendimento_id).maybeSingle(),
-      supabase.from("corretores").select("nome,telefone,email,creci").eq("id", at.corretor_id).maybeSingle(),
+      supabaseAdmin.from("corretores").select("nome,telefone,email,creci").eq("id", at.corretor_id).maybeSingle(),
     ]);
     const atendimento = { ...at, empreendimento: empRes.data ?? null, corretor: corRes.data ?? null };
 
