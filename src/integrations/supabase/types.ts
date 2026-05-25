@@ -155,6 +155,7 @@ export type Database = {
           acao: string
           created_at: string
           detalhes: Json | null
+          empreendimento_id: string | null
           id: string
           recurso: string | null
           user_email: string | null
@@ -164,6 +165,7 @@ export type Database = {
           acao: string
           created_at?: string
           detalhes?: Json | null
+          empreendimento_id?: string | null
           id?: string
           recurso?: string | null
           user_email?: string | null
@@ -173,6 +175,7 @@ export type Database = {
           acao?: string
           created_at?: string
           detalhes?: Json | null
+          empreendimento_id?: string | null
           id?: string
           recurso?: string | null
           user_email?: string | null
@@ -665,6 +668,7 @@ export type Database = {
         Row: {
           assinatura_id: string | null
           created_at: string
+          empreendimento_id: string | null
           external_id: string | null
           external_status: string | null
           id: string
@@ -682,6 +686,7 @@ export type Database = {
         Insert: {
           assinatura_id?: string | null
           created_at?: string
+          empreendimento_id?: string | null
           external_id?: string | null
           external_status?: string | null
           id?: string
@@ -699,6 +704,7 @@ export type Database = {
         Update: {
           assinatura_id?: string | null
           created_at?: string
+          empreendimento_id?: string | null
           external_id?: string | null
           external_status?: string | null
           id?: string
@@ -1026,6 +1032,7 @@ export type Database = {
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_master_email: { Args: { _email: string }; Returns: boolean }
       reset_escala_semanal: { Args: never; Returns: undefined }
+      storage_path_emp: { Args: { _name: string }; Returns: string }
       triagem_status_publico: {
         Args: { _triagem_id: string }
         Returns: {

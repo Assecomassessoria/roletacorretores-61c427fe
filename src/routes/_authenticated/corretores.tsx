@@ -74,15 +74,13 @@ function CorretoresPage() {
   async function uploadFoto(file: File) {
     if (!file.type.startsWith("image/")) return toast.error("Selecione uma imagem");
     if (file.size > 5 * 1024 * 1024) return toast.error("Imagem maior que 5MB");
+    if (!editing?.empreendimento_id) return toast.error("Selecione o empreendimento antes de enviar a foto");
     setFotoUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${crypto.randomUUID()}.${ext}`;
+      const path = `${editing.empreendimento_id}/${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (error) throw error;
-      // Bucket privado: armazenamos a URL pública legada apenas como referência
-      // do path; a leitura usa createSignedUrl. Persistir a URL pública mantém
-      // compatibilidade — o helper extrai o path automaticamente.
       const { data } = supabase.storage.from("corretores").getPublicUrl(path);
       setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
       toast.success("Foto enviada");
@@ -92,6 +90,7 @@ function CorretoresPage() {
       setFotoUploading(false);
     }
   }
+
 
   async function save(e: FormEvent) {
     e.preventDefault();
