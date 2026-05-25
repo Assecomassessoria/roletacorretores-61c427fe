@@ -224,10 +224,16 @@ export function ApresentacaoPage() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
-            to="/planos"
+            to="/sistema"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange to-orange/80 px-7 py-3 text-sm font-bold uppercase tracking-wider text-navy shadow-xl shadow-orange/30 transition hover:scale-[1.02]"
           >
-            Ver planos & assinar <ArrowRight className="h-4 w-4" />
+            <LayoutGrid className="h-4 w-4" /> Conhecer o Sistema <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/planos"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-gold px-7 py-3 text-sm font-bold uppercase tracking-wider text-gold-foreground shadow-lg shadow-gold/30 transition hover:brightness-110"
+          >
+            <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
           <Link
             to="/"
