@@ -111,6 +111,37 @@ export function ApresentacaoPage() {
         </div>
       </section>
 
+      {/* VÍDEO INSTITUCIONAL */}
+      <section className="border-b border-orange/20 bg-navy-deep/40">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <header className="mb-8 text-center">
+            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange">
+              Vídeo Institucional
+            </span>
+            <h2 className="mt-3 font-display text-3xl font-bold text-cream sm:text-4xl">
+              Conheça o <span className="text-orange">Ecossistema 4.0</span> em movimento
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-cream/70">
+              Em ~1 minuto, veja como a Roleta Corretor organiza o plantão, da recepção ao
+              fechamento.
+            </p>
+          </header>
+          <div className="relative mx-auto overflow-hidden rounded-2xl border-2 border-orange/40 shadow-2xl shadow-orange/10">
+            <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-orange/20 via-transparent to-transparent blur-2xl" />
+            <video
+              src="/videos/institucional.mp4"
+              controls
+              playsInline
+              preload="metadata"
+              poster={heroImg}
+              className="block aspect-video w-full bg-black"
+            >
+              Seu navegador não suporta vídeo HTML5.
+            </video>
+          </div>
+        </div>
+      </section>
+
       {/* JORNADA EM 3 CENAS */}
       <section className="mx-auto max-w-6xl px-6 py-20">
         <header className="mb-12 text-center">
