@@ -101,6 +101,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
+        <MestraGear />
         <LorenzaChat />
         <Toaster richColors position="top-right" />
       </AuthProvider>
