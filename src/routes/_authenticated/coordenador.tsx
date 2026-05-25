@@ -40,6 +40,18 @@ type Emp = {
   equipe_beta_nome: string;
   roleta_automatica: boolean;
   roleta_auto_horarios: string[];
+  modo_propaganda: boolean;
+};
+
+type Propaganda = {
+  id: string;
+  empreendimento_id: string;
+  titulo: string;
+  midia_url: string;
+  midia_tipo: "image" | "video";
+  duracao_segundos: number;
+  ordem: number;
+  ativo: boolean;
 };
 
 type Corretor = {
