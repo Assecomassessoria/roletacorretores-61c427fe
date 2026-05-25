@@ -148,7 +148,7 @@ function CorretoresPage() {
     toast.success("Cadastro completo");
     setSenha(""); setSenha2("");
     // Recupera dados completos para o QR Code
-    const { data: full } = await supabase.from("corretores").select("*").eq("id", corretorId!).single();
+    const { row: full } = await fetchCorretor({ data: { id: corretorId! } });
     setEditing(null);
     if (full) setQrAlvo(full as Corretor);
     load();
