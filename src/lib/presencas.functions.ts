@@ -26,8 +26,25 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const dia = data.data ?? new Date().toISOString().slice(0, 10);
+
+    // Verifica privilégio admin/master para permitir consulta sem filtro
+    const { data: master } = await supabaseAdmin.rpc("is_master", { _user_id: userId });
+    const { data: rolesRows } = await supabaseAdmin
+      .from("user_roles").select("role, empreendimento_id").eq("user_id", userId);
+    const isAdmin = !!master || (rolesRows ?? []).some((r) =>
+      ["incorporadora", "gerente"].includes(r.role as string));
+
+    if (!data.empreendimento_id && !isAdmin) {
+      throw new Error("Informe o empreendimento.");
+    }
+    if (data.empreendimento_id && !isAdmin) {
+      const { data: ok } = await supabaseAdmin.rpc("user_in_empreendimento", {
+        _uid: userId, _emp: data.empreendimento_id,
+      });
+      if (!ok) throw new Error("Sem permissão para este empreendimento.");
+    }
 
     let q = supabase
       .from("plantoes")
@@ -38,7 +55,7 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
     if (data.empreendimento_id) q = q.eq("empreendimento_id", data.empreendimento_id);
 
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("Erro ao listar presenças.");
     const list = rows ?? [];
 
     const corretorIds = Array.from(new Set(list.map((r) => r.corretor_id).filter(Boolean)));
