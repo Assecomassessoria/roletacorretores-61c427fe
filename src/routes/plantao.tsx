@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SiteHeader } from "@/components/site-header";
 import { NavActions } from "@/components/nav-actions";
 import { SugestoesPanel } from "@/components/sugestoes-panel";
-import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico } from "@/lib/plantao.functions";
+import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico, lookupEmpreendimentosPorCreci } from "@/lib/plantao.functions";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
 
@@ -111,9 +111,40 @@ function PlantaoPage() {
   const [roleta, setRoleta] = useState<RoletaDia | null>(null);
   const [loadingRoleta, setLoadingRoleta] = useState(false);
 
+  type EmpCnpj = { id: string; nome: string; cnpj: string | null };
+  const [empsDoCreci, setEmpsDoCreci] = useState<EmpCnpj[] | null>(null);
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const lookupCreci = useServerFn(lookupEmpreendimentosPorCreci);
+
   useEffect(() => {
     listEmps({}).then((r) => setEmps(r.empreendimentos)).catch(() => {});
   }, [listEmps]);
+
+  async function buscarPorCreci() {
+    const creci = form.creci.trim();
+    if (creci.length < 2) return toast.error("Digite seu CRECI");
+    setLookupBusy(true);
+    setEmpsDoCreci(null);
+    setForm((s) => ({ ...s, empreendimento_id: "" }));
+    try {
+      const r = await lookupCreci({ data: { creci } });
+      const list = r.empreendimentos as EmpCnpj[];
+      if (list.length === 0) {
+        toast.error("CRECI não encontrado ou inativo.");
+        setEmpsDoCreci([]);
+        return;
+      }
+      setEmpsDoCreci(list);
+      if (list.length === 1) {
+        setForm((s) => ({ ...s, empreendimento_id: list[0].id }));
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao consultar CRECI");
+    } finally {
+      setLookupBusy(false);
+    }
+  }
+
 
   const refreshEscala = async (empId: string) => {
     try {
@@ -237,39 +268,67 @@ function PlantaoPage() {
             className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-sm"
           >
             <div className="space-y-1.5">
-              <Label className="text-xs">Empreendimento</Label>
-              <Select
-                value={form.empreendimento_id}
-                onValueChange={(v) => setForm((s) => ({ ...s, empreendimento_id: v }))}
-              >
-                <SelectTrigger><SelectValue placeholder="Selecione o stand" /></SelectTrigger>
-                <SelectContent>
-                  {emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs">CRECI</Label>
+              <Label className="text-xs">CRECI</Label>
+              <div className="flex gap-2">
                 <Input
                   required
                   autoComplete="username"
                   placeholder="Ex.: 123456"
                   value={form.creci}
-                  onChange={(e) => setForm((s) => ({ ...s, creci: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((s) => ({ ...s, creci: e.target.value, empreendimento_id: "" }));
+                    setEmpsDoCreci(null);
+                  }}
+                  onBlur={() => { if (form.creci.trim().length >= 2 && !empsDoCreci) buscarPorCreci(); }}
                 />
+                <Button type="button" variant="outline" onClick={buscarPorCreci} disabled={lookupBusy}>
+                  {lookupBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+                </Button>
               </div>
+              <p className="text-[11px] text-muted-foreground">
+                Digite seu CRECI para localizar automaticamente o(s) empreendimento(s) vinculado(s).
+              </p>
+            </div>
+
+            {empsDoCreci && empsDoCreci.length > 0 && (
               <div className="space-y-1.5">
-                <Label className="text-xs">Senha</Label>
-                <Input
-                  required
-                  type="password"
-                  autoComplete="current-password"
-                  value={form.senha}
-                  onChange={(e) => setForm((s) => ({ ...s, senha: e.target.value }))}
-                />
+                <Label className="text-xs">
+                  Empreendimento{empsDoCreci.length > 1 ? "s vinculados ao seu CRECI" : ""}
+                </Label>
+                {empsDoCreci.length === 1 ? (
+                  <div className="rounded-md border border-border bg-muted/30 p-3 text-sm">
+                    <div className="font-semibold text-foreground">{empsDoCreci[0].nome}</div>
+                    {empsDoCreci[0].cnpj && (
+                      <div className="text-xs text-muted-foreground">CNPJ: {empsDoCreci[0].cnpj}</div>
+                    )}
+                  </div>
+                ) : (
+                  <Select
+                    value={form.empreendimento_id}
+                    onValueChange={(v) => setForm((s) => ({ ...s, empreendimento_id: v }))}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Selecione o empreendimento (CNPJ)" /></SelectTrigger>
+                    <SelectContent>
+                      {empsDoCreci.map((e) => (
+                        <SelectItem key={e.id} value={e.id}>
+                          {e.nome}{e.cnpj ? ` — CNPJ ${e.cnpj}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Senha</Label>
+              <Input
+                required
+                type="password"
+                autoComplete="current-password"
+                value={form.senha}
+                onChange={(e) => setForm((s) => ({ ...s, senha: e.target.value }))}
+              />
             </div>
 
             <div className="rounded-md border border-dashed border-border bg-muted/30 p-3 text-xs">
@@ -305,6 +364,7 @@ function PlantaoPage() {
                     onChange={(e) => setForm((s) => ({ ...s, pin: e.target.value }))}
                   />
                 </li>
+
                 <li className="flex items-center gap-2 text-muted-foreground">
                   <QrCode className="h-3.5 w-3.5" /> QR Code do stand é capturado automaticamente quando aplicável.
                 </li>
