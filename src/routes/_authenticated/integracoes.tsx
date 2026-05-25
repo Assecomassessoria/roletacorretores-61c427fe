@@ -219,6 +219,19 @@ function IntegracoesPage() {
         <Step n={5} title="Segurança (opcional, recomendado)">
           Defina um <strong>Secret</strong>. Cada chamada incluirá o header <code>X-Roleta-Signature</code> com o HMAC-SHA256 do corpo. Valide no destino para evitar requisições falsas.
         </Step>
+        <Step n={6} title="Exemplo: integração com CV CRM">
+          Se você utiliza o CV CRM, abaixo está um exemplo de como enviar um lead usando o payload recebido pelo webhook:
+        </Step>
+
+        <div className="rounded-md border border-border bg-muted/40 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Exemplo CV CRM (Node.js)</span>
+            <Button size="sm" variant="ghost" className="gap-1" onClick={() => { navigator.clipboard.writeText(CV_CRM_SAMPLE); toast.success("Copiado."); }}>
+              <Copy className="h-3 w-3" /> Copiar
+            </Button>
+          </div>
+          <Textarea readOnly value={CV_CRM_SAMPLE} className="mt-2 font-mono text-xs h-56" />
+        </div>
 
         <div className="rounded-md border border-border bg-muted/40 p-4">
           <div className="flex items-center justify-between">
