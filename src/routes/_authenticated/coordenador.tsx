@@ -381,8 +381,10 @@ function CoordenadorPage() {
             </p>
           </Card>
 
-
+          {/* Ciclo */}
+          <Card title="Selecione o ciclo operacional ativo">
             <div className="grid gap-3 sm:grid-cols-3">
+
               {(["unica","manha","tarde"] as const).map((c) => {
                 const active = emp.ciclo_roleta === c;
                 return (
