@@ -1,0 +1,11 @@
+REVOKE EXECUTE ON FUNCTION public.users_share_empreendimento(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.has_role_in_empreendimento(uuid, public.app_role, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.is_master(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.user_in_empreendimento(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.assinatura_status(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.can_manage_user_roles(uuid, uuid, public.app_role, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.audit_log_set_email() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.plantoes_corretor_presence_guard() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.reset_escala_semanal() FROM PUBLIC, anon;
