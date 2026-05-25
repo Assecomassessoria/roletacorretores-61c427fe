@@ -78,7 +78,7 @@ function PlantaoPage() {
     if (!resetSenha) return toast.error("Informe a senha");
     setResetBusy(true);
     try {
-      const r = await resetAdmin({ data: { empreendimento_id: form.empreendimento_id, senha: resetSenha } });
+      const r = await resetAdmin({ data: { empreendimento_id: form.empreendimento_id } });
       toast.success(`Escala resetada (${r.removidos} registro${r.removidos === 1 ? "" : "s"} removido${r.removidos === 1 ? "" : "s"}). Vagas abertas a partir de domingo.`);
       setResetSenha("");
       setResetOpen(false);
