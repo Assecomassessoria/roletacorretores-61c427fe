@@ -78,6 +78,10 @@ const InscreverInput = z.object({
   equipe: z.enum(["alfa", "beta"]),
   nome: z.string().trim().min(2).max(120),
   data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  periodos: z
+    .array(z.enum(["manha", "tarde"]))
+    .min(1, "Selecione ao menos um período")
+    .default(["manha", "tarde"]),
 });
 
 export const inscreverEscala = createServerFn({ method: "POST" })
@@ -108,12 +112,12 @@ export const inscreverEscala = createServerFn({ method: "POST" })
 
     const { data: existentes } = await supabaseAdmin
       .from("escala_semanal")
-      .select("id, data, corretor_id")
+      .select("id, data, corretor_id, periodos")
       .eq("empreendimento_id", data.empreendimento_id)
       .eq("equipe", data.equipe)
       .in("data", dias);
 
-    const jaInscrito = (existentes ?? []).find((s) => s.corretor_id === corretor.id);
+    const jaInscrito = (existentes ?? []).find((s: any) => s.corretor_id === corretor.id);
     if (jaInscrito) {
       const dt = new Date(`${jaInscrito.data}T12:00:00`);
       return {
@@ -123,10 +127,11 @@ export const inscreverEscala = createServerFn({ method: "POST" })
         data_br: dt.toLocaleDateString("pt-BR"),
         dia_semana: DIAS[dt.getDay()],
         corretor_nome: corretor.nome,
+        periodos: (jaInscrito as any).periodos ?? [],
       };
     }
 
-    const ocupadoNoDia = (existentes ?? []).find((s) => s.data === data.data && s.corretor_id);
+    const ocupadoNoDia = (existentes ?? []).find((s: any) => s.data === data.data && s.corretor_id);
     if (ocupadoNoDia) throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
 
     const { error: insErr } = await supabaseAdmin
@@ -136,7 +141,8 @@ export const inscreverEscala = createServerFn({ method: "POST" })
         equipe: data.equipe,
         data: data.data,
         corretor_id: corretor.id,
-      });
+        periodos: data.periodos,
+      } as any);
     if (insErr) throw new Error(insErr.message);
 
     const dt = new Date(`${data.data}T12:00:00`);
@@ -147,6 +153,7 @@ export const inscreverEscala = createServerFn({ method: "POST" })
       data_br: dt.toLocaleDateString("pt-BR"),
       dia_semana: DIAS[dt.getDay()],
       corretor_nome: corretor.nome,
+      periodos: data.periodos,
     };
   });
 
