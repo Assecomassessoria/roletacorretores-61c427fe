@@ -43,20 +43,43 @@ async function signFoto(urlOrPath: string | null): Promise<string | null> {
   return data.signedUrl;
 }
 
+const GENERIC_AUTH_ERROR = "CRECI ou senha inválidos.";
+const MAX_FALHAS = 5;
+const JANELA_MIN = 15;
+
 export const checkInPlantao = createServerFn({ method: "POST" })
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }) => {
-    // 1. Localizar corretor pelo CRECI no empreendimento
+    // Anti brute-force: bloqueia após MAX_FALHAS tentativas na janela
+    const desde = new Date(Date.now() - JANELA_MIN * 60_000).toISOString();
+    const { count: falhas } = await supabaseAdmin
+      .from("checkin_falhas")
+      .select("id", { count: "exact", head: true })
+      .eq("empreendimento_id", data.empreendimento_id)
+      .ilike("creci", data.creci.trim())
+      .gte("tentativa_em", desde);
+    if ((falhas ?? 0) >= MAX_FALHAS) {
+      throw new Error("Muitas tentativas. Tente novamente em alguns minutos.");
+    }
+
+    async function registrarFalha() {
+      await supabaseAdmin.from("checkin_falhas").insert({
+        empreendimento_id: data.empreendimento_id,
+        creci: data.creci.trim(),
+      });
+    }
+
     const { data: corretor, error: cErr } = await supabaseAdmin
       .from("corretores")
       .select("id, nome, telefone, email, creci, user_id, empreendimento_id, ativo, ordem_roleta, foto_url")
       .eq("empreendimento_id", data.empreendimento_id)
       .ilike("creci", data.creci.trim())
       .maybeSingle();
-    if (cErr) throw new Error(cErr.message);
-    if (!corretor) throw new Error("CRECI não encontrado neste empreendimento");
-    if (!corretor.ativo) throw new Error("Corretor inativo");
-    if (!corretor.email) throw new Error("Corretor sem e-mail cadastrado — fale com o coordenador");
+    if (cErr) { console.error(cErr); throw new Error("Erro ao validar credenciais."); }
+    if (!corretor || !corretor.ativo || !corretor.email) {
+      await registrarFalha();
+      throw new Error(GENERIC_AUTH_ERROR);
+    }
 
     const authClient = createClient(
       process.env.SUPABASE_URL!,
@@ -67,7 +90,10 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       email: corretor.email,
       password: data.senha,
     });
-    if (sErr || !signed?.user) throw new Error("Senha incorreta");
+    if (sErr || !signed?.user) {
+      await registrarFalha();
+      throw new Error(GENERIC_AUTH_ERROR);
+    }
 
     const { data: emp, error: eErr } = await supabaseAdmin
       .from("empreendimentos")
