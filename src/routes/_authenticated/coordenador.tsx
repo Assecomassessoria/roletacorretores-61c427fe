@@ -289,6 +289,9 @@ function CoordenadorPage() {
             Painel de Operações Pro
           </h1>
           <p className="text-sm text-muted-foreground">Gestão de equipes e escala de plantão</p>
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+            INFORMETEC — Tecnologia em Informações
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-56">
@@ -297,6 +300,17 @@ function CoordenadorPage() {
               <SelectContent>{emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          {emp && (
+            <Button
+              variant={emp.roleta_automatica ? "default" : "outline"}
+              onClick={() => patch("roleta_automatica", !emp.roleta_automatica)}
+              title="Alterna entre disparo automático nos horários programados e disparo manual"
+              className={emp.roleta_automatica ? "bg-emerald-600 hover:bg-emerald-600/90 text-white" : ""}
+            >
+              <Zap className="mr-1 h-4 w-4" />
+              {emp.roleta_automatica ? "Roleta Automática ✓" : "Roleta Automática"}
+            </Button>
+          )}
           <Button variant="secondary" onClick={() => navigate({ to: "/roleta" })}>
             <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
           </Button>
@@ -330,9 +344,47 @@ function CoordenadorPage() {
         <p className="text-sm text-muted-foreground">Selecione um empreendimento.</p>
       ) : (
         <div className="space-y-6">
+          {/* Modo de roleta — seleção rápida Gerente/Coordenador */}
+          <Card title="Modo de operação da roleta" icon={<Zap className="h-4 w-4" />}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                onClick={() => patch("roleta_automatica", true)}
+                className={`flex items-start gap-3 rounded-lg border-2 p-4 text-left transition ${
+                  emp.roleta_automatica ? "border-emerald-500 bg-emerald-500/5" : "border-border hover:border-emerald-500/40"
+                }`}
+              >
+                <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${emp.roleta_automatica ? "border-emerald-500" : "border-muted-foreground"}`}>
+                  {emp.roleta_automatica && <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />}
+                </span>
+                <div>
+                  <div className="text-sm font-bold">Roleta Automática</div>
+                  <div className="text-xs text-muted-foreground">Dispara sozinha nos horários programados (CRON) — sem intervenção manual.</div>
+                </div>
+              </button>
+              <button
+                onClick={() => patch("roleta_automatica", false)}
+                className={`flex items-start gap-3 rounded-lg border-2 p-4 text-left transition ${
+                  !emp.roleta_automatica ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                }`}
+              >
+                <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${!emp.roleta_automatica ? "border-primary" : "border-muted-foreground"}`}>
+                  {!emp.roleta_automatica && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                </span>
+                <div>
+                  <div className="text-sm font-bold">Bater Roleta (manual)</div>
+                  <div className="text-xs text-muted-foreground">Gerente/Coordenador dispara a roleta manualmente quando desejar.</div>
+                </div>
+              </button>
+            </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Lembre de clicar em <strong>Salvar Alterações</strong>. Configure os horários da automação em <em>Auditoria & Automação (CRON)</em>.
+            </p>
+          </Card>
+
           {/* Ciclo */}
           <Card title="Selecione o ciclo operacional ativo">
             <div className="grid gap-3 sm:grid-cols-3">
+
               {(["unica","manha","tarde"] as const).map((c) => {
                 const active = emp.ciclo_roleta === c;
                 return (
