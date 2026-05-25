@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MapPin, UserCheck, ArrowRight } from "lucide-react";
 
-type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; wifi_ssid: string | null };
+type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number };
 type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean };
 type Plantao = { id: string; corretor_id: string; empreendimento_id: string; data: string; hora_inicio: string; hora_fim: string; status: string; presenca_confirmada_em: string | null };
 
