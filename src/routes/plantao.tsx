@@ -430,6 +430,30 @@ function PlantaoPage() {
                       </Select>
                     </div>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Períodos</Label>
+                    <div className="flex flex-wrap gap-3 rounded-md border border-border bg-background px-3 py-2 text-xs">
+                      <label className="flex cursor-pointer items-center gap-2 font-medium text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={periodoManha}
+                          onChange={(e) => setPeriodoManha(e.target.checked)}
+                          className="h-4 w-4 cursor-pointer accent-orange"
+                        />
+                        Manhã
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-2 font-medium text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={periodoTarde}
+                          onChange={(e) => setPeriodoTarde(e.target.checked)}
+                          className="h-4 w-4 cursor-pointer accent-orange"
+                        />
+                        Tarde
+                      </label>
+                      <span className="text-[10px] text-muted-foreground">Marque um ou os dois turnos do dia escolhido.</span>
+                    </div>
+                  </div>
                   <Button
                     type="button"
                     variant="secondary"
