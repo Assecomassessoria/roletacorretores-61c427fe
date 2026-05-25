@@ -199,12 +199,65 @@ function CoordenadorPage() {
       equipe_alfa_nome: emp.equipe_alfa_nome, equipe_beta_nome: emp.equipe_beta_nome,
       roleta_automatica: emp.roleta_automatica,
       roleta_auto_horarios: emp.roleta_auto_horarios,
+      modo_propaganda: emp.modo_propaganda,
     } as any).eq("id", emp.id);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Configurações salvas");
     setDirty(false);
   }
+
+  async function carregarPropagandas() {
+    const { data, error } = await (supabase as any)
+      .from("propagandas")
+      .select("*")
+      .eq("empreendimento_id", empId)
+      .order("ordem");
+    if (error) { toast.error(error.message); return; }
+    setPropagandas((data ?? []) as Propaganda[]);
+  }
+
+  async function uploadPropaganda(file: File) {
+    if (!emp) return;
+    const titulo = novoTituloProp.trim() || file.name.replace(/\.[^.]+$/, "");
+    const tipo: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
+    const ext = file.name.split(".").pop() ?? "bin";
+    const path = `${emp.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const up = await supabase.storage.from("propaganda-midias")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (up.error) return toast.error(up.error.message);
+    const signed = await supabase.storage.from("propaganda-midias")
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
+    const url = signed.data?.signedUrl ?? path;
+    const ins = await (supabase as any).from("propagandas").insert({
+      empreendimento_id: emp.id,
+      titulo,
+      midia_url: url,
+      midia_tipo: tipo,
+      duracao_segundos: tipo === "video" ? 0 : 8,
+      ordem: propagandas.length,
+      ativo: true,
+    });
+    if (ins.error) return toast.error(ins.error.message);
+    setNovoTituloProp("");
+    toast.success("Propaganda anexada");
+    carregarPropagandas();
+  }
+
+  async function togglePropaganda(p: Propaganda) {
+    const { error } = await (supabase as any).from("propagandas")
+      .update({ ativo: !p.ativo }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    carregarPropagandas();
+  }
+
+  async function removerPropaganda(p: Propaganda) {
+    if (!confirm(`Remover "${p.titulo}"?`)) return;
+    const { error } = await (supabase as any).from("propagandas").delete().eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Removida"); carregarPropagandas();
+  }
+
 
   function novoToken() { patch("qrcode_token", gerarToken()); toast.message("Token gerado — Salvar para persistir."); }
 
