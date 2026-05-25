@@ -70,6 +70,39 @@ function gerarToken() {
   return `STAND-${s}`;
 }
 
+function imprimirListaCorretores(emp: Emp, lista: Corretor[], escopo: string, autoPrint = false) {
+  const linhas = lista
+    .map((c, i) => `<tr><td>${i + 1}</td><td>${c.nome}</td><td>${c.creci ?? "-"}</td><td>${c.telefone ?? "-"}</td><td>${c.equipe === "alfa" ? emp.equipe_alfa_nome : c.equipe === "beta" ? emp.equipe_beta_nome : "-"}</td></tr>`)
+    .join("");
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Corretores — ${emp.nome} — ${escopo}</title>
+<style>body{font-family:system-ui,Arial,sans-serif;padding:24px;color:#111}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:13px;margin:0 0 16px;color:#555;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}
+th{background:#f3f4f6;text-transform:uppercase;font-size:10px;letter-spacing:.05em}
+@media print{@page{margin:14mm}}</style></head><body>
+<h1>${emp.nome} — Listagem de Corretores</h1>
+<h2>Escopo: ${escopo} · Total: ${lista.length} · Gerado em ${new Date().toLocaleString("pt-BR")}</h2>
+<table><thead><tr><th>#</th><th>Nome</th><th>CRECI</th><th>Telefone</th><th>Equipe</th></tr></thead><tbody>${linhas}</tbody></table>
+${autoPrint ? "<script>window.onload=()=>setTimeout(()=>window.print(),300)</script>" : ""}
+</body></html>`;
+  const w = window.open("", "_blank");
+  if (!w) { toast.error("Permita pop-ups para gerar o documento."); return; }
+  w.document.write(html); w.document.close();
+  if (!autoPrint) setTimeout(() => w.print(), 400);
+}
+
+function enviarListaWhatsApp(emp: Emp, lista: Corretor[], escopo: string) {
+  const txt = [`*${emp.nome}* — Corretores (${escopo}) · ${lista.length}`, "",
+    ...lista.map((c, i) => `${i + 1}. ${c.nome} — CRECI ${c.creci ?? "-"} — ${c.telefone ?? "s/ tel"}`)].join("\n");
+  const url = emp.whatsapp_grupo_url
+    ? emp.whatsapp_grupo_url
+    : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+  try { navigator.clipboard?.writeText(txt); toast.success("Lista copiada para a área de transferência."); } catch { /* noop */ }
+  window.open(url, "_blank");
+}
+
+
 function CoordenadorPage() {
   const navigate = useNavigate();
   const { roles, isMaster, signOut } = useAuth();
