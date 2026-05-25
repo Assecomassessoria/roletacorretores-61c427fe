@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
