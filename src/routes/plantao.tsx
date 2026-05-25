@@ -111,9 +111,40 @@ function PlantaoPage() {
   const [roleta, setRoleta] = useState<RoletaDia | null>(null);
   const [loadingRoleta, setLoadingRoleta] = useState(false);
 
+  type EmpCnpj = { id: string; nome: string; cnpj: string | null };
+  const [empsDoCreci, setEmpsDoCreci] = useState<EmpCnpj[] | null>(null);
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const lookupCreci = useServerFn(lookupEmpreendimentosPorCreci);
+
   useEffect(() => {
     listEmps({}).then((r) => setEmps(r.empreendimentos)).catch(() => {});
   }, [listEmps]);
+
+  async function buscarPorCreci() {
+    const creci = form.creci.trim();
+    if (creci.length < 2) return toast.error("Digite seu CRECI");
+    setLookupBusy(true);
+    setEmpsDoCreci(null);
+    setForm((s) => ({ ...s, empreendimento_id: "" }));
+    try {
+      const r = await lookupCreci({ data: { creci } });
+      const list = r.empreendimentos as EmpCnpj[];
+      if (list.length === 0) {
+        toast.error("CRECI não encontrado ou inativo.");
+        setEmpsDoCreci([]);
+        return;
+      }
+      setEmpsDoCreci(list);
+      if (list.length === 1) {
+        setForm((s) => ({ ...s, empreendimento_id: list[0].id }));
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao consultar CRECI");
+    } finally {
+      setLookupBusy(false);
+    }
+  }
+
 
   const refreshEscala = async (empId: string) => {
     try {
