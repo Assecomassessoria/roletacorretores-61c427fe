@@ -49,8 +49,8 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
         ? supabase.from("corretores").select("id, nome, creci, telefone, foto_url").in("id", corretorIds)
         : Promise.resolve({ data: [] as Array<{ id: string; nome: string; creci: string | null; telefone: string | null; foto_url: string | null }> }),
       empIds.length
-        ? supabase.from("empreendimentos").select("id, nome, metodos_presenca, wifi_ssid, latitude, longitude, raio_metros").in("id", empIds)
-        : Promise.resolve({ data: [] as Array<{ id: string; nome: string; metodos_presenca: string[] | null; wifi_ssid: string | null; latitude: number | null; longitude: number | null; raio_metros: number | null }> }),
+        ? supabase.from("empreendimentos").select("id, nome, metodos_presenca, latitude, longitude, raio_metros").in("id", empIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; nome: string; metodos_presenca: string[] | null; latitude: number | null; longitude: number | null; raio_metros: number | null }> }),
     ]);
 
     const cMap = new Map((corretores ?? []).map((c) => [c.id, c]));
