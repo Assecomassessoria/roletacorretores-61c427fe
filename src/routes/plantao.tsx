@@ -91,13 +91,15 @@ function PlantaoPage() {
   }
 
 
-  type EscalaItem = { data: string; data_br: string; dia_semana: string; slot_id: string | null; corretor: { id: string; nome: string; creci: string | null } | null };
+  type EscalaItem = { data: string; data_br: string; dia_semana: string; slot_id: string | null; periodos: string[]; corretor: { id: string; nome: string; creci: string | null } | null };
   type Escala = { feriados: string[]; escala: Array<{ equipe: string; itens: EscalaItem[] }> };
   const [escala, setEscala] = useState<Escala | null>(null);
   const [equipeSel, setEquipeSel] = useState<"alfa" | "beta">("alfa");
   const [escalaBusy, setEscalaBusy] = useState(false);
   const [escalaNome, setEscalaNome] = useState("");
   const [escalaData, setEscalaData] = useState<string>("");
+  const [periodoManha, setPeriodoManha] = useState(true);
+  const [periodoTarde, setPeriodoTarde] = useState(true);
 
 
   const [emps, setEmps] = useState<Emp[]>([]);
