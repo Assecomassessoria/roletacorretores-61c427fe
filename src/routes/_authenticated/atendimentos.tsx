@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { registrarTriagem } from "@/lib/triagem.functions";
+import { NavActions } from "@/components/nav-actions";
 
 export const Route = createFileRoute("/_authenticated/atendimentos")({
   component: MesaTriagem,
@@ -482,6 +483,7 @@ function MesaTriagem() {
           </Button>
         </div>
       </section>
+      <NavActions />
     </main>
   );
 }

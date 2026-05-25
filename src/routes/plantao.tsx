@@ -91,13 +91,15 @@ function PlantaoPage() {
   }
 
 
-  type EscalaItem = { data: string; data_br: string; dia_semana: string; slot_id: string | null; corretor: { id: string; nome: string; creci: string | null } | null };
+  type EscalaItem = { data: string; data_br: string; dia_semana: string; slot_id: string | null; periodos: string[]; corretor: { id: string; nome: string; creci: string | null } | null };
   type Escala = { feriados: string[]; escala: Array<{ equipe: string; itens: EscalaItem[] }> };
   const [escala, setEscala] = useState<Escala | null>(null);
   const [equipeSel, setEquipeSel] = useState<"alfa" | "beta">("alfa");
   const [escalaBusy, setEscalaBusy] = useState(false);
   const [escalaNome, setEscalaNome] = useState("");
   const [escalaData, setEscalaData] = useState<string>("");
+  const [periodoManha, setPeriodoManha] = useState(true);
+  const [periodoTarde, setPeriodoTarde] = useState(true);
 
 
   const [emps, setEmps] = useState<Emp[]>([]);
@@ -130,9 +132,14 @@ function PlantaoPage() {
     if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
     if (!escalaNome.trim()) return toast.error("Digite seu nome");
     if (!escalaData) return toast.error("Selecione o dia da semana");
+    const periodos = [
+      ...(periodoManha ? ["manha" as const] : []),
+      ...(periodoTarde ? ["tarde" as const] : []),
+    ];
+    if (periodos.length === 0) return toast.error("Selecione ao menos um período (Manhã ou Tarde)");
     setEscalaBusy(true);
     try {
-      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData } });
+      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData, periodos } });
       toast.success(r.ja_inscrito ? `${r.corretor_nome} já está em ${r.data_br} (${r.dia_semana})` : `${r.corretor_nome} escalado(a) para ${r.data_br} — ${r.dia_semana}`);
       setEscalaNome("");
       setEscalaData("");
@@ -363,10 +370,14 @@ function PlantaoPage() {
                             <th className="px-3 py-2 text-left">Nome</th>
                             <th className="px-3 py-2 text-left">Data</th>
                             <th className="px-3 py-2 text-left">Dia</th>
+                            <th className="px-3 py-2 text-left">Períodos</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                          {e.itens.map((i) => (
+                          {e.itens.map((i) => {
+                            const temM = (i.periodos ?? []).includes("manha");
+                            const temT = (i.periodos ?? []).includes("tarde");
+                            return (
                             <tr key={i.data}>
                               <td className="px-3 py-2 font-medium text-foreground">
                                 {i.corretor ? i.corretor.nome : <span className="text-muted-foreground italic">— vaga aberta —</span>}
@@ -374,8 +385,19 @@ function PlantaoPage() {
                               </td>
                               <td className="px-3 py-2 text-muted-foreground">{i.data_br}</td>
                               <td className="px-3 py-2 text-muted-foreground">{i.dia_semana}</td>
+                              <td className="px-3 py-2">
+                                {i.corretor ? (
+                                  <span className="flex gap-1">
+                                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${temM ? "bg-orange/15 text-orange" : "bg-muted text-muted-foreground/50 line-through"}`}>M</span>
+                                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${temT ? "bg-orange/15 text-orange" : "bg-muted text-muted-foreground/50 line-through"}`}>T</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground/50">—</span>
+                                )}
+                              </td>
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -406,6 +428,30 @@ function PlantaoPage() {
                             ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Períodos</Label>
+                    <div className="flex flex-wrap gap-3 rounded-md border border-border bg-background px-3 py-2 text-xs">
+                      <label className="flex cursor-pointer items-center gap-2 font-medium text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={periodoManha}
+                          onChange={(e) => setPeriodoManha(e.target.checked)}
+                          className="h-4 w-4 cursor-pointer accent-orange"
+                        />
+                        Manhã
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-2 font-medium text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={periodoTarde}
+                          onChange={(e) => setPeriodoTarde(e.target.checked)}
+                          className="h-4 w-4 cursor-pointer accent-orange"
+                        />
+                        Tarde
+                      </label>
+                      <span className="text-[10px] text-muted-foreground">Marque um ou os dois turnos do dia escolhido.</span>
                     </div>
                   </div>
                   <Button

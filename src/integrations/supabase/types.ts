@@ -435,6 +435,7 @@ export type Database = {
           empreendimento_id: string
           equipe: string
           id: string
+          periodos: string[]
         }
         Insert: {
           corretor_id?: string | null
@@ -444,6 +445,7 @@ export type Database = {
           empreendimento_id: string
           equipe: string
           id?: string
+          periodos?: string[]
         }
         Update: {
           corretor_id?: string | null
@@ -453,6 +455,7 @@ export type Database = {
           empreendimento_id?: string
           equipe?: string
           id?: string
+          periodos?: string[]
         }
         Relationships: []
       }

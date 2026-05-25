@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { NavActions } from "@/components/nav-actions";
 import {
   criarTriagemTotem, dispararTriagemTotem, listarEmpreendimentosTotem,
   reencontrarCorretorTotem, solicitarGerenciaTotem,
@@ -319,6 +320,7 @@ function TotemPage() {
         {mode === "gerenciaResult" && (
           <GerenciaResult nome={nome} onBack={reset} />
         )}
+        <NavActions className="text-white/70" />
       </main>
 
       {/* RODAPÉ — acesso restrito staff */}
