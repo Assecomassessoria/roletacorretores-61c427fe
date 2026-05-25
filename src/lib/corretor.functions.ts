@@ -68,5 +68,5 @@ export const habilitarCorretorAcesso = createServerFn({ method: "POST" })
       .from("user_roles")
       .upsert({ user_id, role: "corretor" }, { onConflict: "user_id,role" });
 
-    return { ok: true, user_id, senha_padrao: SENHA_PADRAO_CORRETOR };
+    return { ok: true, user_id };
   });
