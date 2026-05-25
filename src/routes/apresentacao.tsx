@@ -60,10 +60,10 @@ export function ApresentacaoPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/planos"
+                to="/sistema"
                 className="inline-flex items-center gap-2 rounded-full bg-orange px-6 py-3 text-sm font-bold uppercase tracking-wider text-navy shadow-lg shadow-orange/30 transition hover:scale-[1.02] hover:bg-orange/90"
               >
-                Conhecer o ecossistema <ArrowRight className="h-4 w-4" />
+                Conhecer o Sistema <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/plantao"
