@@ -644,7 +644,10 @@ function PlantaoPage() {
             )}
           </section>
         )}
+
+        <NavActions />
       </main>
+      <SugestoesPanel origem="plantao" />
     </div>
   );
 }
