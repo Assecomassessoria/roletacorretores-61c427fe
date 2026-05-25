@@ -370,10 +370,14 @@ function PlantaoPage() {
                             <th className="px-3 py-2 text-left">Nome</th>
                             <th className="px-3 py-2 text-left">Data</th>
                             <th className="px-3 py-2 text-left">Dia</th>
+                            <th className="px-3 py-2 text-left">Períodos</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                          {e.itens.map((i) => (
+                          {e.itens.map((i) => {
+                            const temM = (i.periodos ?? []).includes("manha");
+                            const temT = (i.periodos ?? []).includes("tarde");
+                            return (
                             <tr key={i.data}>
                               <td className="px-3 py-2 font-medium text-foreground">
                                 {i.corretor ? i.corretor.nome : <span className="text-muted-foreground italic">— vaga aberta —</span>}
@@ -381,8 +385,19 @@ function PlantaoPage() {
                               </td>
                               <td className="px-3 py-2 text-muted-foreground">{i.data_br}</td>
                               <td className="px-3 py-2 text-muted-foreground">{i.dia_semana}</td>
+                              <td className="px-3 py-2">
+                                {i.corretor ? (
+                                  <span className="flex gap-1">
+                                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${temM ? "bg-orange/15 text-orange" : "bg-muted text-muted-foreground/50 line-through"}`}>M</span>
+                                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${temT ? "bg-orange/15 text-orange" : "bg-muted text-muted-foreground/50 line-through"}`}>T</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground/50">—</span>
+                                )}
+                              </td>
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
