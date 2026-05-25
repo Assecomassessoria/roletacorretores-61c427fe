@@ -643,6 +643,93 @@ function CoordenadorPage() {
             )}
           </Card>
 
+          {/* PROPAGANDA DO EMPREENDIMENTO (TOTEM) */}
+          <Card title="Propaganda do totem (vinculada ao CNPJ deste empreendimento)" icon={<Tv className="h-4 w-4" />}>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={emp.modo_propaganda}
+                  onCheckedChange={(v) => patch("modo_propaganda", v)}
+                />
+                <div>
+                  <div className="text-sm font-semibold">
+                    Modo Propaganda {emp.modo_propaganda ? "ATIVO" : "desligado"}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Exibe vídeos/imagens institucionais do empreendimento no totem quando não houver atendimento ativo.
+                  </div>
+                </div>
+              </div>
+              <a
+                href={`/totem/propaganda?emp=${emp.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Abrir tela do totem
+              </a>
+            </div>
+
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <Label className="text-xs">Título da mídia (opcional)</Label>
+                <Input
+                  value={novoTituloProp}
+                  onChange={(e) => setNovoTituloProp(e.target.value)}
+                  placeholder="Ex.: Tour 360° do apartamento decorado"
+                />
+              </div>
+              <input
+                ref={propagandaFileRef}
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPropaganda(f); e.currentTarget.value = ""; }}
+              />
+              <Button onClick={() => propagandaFileRef.current?.click()}>
+                <FileUp className="mr-1 h-4 w-4" /> Anexar mídia (imagem/vídeo)
+              </Button>
+            </div>
+
+            {propagandas.length === 0 ? (
+              <p className="rounded border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                Nenhuma propaganda cadastrada para este empreendimento.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {propagandas.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-3 rounded border border-border bg-card px-3 py-2">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {p.midia_tipo === "image" ? (
+                        <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <Tv className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                      <div className="overflow-hidden">
+                        <div className="truncate text-sm font-medium">{p.titulo}</div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {p.midia_tipo === "image" ? `imagem · ${p.duracao_segundos}s` : "vídeo"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={p.ativo ? "default" : "outline"} className={p.ativo ? "bg-emerald-600 hover:bg-emerald-600" : ""}>
+                        {p.ativo ? "ativa" : "pausada"}
+                      </Badge>
+                      <Switch checked={p.ativo} onCheckedChange={() => togglePropaganda(p)} />
+                      <Button size="sm" variant="ghost" onClick={() => removerPropaganda(p)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              <strong>Privacidade:</strong> as mídias ficam vinculadas ao CNPJ deste empreendimento. Outros coordenadores/incorporadoras não conseguem vê-las nem alterá-las.
+            </p>
+          </Card>
+
           {/* AUDITORIA & AUTOMAÇÃO (CRON) */}
           <section className="rounded-xl border border-primary/30 bg-gradient-to-br from-slate-950 to-slate-900 p-5 text-slate-100 shadow-lg">
             <div className="mb-4 flex items-center justify-between gap-3">
