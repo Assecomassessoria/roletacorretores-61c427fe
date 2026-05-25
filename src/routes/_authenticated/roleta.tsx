@@ -152,6 +152,17 @@ function RoletaPage() {
         </div>
       </div>
 
+      <div className="mb-6 rounded-lg border-l-4 border-orange bg-orange/10 px-4 py-3 text-sm">
+        <p className="font-semibold uppercase tracking-wider text-orange">
+          A Roleta gira automaticamente conforme os atendimentos
+        </p>
+        <p className="mt-1 text-foreground/90">
+          A ordem segue <strong>Primeiro → Segundo → Terceiro…</strong> Quando um corretor recebe
+          um <strong>retorno</strong> (cliente que já é dele), ele <strong>permanece na vez</strong> —
+          a roleta só avança após a finalização desse atendimento.
+        </p>
+      </div>
+
       {minhaCorretor && (
         <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4">
           <div className="flex items-center justify-between gap-4">
