@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { NavActions } from "@/components/nav-actions";
 import { ArrowRight, QrCode, Users, Sparkles, ShieldCheck, Building2, Tag } from "lucide-react";
 import heroImg from "@/assets/apresentacao-hero.png";
 import caosImg from "@/assets/apresentacao-caos.png";
@@ -230,6 +231,10 @@ export function ApresentacaoPage() {
           })}
         </div>
       </section>
+
+      <div className="mx-auto max-w-5xl px-6">
+        <NavActions />
+      </div>
 
       <SiteFooter />
     </div>

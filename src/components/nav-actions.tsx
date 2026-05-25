@@ -1,0 +1,54 @@
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth";
+import { Home, ArrowLeft, LogOut } from "lucide-react";
+import { toast } from "sonner";
+
+/**
+ * Trio padrão de ações: Sair | Voltar | Início.
+ * Aparece em todas as áreas públicas do sistema.
+ */
+export function NavActions({ className = "" }: { className?: string }) {
+  const router = useRouter();
+  const navigate = useNavigate();
+  const { session, signOut } = useAuth();
+
+  async function handleSair() {
+    if (session) {
+      await signOut();
+      toast.success("Sessão encerrada.");
+    }
+    navigate({ to: "/" });
+  }
+
+  return (
+    <div
+      className={
+        "mt-8 flex flex-wrap items-center justify-center gap-3 border-t border-border pt-4 text-xs text-muted-foreground " +
+        className
+      }
+    >
+      <button
+        type="button"
+        onClick={handleSair}
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-semibold uppercase tracking-wider hover:border-orange/60 hover:text-foreground"
+      >
+        <LogOut className="h-3.5 w-3.5" /> Sair
+      </button>
+      <span className="text-border">|</span>
+      <button
+        type="button"
+        onClick={() => router.history.back()}
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-semibold uppercase tracking-wider hover:border-orange/60 hover:text-foreground"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" /> Voltar
+      </button>
+      <span className="text-border">|</span>
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-semibold uppercase tracking-wider hover:border-orange/60 hover:text-foreground"
+      >
+        <Home className="h-3.5 w-3.5" /> Início
+      </Link>
+    </div>
+  );
+}

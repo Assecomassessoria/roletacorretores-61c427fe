@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { NavActions } from "@/components/nav-actions";
 import { ArrowLeft, Check, Zap } from "lucide-react";
 import { useAssinatura } from "@/lib/use-assinatura";
 
@@ -206,7 +207,10 @@ function Planos() {
         <p className="mt-8 text-center text-[10px] text-muted-foreground">
           Pagamento processado por Mercado Pago · cancelamento a qualquer momento · suporte por WhatsApp.
         </p>
+
+        <NavActions />
       </main>
+
 
       <SiteFooter />
     </div>

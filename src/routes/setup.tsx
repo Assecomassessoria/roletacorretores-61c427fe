@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NavActions } from "@/components/nav-actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Zap, ArrowLeft } from "lucide-react";
@@ -137,6 +138,7 @@ function SetupDemo() {
             Já tem conta? <Link to="/login" className="text-orange hover:underline">Entrar</Link>
           </p>
         </form>
+        <NavActions />
       </div>
     </main>
   );
