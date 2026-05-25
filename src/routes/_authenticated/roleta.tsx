@@ -48,7 +48,7 @@ function RoletaPage() {
   const [busy, setBusy] = useState(false);
 
   async function loadEmps() {
-    const { data } = await supabase.from("empreendimentos").select("id,nome,latitude,longitude,raio_metros,wifi_ssid").eq("ativo", true).order("nome");
+    const { data } = await supabase.from("empreendimentos").select("id,nome,latitude,longitude,raio_metros").eq("ativo", true).order("nome");
     setEmps((data as Emp[]) ?? []);
     if (data && data.length && !empId) setEmpId(data[0].id);
   }
