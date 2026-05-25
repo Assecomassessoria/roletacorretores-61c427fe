@@ -89,6 +89,7 @@ function CoordenadorPage() {
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativo" | "desativado">("todos");
   const [filtroEquipe, setFiltroEquipe] = useState<"todas" | "alfa" | "beta" | "sem">("todas");
   const fileRef = useRef<HTMLInputElement>(null);
+  const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
   useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); } }, [empId]);
@@ -108,11 +109,13 @@ function CoordenadorPage() {
   }
 
   async function carregarEmp() {
-    const { data, error } = await supabase
-      .from("empreendimentos").select("*").eq("id", empId).maybeSingle();
-    if (error) return toast.error(error.message);
-    setEmp(data as Emp);
-    setDirty(false);
+    try {
+      const { row } = await getEmpAdmin({ data: { id: empId } });
+      setEmp(row as Emp);
+      setDirty(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao carregar");
+    }
   }
 
   async function carregarCorretores() {
