@@ -21,7 +21,7 @@ type Presenca = {
   lat: number | null;
   lng: number | null;
   corretor: { id: string; nome: string; creci: string | null; telefone: string | null; foto_url: string | null } | null;
-  empreendimento: { id: string; nome: string; metodos_presenca: string[] | null; wifi_ssid: string | null; latitude: number | null; longitude: number | null; raio_metros: number | null } | null;
+  empreendimento: { id: string; nome: string; metodos_presenca: string[] | null; latitude: number | null; longitude: number | null; raio_metros: number | null } | null;
   auditoria: { metodo_aprovado: string | null; distancia_m: number | null; checks: Array<{ metodo: string; ok: boolean; detalhe: string }> } | null;
 };
 

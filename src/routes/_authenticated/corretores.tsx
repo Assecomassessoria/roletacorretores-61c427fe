@@ -131,7 +131,7 @@ function CorretoresPage() {
     if (habilitarAcesso && corretorId && editing.email) {
       try {
         await habilitar({ data: { corretor_id: corretorId, email: editing.email } });
-        toast.success("Acesso criado. Senha de primeiro acesso: 123456");
+        toast.success("Acesso criado. O corretor deve usar 'Esqueci minha senha' para definir a senha de primeiro acesso.");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
         toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);

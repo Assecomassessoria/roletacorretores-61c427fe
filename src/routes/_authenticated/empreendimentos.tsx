@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X } from "lucide-react";
 import { SignedImg } from "@/components/signed-img";
+import { listEmpreendimentosAdmin } from "@/lib/empreendimentos-admin.functions";
 
 type Metodo = "geofence" | "wifi" | "qrcode" | "pin";
 
@@ -52,12 +54,16 @@ function EmpreendimentosPage() {
   const [rows, setRows] = useState<Emp[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Emp> | null>(null);
+  const listAdmin = useServerFn(listEmpreendimentosAdmin);
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("empreendimentos").select("*").order("nome");
-    if (error) toast.error(error.message);
-    setRows((data as Emp[]) ?? []);
+    try {
+      const { rows } = await listAdmin();
+      setRows((rows as Emp[]) ?? []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao carregar");
+    }
     setLoading(false);
   }
 

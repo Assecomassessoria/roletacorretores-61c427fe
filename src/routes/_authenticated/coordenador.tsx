@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, useRef } from "react";
 import QRCode from "qrcode";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getEmpreendimentoAdmin } from "@/lib/empreendimentos-admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,6 +89,7 @@ function CoordenadorPage() {
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativo" | "desativado">("todos");
   const [filtroEquipe, setFiltroEquipe] = useState<"todas" | "alfa" | "beta" | "sem">("todas");
   const fileRef = useRef<HTMLInputElement>(null);
+  const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
   useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); } }, [empId]);
@@ -106,11 +109,13 @@ function CoordenadorPage() {
   }
 
   async function carregarEmp() {
-    const { data, error } = await supabase
-      .from("empreendimentos").select("*").eq("id", empId).maybeSingle();
-    if (error) return toast.error(error.message);
-    setEmp(data as Emp);
-    setDirty(false);
+    try {
+      const { row } = await getEmpAdmin({ data: { id: empId } });
+      setEmp(row as Emp);
+      setDirty(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao carregar");
+    }
   }
 
   async function carregarCorretores() {
