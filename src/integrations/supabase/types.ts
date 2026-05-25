@@ -1036,7 +1036,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      integracoes_crm_publicas: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          empreendimento_id: string | null
+          id: string | null
+          nome: string | null
+          provider: string | null
+          updated_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          empreendimento_id?: string | null
+          id?: string | null
+          nome?: string | null
+          provider?: string | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          empreendimento_id?: string | null
+          id?: string | null
+          nome?: string | null
+          provider?: string | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       assinatura_status: {
@@ -1091,6 +1123,10 @@ export type Database = {
       }
       user_in_empreendimento: {
         Args: { _emp: string; _uid: string }
+        Returns: boolean
+      }
+      users_share_empreendimento: {
+        Args: { _actor: string; _target: string }
         Returns: boolean
       }
     }
