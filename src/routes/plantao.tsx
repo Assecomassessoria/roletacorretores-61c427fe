@@ -132,9 +132,14 @@ function PlantaoPage() {
     if (!form.empreendimento_id) return toast.error("Selecione o empreendimento");
     if (!escalaNome.trim()) return toast.error("Digite seu nome");
     if (!escalaData) return toast.error("Selecione o dia da semana");
+    const periodos = [
+      ...(periodoManha ? ["manha" as const] : []),
+      ...(periodoTarde ? ["tarde" as const] : []),
+    ];
+    if (periodos.length === 0) return toast.error("Selecione ao menos um período (Manhã ou Tarde)");
     setEscalaBusy(true);
     try {
-      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData } });
+      const r = await inscrever({ data: { empreendimento_id: form.empreendimento_id, equipe: equipeSel, nome: escalaNome.trim(), data: escalaData, periodos } });
       toast.success(r.ja_inscrito ? `${r.corretor_nome} já está em ${r.data_br} (${r.dia_semana})` : `${r.corretor_nome} escalado(a) para ${r.data_br} — ${r.dia_semana}`);
       setEscalaNome("");
       setEscalaData("");
