@@ -110,8 +110,24 @@ export function SiteFooter() {
             Apresentação do Sistema
           </h4>
           <ul className="space-y-1.5 text-xs text-white/80">
-            <li>Apresentação do Sistema</li>
-            <li>Manual do Usuário</li>
+            <li>
+              <Link
+                to="/apresentacao"
+                className="font-semibold text-gold hover:text-orange"
+              >
+                Apresentação do Sistema
+              </Link>
+            </li>
+            <li>
+              <a
+                href="/docs/manual-do-usuario.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-orange"
+              >
+                Manual do Usuário (PDF)
+              </a>
+            </li>
           </ul>
         </div>
       </div>
