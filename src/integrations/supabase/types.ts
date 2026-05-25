@@ -221,6 +221,27 @@ export type Database = {
           },
         ]
       }
+      checkin_falhas: {
+        Row: {
+          creci: string
+          empreendimento_id: string
+          id: string
+          tentativa_em: string
+        }
+        Insert: {
+          creci: string
+          empreendimento_id: string
+          id?: string
+          tentativa_em?: string
+        }
+        Update: {
+          creci?: string
+          empreendimento_id?: string
+          id?: string
+          tentativa_em?: string
+        }
+        Relationships: []
+      }
       corretores: {
         Row: {
           ativo: boolean
