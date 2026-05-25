@@ -431,6 +431,28 @@ function CoordenadorPage() {
 
           {/* Equipes — 2 colunas com corretores */}
           <Card title="Gestão de ativos e períodos" icon={<Users className="h-4 w-4" />}>
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/30 p-2">
+              <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Listagem de corretores:
+              </span>
+              <Button size="sm" variant="outline" onClick={() => imprimirListaCorretores(emp, ativos, "geral")}>
+                <Printer className="mr-1 h-3.5 w-3.5" /> Imprimir
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => imprimirListaCorretores(emp, ativos, "geral", true)}>
+                <FileUp className="mr-1 h-3.5 w-3.5" /> Gerar PDF
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => enviarListaWhatsApp(emp, ativos, "geral")}>
+                <MessageCircle className="mr-1 h-3.5 w-3.5" /> Envia WhatsApp
+              </Button>
+              <span className="ml-2 hidden text-xs text-muted-foreground sm:inline">|</span>
+              <Button size="sm" variant="ghost" onClick={() => imprimirListaCorretores(emp, equipeAlfa, emp.equipe_alfa_nome, true)}>
+                PDF {emp.equipe_alfa_nome}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => imprimirListaCorretores(emp, equipeBeta, emp.equipe_beta_nome, true)}>
+                PDF {emp.equipe_beta_nome}
+              </Button>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="✏ Nome Equipe Alfa">
                 <Input value={emp.equipe_alfa_nome} onChange={(e) => patch("equipe_alfa_nome", e.target.value)} />
