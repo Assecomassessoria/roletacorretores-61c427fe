@@ -31,7 +31,7 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
       supabaseAdmin.from("feriados").select("data").eq("empreendimento_id", data.empreendimento_id).in("data", dias),
       supabaseAdmin
         .from("escala_semanal")
-        .select("id, data, equipe, corretor_id")
+        .select("id, data, equipe, corretor_id, periodos")
         .eq("empreendimento_id", data.empreendimento_id)
         .in("data", dias),
       supabaseAdmin.from("corretores").select("id, nome, creci, equipe").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
@@ -40,8 +40,14 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
     const feriadoSet = new Set((fer ?? []).map((f) => f.data as string));
     const cMap = new Map((cs ?? []).map((c) => [c.id, c]));
 
-    const slotsBy = new Map<string, { id: string; corretor_id: string | null }>();
-    (slots ?? []).forEach((s) => slotsBy.set(`${s.equipe}|${s.data}`, { id: s.id, corretor_id: s.corretor_id }));
+    const slotsBy = new Map<string, { id: string; corretor_id: string | null; periodos: string[] }>();
+    (slots ?? []).forEach((s: any) =>
+      slotsBy.set(`${s.equipe}|${s.data}`, {
+        id: s.id,
+        corretor_id: s.corretor_id,
+        periodos: (s.periodos ?? ["manha", "tarde"]) as string[],
+      }),
+    );
 
     const equipes = ["alfa", "beta"] as const;
     const escala = equipes.map((equipe) => ({
@@ -58,6 +64,7 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
             data_br: dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
             dia_semana: DIAS[dt.getDay()],
             slot_id: s?.id ?? null,
+            periodos: s?.periodos ?? [],
             corretor: corr ? { id: corr.id, nome: corr.nome, creci: corr.creci } : null,
           };
         }),
