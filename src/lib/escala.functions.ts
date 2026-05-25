@@ -68,10 +68,9 @@ async function ensureCoordenadorOuSuperior(
 const ListInput = z.object({ empreendimento_id: z.string().uuid() });
 
 export const listarEscalaSemanal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) => ListInput.parse(d))
-  .handler(async ({ data, context }) => {
-    await ensureMembroEmpreendimento(context, data.empreendimento_id);
+  .handler(async ({ data }) => {
+    // Leitura pública: a página /plantao é acessível sem login.
     const dias = semanaUteis();
     const [{ data: fer }, { data: slots }, { data: cs }] = await Promise.all([
       supabaseAdmin.from("feriados").select("data").eq("empreendimento_id", data.empreendimento_id).in("data", dias),

@@ -119,7 +119,10 @@ function PlantaoPage() {
     try {
       const r = (await carregarEscala({ data: { empreendimento_id: empId } })) as Escala;
       setEscala(r);
-    } catch { /* silencioso */ }
+    } catch (err) {
+      setEscala({ feriados: [], escala: [{ equipe: "alfa", itens: [] }, { equipe: "beta", itens: [] }] });
+      toast.error(err instanceof Error ? err.message : "Falha ao carregar a escala");
+    }
   };
 
   useEffect(() => {
