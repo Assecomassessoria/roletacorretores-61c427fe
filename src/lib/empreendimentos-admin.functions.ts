@@ -43,3 +43,30 @@ export const getEmpreendimentoAdmin = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { row };
   });
+
+export const listCorretoresAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await ensureAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("corretores")
+      .select("id,nome,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
+      .order("ordem_roleta");
+    if (error) throw new Error(error.message);
+    return { rows: data ?? [] };
+  });
+
+const GetCorretorInput = z.object({ id: z.string().uuid() });
+export const getCorretorAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => GetCorretorInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context.userId);
+    const { data: row, error } = await supabaseAdmin
+      .from("corretores")
+      .select("id,nome,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return { row };
+  });

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
+import { listCorretoresAdmin, getCorretorAdmin } from "@/lib/empreendimentos-admin.functions";
 import { QRCodeCanvas } from "qrcode.react";
 import { SignedImg } from "@/components/signed-img";
 
@@ -48,14 +49,16 @@ function CorretoresPage() {
   const [fotoUploading, setFotoUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const habilitar = useServerFn(habilitarCorretorAcesso);
+  const fetchCorretores = useServerFn(listCorretoresAdmin);
+  const fetchCorretor = useServerFn(getCorretorAdmin);
 
   async function load() {
     setLoading(true);
-    const [{ data: cs }, { data: es }] = await Promise.all([
-      supabase.from("corretores").select("*").order("ordem_roleta"),
+    const [cs, { data: es }] = await Promise.all([
+      fetchCorretores({}),
       supabase.from("empreendimentos").select("id,nome,cnpj").eq("ativo", true).order("nome"),
     ]);
-    setRows((cs as Corretor[]) ?? []);
+    setRows((cs?.rows as Corretor[]) ?? []);
     setEmps((es as Emp[]) ?? []);
     setLoading(false);
   }
@@ -145,7 +148,7 @@ function CorretoresPage() {
     toast.success("Cadastro completo");
     setSenha(""); setSenha2("");
     // Recupera dados completos para o QR Code
-    const { data: full } = await supabase.from("corretores").select("*").eq("id", corretorId!).single();
+    const { row: full } = await fetchCorretor({ data: { id: corretorId! } });
     setEditing(null);
     if (full) setQrAlvo(full as Corretor);
     load();

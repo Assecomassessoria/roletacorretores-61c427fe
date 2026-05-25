@@ -999,6 +999,15 @@ export type Database = {
           status: string
         }[]
       }
+      can_manage_user_roles: {
+        Args: {
+          _actor: string
+          _emp: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

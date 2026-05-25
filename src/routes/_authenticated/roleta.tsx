@@ -56,7 +56,7 @@ function RoletaPage() {
     if (!empId) return;
     const wkStart = weekStart();
     const [{ data: cs }, { data: ps }, { data: ats }] = await Promise.all([
-      supabase.from("corretores").select("*").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
+      supabase.from("corretores").select("id,nome,creci,telefone,empreendimento_id,ordem_roleta,user_id,ativo,foto_url").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
       supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", todayISO()),
       supabase.from("atendimentos").select("corretor_id,iniciado_em").eq("empreendimento_id", empId).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
