@@ -7,16 +7,16 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  * envia e-mail via Resend e registra em `avisos_renovacao` para evitar
  * envios duplicados (flag `aviso_renovacao_enviado`).
  *
- * Segurança: rota pública, mas exige header `apikey` = SUPABASE_PUBLISHABLE_KEY
- * (o mesmo que o pg_cron já envia).
+ * Segurança: exige header `x-cron-secret` igual a `CRON_SECRET` (segredo
+ * dedicado, NUNCA exposto ao front-end). A anon key não é mais aceita.
  */
 export const Route = createFileRoute("/api/public/hooks/avisos-renovacao")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = request.headers.get("apikey");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!apiKey || !expected || apiKey !== expected) {
+        const provided = request.headers.get("x-cron-secret");
+        const expected = process.env.CRON_SECRET;
+        if (!expected || !provided || provided !== expected) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
