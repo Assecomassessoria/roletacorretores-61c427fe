@@ -259,6 +259,36 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   );
 }
 
+const CV_CRM_SAMPLE = `const axios = require('axios');
+
+async function enviarLeadParaCV() {
+  const url = 'https://{dominiodocliente}.cvcrm.com.br/api/v1/integracoes/webhooks'; // Verifique a URL na documentação oficial
+  const token = 'SEU_TOKEN_DE_AUTORIZACAO_AQUI';
+
+  const dadosLead = {
+    nome: 'Nome do Cliente',
+    email: 'cliente@email.com',
+    telefone: '(11) 99999-9999',
+    mensagem: 'Tenho interesse em comprar um apartamento.',
+    origem: 'Site Oficial',
+    id_empreendimento: 123 // ID do empreendimento de interesse
+  };
+
+  try {
+    const response = await axios.post(url, dadosLead, {
+      headers: {
+        'Authorization': \`Bearer \${token}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Lead enviado com sucesso:', response.data);
+  } catch (error) {
+    console.error('Erro ao integrar com o CV CRM:', error.response?.data || error.message);
+  }
+}
+
+enviarLeadParaCV();`;
+
 const SAMPLE = `{
   "evento": "atendimento.enviado",
   "origem": "roleta-corretor",
