@@ -289,6 +289,9 @@ function CoordenadorPage() {
             Painel de Operações Pro
           </h1>
           <p className="text-sm text-muted-foreground">Gestão de equipes e escala de plantão</p>
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+            INFORMETEC — Tecnologia em Informações
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-56">
@@ -297,6 +300,17 @@ function CoordenadorPage() {
               <SelectContent>{emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          {emp && (
+            <Button
+              variant={emp.roleta_automatica ? "default" : "outline"}
+              onClick={() => patch("roleta_automatica", !emp.roleta_automatica)}
+              title="Alterna entre disparo automático nos horários programados e disparo manual"
+              className={emp.roleta_automatica ? "bg-emerald-600 hover:bg-emerald-600/90 text-white" : ""}
+            >
+              <Zap className="mr-1 h-4 w-4" />
+              {emp.roleta_automatica ? "Roleta Automática ✓" : "Roleta Automática"}
+            </Button>
+          )}
           <Button variant="secondary" onClick={() => navigate({ to: "/roleta" })}>
             <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
           </Button>
