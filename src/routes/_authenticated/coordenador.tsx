@@ -344,8 +344,44 @@ function CoordenadorPage() {
         <p className="text-sm text-muted-foreground">Selecione um empreendimento.</p>
       ) : (
         <div className="space-y-6">
-          {/* Ciclo */}
-          <Card title="Selecione o ciclo operacional ativo">
+          {/* Modo de roleta — seleção rápida Gerente/Coordenador */}
+          <Card title="Modo de operação da roleta" icon={<Zap className="h-4 w-4" />}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                onClick={() => patch("roleta_automatica", true)}
+                className={`flex items-start gap-3 rounded-lg border-2 p-4 text-left transition ${
+                  emp.roleta_automatica ? "border-emerald-500 bg-emerald-500/5" : "border-border hover:border-emerald-500/40"
+                }`}
+              >
+                <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${emp.roleta_automatica ? "border-emerald-500" : "border-muted-foreground"}`}>
+                  {emp.roleta_automatica && <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />}
+                </span>
+                <div>
+                  <div className="text-sm font-bold">Roleta Automática</div>
+                  <div className="text-xs text-muted-foreground">Dispara sozinha nos horários programados (CRON) — sem intervenção manual.</div>
+                </div>
+              </button>
+              <button
+                onClick={() => patch("roleta_automatica", false)}
+                className={`flex items-start gap-3 rounded-lg border-2 p-4 text-left transition ${
+                  !emp.roleta_automatica ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                }`}
+              >
+                <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${!emp.roleta_automatica ? "border-primary" : "border-muted-foreground"}`}>
+                  {!emp.roleta_automatica && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                </span>
+                <div>
+                  <div className="text-sm font-bold">Bater Roleta (manual)</div>
+                  <div className="text-xs text-muted-foreground">Gerente/Coordenador dispara a roleta manualmente quando desejar.</div>
+                </div>
+              </button>
+            </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Lembre de clicar em <strong>Salvar Alterações</strong>. Configure os horários da automação em <em>Auditoria & Automação (CRON)</em>.
+            </p>
+          </Card>
+
+
             <div className="grid gap-3 sm:grid-cols-3">
               {(["unica","manha","tarde"] as const).map((c) => {
                 const active = emp.ciclo_roleta === c;
