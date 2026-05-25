@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -21,11 +22,56 @@ function semanaUteis(base = new Date()): string[] {
   });
 }
 
+const MASTER_EMAILS = new Set([
+  "contatoapps@simuladorcorretorelite.com.br",
+  "contato@assecomassessoria.net.br",
+]);
+
+/** Garante que o caller pertence ao empreendimento (membro, corretor ou master). */
+async function ensureMembroEmpreendimento(
+  ctx: { userId: string; supabase: any; claims: any },
+  empreendimentoId: string,
+) {
+  const email = (ctx.claims?.email as string | undefined)?.toLowerCase();
+  if (email && MASTER_EMAILS.has(email)) return;
+  const { data, error } = await ctx.supabase.rpc("user_in_empreendimento", {
+    _uid: ctx.userId,
+    _emp: empreendimentoId,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Sem permissão para este empreendimento.");
+}
+
+/** Garante que o caller é coordenador (ou superior) no empreendimento. */
+async function ensureCoordenadorOuSuperior(
+  ctx: { userId: string; supabase: any; claims: any },
+  empreendimentoId: string,
+) {
+  const email = (ctx.claims?.email as string | undefined)?.toLowerCase();
+  if (email && MASTER_EMAILS.has(email)) return;
+  const roles: Array<"incorporadora" | "gerente" | "coordenador"> = [
+    "incorporadora",
+    "gerente",
+    "coordenador",
+  ];
+  for (const r of roles) {
+    const { data } = await ctx.supabase.rpc("has_role_in_empreendimento", {
+      _user_id: ctx.userId,
+      _role: r,
+      _empreendimento_id: empreendimentoId,
+    });
+    if (data === true) return;
+  }
+  throw new Error("Apenas Coordenador, Gerente ou Incorporadora podem executar esta ação.");
+}
+
 const ListInput = z.object({ empreendimento_id: z.string().uuid() });
 
 export const listarEscalaSemanal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => ListInput.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await ensureMembroEmpreendimento(context, data.empreendimento_id);
     const dias = semanaUteis();
     const [{ data: fer }, { data: slots }, { data: cs }] = await Promise.all([
       supabaseAdmin.from("feriados").select("data").eq("empreendimento_id", data.empreendimento_id).in("data", dias),
@@ -85,8 +131,11 @@ const InscreverInput = z.object({
 });
 
 export const inscreverEscala = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => InscreverInput.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await ensureMembroEmpreendimento(context, data.empreendimento_id);
+
     const dias = semanaUteis();
     if (!dias.includes(data.data)) throw new Error("Selecione um dia útil da semana corrente");
 
@@ -159,19 +208,14 @@ export const inscreverEscala = createServerFn({ method: "POST" })
 
 const ResetInput = z.object({
   empreendimento_id: z.string().uuid(),
-  senha: z.string().min(1).max(200),
 });
 
 export const resetarEscalaAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => ResetInput.parse(d))
-  .handler(async ({ data }) => {
-    const esperado = process.env.GERENCIA_RESET_SENHA;
-    if (!esperado) {
-      throw new Error("Senha de Gerência não configurada no servidor");
-    }
-    if (data.senha !== esperado) {
-      throw new Error("Senha incorreta");
-    }
+  .handler(async ({ data, context }) => {
+    // Apenas Coordenador / Gerente / Incorporadora / Master do empreendimento.
+    await ensureCoordenadorOuSuperior(context, data.empreendimento_id);
 
     const { error, count } = await supabaseAdmin
       .from("escala_semanal")
@@ -181,4 +225,3 @@ export const resetarEscalaAdmin = createServerFn({ method: "POST" })
 
     return { ok: true, removidos: count ?? 0 };
   });
-

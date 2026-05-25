@@ -114,11 +114,14 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       }
     }
     if (metodos.includes("pin")) {
-      if (!data.pin) checks.push({ metodo: "pin", ok: false, detalhe: "PIN não informado" });
-      else {
-        const ok = data.pin.length >= 4;
-        checks.push({ metodo: "pin", ok, detalhe: ok ? "PIN aceito" : "PIN precisa ter ao menos 4 dígitos" });
-      }
+      // PIN ainda não implementado de forma segura (não há valor armazenado
+      // para comparação). Tratado como método indisponível para evitar
+      // bypass — usar geofence / wifi / qrcode.
+      checks.push({
+        metodo: "pin",
+        ok: false,
+        detalhe: "Validação por PIN temporariamente indisponível — use Geofence, Wi-Fi ou QR Code.",
+      });
     }
 
     const metodoOk = checks.find((c) => c.ok)?.metodo ?? null;
