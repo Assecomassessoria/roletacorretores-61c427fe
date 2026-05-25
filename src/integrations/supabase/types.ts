@@ -844,6 +844,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sugestoes: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          mensagem: string
+          nome: string
+          origem: string | null
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          mensagem: string
+          nome: string
+          origem?: string | null
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          mensagem?: string
+          nome?: string
+          origem?: string | null
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       triagens: {
         Row: {
           acao: string
