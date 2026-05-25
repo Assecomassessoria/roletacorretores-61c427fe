@@ -157,7 +157,7 @@ export function SiteFooter() {
 
       <div className="border-t border-white/10 px-6 py-4 text-center">
         <Link
-          to="/setup"
+          to="/app"
           className="inline-flex items-center gap-2 rounded-md border border-orange/40 bg-navy px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-orange hover:bg-orange hover:text-orange-foreground"
         >
           <ShieldCheck className="h-3.5 w-3.5" /> Painel de Gestão Administrativo (Mestra)

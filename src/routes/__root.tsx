@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "sonner";
 import { LorenzaChat } from "@/components/lorenza-chat";
+import { MestraGear } from "@/components/mestra-gear";
 
 function NotFoundComponent() {
   return (
@@ -100,6 +101,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
+        <MestraGear />
         <LorenzaChat />
         <Toaster richColors position="top-right" />
       </AuthProvider>
