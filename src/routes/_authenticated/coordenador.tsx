@@ -47,6 +47,7 @@ type Corretor = {
   nome: string;
   email: string | null;
   telefone: string | null;
+  creci: string | null;
   ativo: boolean;
   status_habilitacao: "pendente" | "ativo" | "desativado";
   equipe: "alfa" | "beta" | null;
@@ -69,6 +70,39 @@ function gerarToken() {
   for (let i = 0; i < 6; i++) s += alfabeto[Math.floor(Math.random() * alfabeto.length)];
   return `STAND-${s}`;
 }
+
+function imprimirListaCorretores(emp: Emp, lista: Corretor[], escopo: string, autoPrint = false) {
+  const linhas = lista
+    .map((c, i) => `<tr><td>${i + 1}</td><td>${c.nome}</td><td>${c.creci ?? "-"}</td><td>${c.telefone ?? "-"}</td><td>${c.equipe === "alfa" ? emp.equipe_alfa_nome : c.equipe === "beta" ? emp.equipe_beta_nome : "-"}</td></tr>`)
+    .join("");
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Corretores — ${emp.nome} — ${escopo}</title>
+<style>body{font-family:system-ui,Arial,sans-serif;padding:24px;color:#111}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:13px;margin:0 0 16px;color:#555;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}
+th{background:#f3f4f6;text-transform:uppercase;font-size:10px;letter-spacing:.05em}
+@media print{@page{margin:14mm}}</style></head><body>
+<h1>${emp.nome} — Listagem de Corretores</h1>
+<h2>Escopo: ${escopo} · Total: ${lista.length} · Gerado em ${new Date().toLocaleString("pt-BR")}</h2>
+<table><thead><tr><th>#</th><th>Nome</th><th>CRECI</th><th>Telefone</th><th>Equipe</th></tr></thead><tbody>${linhas}</tbody></table>
+${autoPrint ? "<script>window.onload=()=>setTimeout(()=>window.print(),300)</script>" : ""}
+</body></html>`;
+  const w = window.open("", "_blank");
+  if (!w) { toast.error("Permita pop-ups para gerar o documento."); return; }
+  w.document.write(html); w.document.close();
+  if (!autoPrint) setTimeout(() => w.print(), 400);
+}
+
+function enviarListaWhatsApp(emp: Emp, lista: Corretor[], escopo: string) {
+  const txt = [`*${emp.nome}* — Corretores (${escopo}) · ${lista.length}`, "",
+    ...lista.map((c, i) => `${i + 1}. ${c.nome} — CRECI ${c.creci ?? "-"} — ${c.telefone ?? "s/ tel"}`)].join("\n");
+  const url = emp.whatsapp_grupo_url
+    ? emp.whatsapp_grupo_url
+    : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+  try { navigator.clipboard?.writeText(txt); toast.success("Lista copiada para a área de transferência."); } catch { /* noop */ }
+  window.open(url, "_blank");
+}
+
 
 function CoordenadorPage() {
   const navigate = useNavigate();
@@ -431,6 +465,28 @@ function CoordenadorPage() {
 
           {/* Equipes — 2 colunas com corretores */}
           <Card title="Gestão de ativos e períodos" icon={<Users className="h-4 w-4" />}>
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/30 p-2">
+              <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Listagem de corretores:
+              </span>
+              <Button size="sm" variant="outline" onClick={() => imprimirListaCorretores(emp, ativos, "geral")}>
+                <Printer className="mr-1 h-3.5 w-3.5" /> Imprimir
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => imprimirListaCorretores(emp, ativos, "geral", true)}>
+                <FileUp className="mr-1 h-3.5 w-3.5" /> Gerar PDF
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => enviarListaWhatsApp(emp, ativos, "geral")}>
+                <MessageCircle className="mr-1 h-3.5 w-3.5" /> Envia WhatsApp
+              </Button>
+              <span className="ml-2 hidden text-xs text-muted-foreground sm:inline">|</span>
+              <Button size="sm" variant="ghost" onClick={() => imprimirListaCorretores(emp, equipeAlfa, emp.equipe_alfa_nome, true)}>
+                PDF {emp.equipe_alfa_nome}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => imprimirListaCorretores(emp, equipeBeta, emp.equipe_beta_nome, true)}>
+                PDF {emp.equipe_beta_nome}
+              </Button>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="✏ Nome Equipe Alfa">
                 <Input value={emp.equipe_alfa_nome} onChange={(e) => patch("equipe_alfa_nome", e.target.value)} />
