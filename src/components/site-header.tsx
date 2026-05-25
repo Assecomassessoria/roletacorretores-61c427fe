@@ -26,6 +26,8 @@ export function SiteHeader() {
   const { session, signOut } = useAuth();
   const assinatura = useAssinatura();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isApresentacao = pathname === "/" || pathname === "/apresentacao";
 
   const ativa = assinatura.status === "ativa";
   const renovacao = assinatura.status === "renovacao";
