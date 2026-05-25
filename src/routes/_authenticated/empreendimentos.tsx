@@ -54,12 +54,16 @@ function EmpreendimentosPage() {
   const [rows, setRows] = useState<Emp[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Emp> | null>(null);
+  const listAdmin = useServerFn(listEmpreendimentosAdmin);
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("empreendimentos").select("*").order("nome");
-    if (error) toast.error(error.message);
-    setRows((data as Emp[]) ?? []);
+    try {
+      const { rows } = await listAdmin();
+      setRows((rows as Emp[]) ?? []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao carregar");
+    }
     setLoading(false);
   }
 
