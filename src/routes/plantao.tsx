@@ -323,9 +323,8 @@ function PlantaoPage() {
 
             <div className="space-y-1.5">
               <Label className="text-xs">Senha</Label>
-              <Input
+              <PasswordInput
                 required
-                type="password"
                 autoComplete="current-password"
                 value={form.senha}
                 onChange={(e) => setForm((s) => ({ ...s, senha: e.target.value }))}
