@@ -32,9 +32,26 @@ const AREAS: { value: Role; label: string }[] = [
   { value: "incorporadora", label: "⚙️ INCORPORADORA (SETUP)" },
 ];
 
+function maskCPF(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+function maskCNPJ(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 14);
+  return d
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
 function SetupDemo() {
   const navigate = useNavigate();
   const cadastrar = useServerFn(cadastroDemo);
+
 
   const [nome, setNome] = useState("");
   const [documento, setDocumento] = useState("");
@@ -115,7 +132,7 @@ function SetupDemo() {
               <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Pedro de Alcântara" />
             </Field>
             <Field label="CPF do Receptor/Contato">
-              <Input value={documento} onChange={(e) => setDocumento(e.target.value)} placeholder="000.000.000-00" />
+              <Input value={documento} onChange={(e) => setDocumento(maskCPF(e.target.value))} placeholder="000.000.000-00" inputMode="numeric" />
             </Field>
           </div>
 
@@ -126,7 +143,7 @@ function SetupDemo() {
                 <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Ex: Elite Imóveis Stand Sul" />
               </Field>
               <Field label="CNPJ">
-                <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(e.target.value)} placeholder="00.000.000/0001-00" />
+                <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(maskCNPJ(e.target.value))} placeholder="00.000.000/0001-00" inputMode="numeric" />
               </Field>
             </div>
           </div>
@@ -138,7 +155,7 @@ function SetupDemo() {
                 <Input value={nomeEmp} onChange={(e) => setNomeEmp(e.target.value)} placeholder="Ex: Elite Imoveis Empreendimentos" />
               </Field>
               <Field label="CNPJ do Empreendimento">
-                <Input value={cnpjEmp} onChange={(e) => setCnpjEmp(e.target.value)} placeholder="00.000.000/0001-00" />
+                <Input value={cnpjEmp} onChange={(e) => setCnpjEmp(maskCNPJ(e.target.value))} placeholder="00.000.000/0001-00" inputMode="numeric" />
               </Field>
             </div>
           </div>
