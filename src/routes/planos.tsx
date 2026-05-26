@@ -33,6 +33,7 @@ export const Route = createFileRoute("/planos")({
 
 const PLANOS = [
   {
+    codigo: "trial_30d",
     nome: "Plano 30 Teste Elite",
     cor: "white" as const,
     badge: "Trial qualificado · Pagamento único na adesão",
@@ -51,12 +52,13 @@ const PLANOS = [
     cta: "Assinar 30 dias experiência",
   },
   {
+    codigo: "experiencia_90_dias",
     nome: "Experiência 90 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 179,90",
+    preco: "R$ 359,60",
     sub: "ÚNICO",
-    promo: "R$ 59,90 trial",
+    promo: "90 dias de uso completo",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
@@ -66,10 +68,11 @@ const PLANOS = [
     cta: "Assinar plano experiência (90 dias)",
   },
   {
+    codigo: "mensal_elite_recorrente",
     nome: "Plano Mensal Elite",
     cor: "white" as const,
     badge: "Profissional · Cobrança mensal",
-    preco: "R$ 159,90",
+    preco: "R$ 169,90",
     sub: "/mês",
     features: [
       "Cadastro ilimitado de corretores",
@@ -83,11 +86,12 @@ const PLANOS = [
     cta: "Assinar plano mensal",
   },
   {
+    codigo: "anual_executivo",
     nome: "Plano Anual Executivo",
     cor: "gold" as const,
     badge: "Recomendado · Maior economia",
-    preco: "R$ 129,90",
-    sub: "/mês · cobrança anual",
+    preco: "R$ 1.606,80",
+    sub: "/ano",
     features: [
       "Todos os benefícios do mensal",
       "Atendimento de inauguração inclusivo",
