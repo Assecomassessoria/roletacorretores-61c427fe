@@ -146,7 +146,7 @@ function LoginPage() {
                 id="password"
                 type="password"
                 required
-                minLength={6}
+                minLength={mode === "signup" ? 8 : 6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
