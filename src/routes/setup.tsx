@@ -193,6 +193,7 @@ function SetupDemo() {
             Já tem conta? <Link to="/login" className="text-orange hover:underline">Entrar</Link>
           </p>
         </form>
+        )}
         <NavActions />
       </div>
     </main>
