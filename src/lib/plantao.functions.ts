@@ -213,7 +213,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
 
     await supabaseAdmin.from("audit_log").insert({
       user_id: signed.user.id,
-      user_email: corretor.email,
+      user_email: loginEmail,
       acao: "presenca_confirmada",
       recurso: `plantao:${plantaoId}`,
       detalhes: {
