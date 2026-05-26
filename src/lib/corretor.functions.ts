@@ -4,9 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // Senha padrão de PRIMEIRO ACESSO do corretor.
-// Ele entra com email + 123456 e o sistema obriga a redefinir a senha
-// vinculada ao próprio e-mail no primeiro login.
-export const SENHA_PADRAO_CORRETOR = "123456";
+// Precisa passar na proteção HIBP do Supabase (não pode ser uma senha vazada).
+// O corretor é obrigado a redefinir no primeiro login.
+export const SENHA_PADRAO_CORRETOR = "Corretor@Elite4";
 
 const Input = z.object({
   corretor_id: z.string().uuid(),
@@ -35,26 +35,49 @@ export const habilitarCorretorAcesso = createServerFn({ method: "POST" })
     if (!isAdmin && !master) throw new Error("Sem permissão");
 
     let user_id: string | null = null;
-    const { data: created, error: createErr } =
-      await supabaseAdmin.auth.admin.createUser({
+
+    // 1) Se o corretor já está vinculado a um auth user, sincroniza
+    //    e-mail e reseta a senha padrão neste mesmo usuário.
+    const { data: corretorExistente } = await supabaseAdmin
+      .from("corretores")
+      .select("user_id")
+      .eq("id", data.corretor_id)
+      .maybeSingle();
+
+    if (corretorExistente?.user_id) {
+      user_id = corretorExistente.user_id;
+      const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
         email: data.email,
         password: data.senha,
         email_confirm: true,
         user_metadata: { must_change_password: true },
       });
-    if (createErr) {
-      const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-      const existing = list?.users.find(
-        (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
-      );
-      if (!existing) throw new Error(createErr.message);
-      user_id = existing.id;
-      await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-        password: data.senha,
-        user_metadata: { ...(existing.user_metadata ?? {}), must_change_password: true },
-      });
+      if (updErr) throw new Error(updErr.message);
     } else {
-      user_id = created.user?.id ?? null;
+      // 2) Tenta criar; se e-mail já existir em outra conta, reaproveita.
+      const { data: created, error: createErr } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          password: data.senha,
+          email_confirm: true,
+          user_metadata: { must_change_password: true },
+        });
+      if (createErr) {
+        const { data: list } = await supabaseAdmin.auth.admin.listUsers();
+        const existing = list?.users.find(
+          (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
+        );
+        if (!existing) throw new Error(createErr.message);
+        user_id = existing.id;
+        await supabaseAdmin.auth.admin.updateUserById(existing.id, {
+          email: data.email,
+          password: data.senha,
+          email_confirm: true,
+          user_metadata: { ...(existing.user_metadata ?? {}), must_change_password: true },
+        });
+      } else {
+        user_id = created.user?.id ?? null;
+      }
     }
     if (!user_id) throw new Error("Falha ao obter user_id");
 
