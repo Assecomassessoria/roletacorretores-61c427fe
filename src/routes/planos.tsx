@@ -104,6 +104,38 @@ const PLANOS = [
 
 function Planos() {
   const assinatura = useAssinatura();
+  const { session, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const checkout = useServerFn(criarCheckoutPlano);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function assinar(codigo: string) {
+    if (authLoading) return;
+    if (!session) {
+      // Memoriza o plano e manda para login
+      try {
+        sessionStorage.setItem("plano_pendente", codigo);
+      } catch {}
+      toast.info("Faça login ou crie sua conta para assinar.");
+      navigate({ to: "/login" });
+      return;
+    }
+    setBusy(codigo);
+    try {
+      const res = await checkout({ data: { plano_codigo: codigo } });
+      if (res?.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error("Não foi possível abrir o checkout.");
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Erro ao iniciar checkout";
+      toast.error(msg);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   // Assinante já ativo (sem janela de renovação) não precisa ver planos.
   if (!assinatura.loading && assinatura.status === "ativa") {
     return <Navigate to="/app" />;
