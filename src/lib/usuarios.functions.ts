@@ -87,9 +87,13 @@ const DemoRoleEnum = z.enum(["corretor"]);
 const DemoInput = z.object({
   nome: z.string().trim().min(2).max(120),
   empresa: z.string().trim().max(160).optional().nullable(),
+  cnpj_empresa: z.string().trim().max(32).optional().nullable(),
   documento: z.string().trim().max(32).optional().nullable(),
+  nome_empreendimento: z.string().trim().max(160).optional().nullable(),
   cnpj_empreendimento: z.string().trim().max(32).optional().nullable(),
   telefone: z.string().trim().max(40).optional().nullable(),
+  whatsapp_empreendimento: z.string().trim().max(40).optional().nullable(),
+  informacoes_adicionais: z.string().trim().max(2000).optional().nullable(),
   email: z.string().trim().toLowerCase().email().max(255),
   senha: z.string().min(6).max(72),
   // aceita o campo mas força sempre `corretor` no servidor
@@ -105,9 +109,9 @@ export const cadastroDemo = createServerFn({ method: "POST" })
       { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
       { onConflict: "id" },
     );
-    // Cria empreendimento de demonstração se ainda não houver para este usuário.
+    // Cria empreendimento se ainda não houver para este usuário.
     let empId: string | null = null;
-    if (data.cnpj_empreendimento || data.empresa) {
+    if (data.cnpj_empreendimento || data.nome_empreendimento || data.empresa) {
       const { data: existingEmp } = await supabaseAdmin
         .from("empreendimentos")
         .select("id")
@@ -119,7 +123,7 @@ export const cadastroDemo = createServerFn({ method: "POST" })
         const { data: novoEmp } = await supabaseAdmin
           .from("empreendimentos")
           .insert({
-            nome: data.empresa || `Stand de ${data.nome}`,
+            nome: data.nome_empreendimento || data.empresa || `Stand de ${data.nome}`,
             cnpj: data.cnpj_empreendimento ?? null,
             criado_por: user_id,
           })

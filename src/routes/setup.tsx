@@ -36,14 +36,18 @@ function SetupDemo() {
   const cadastrar = useServerFn(cadastroDemo);
 
   const [nome, setNome] = useState("");
-  const [empresa, setEmpresa] = useState("");
   const [documento, setDocumento] = useState("");
+  const [empresa, setEmpresa] = useState("");
+  const [cnpjEmpresa, setCnpjEmpresa] = useState("");
+  const [nomeEmp, setNomeEmp] = useState("");
   const [cnpjEmp, setCnpjEmp] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [whatsappEmp, setWhatsappEmp] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
   const [role, setRole] = useState<Role>("incorporadora");
+  const [infoAdicionais, setInfoAdicionais] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -54,9 +58,18 @@ function SetupDemo() {
     try {
       await cadastrar({
         data: {
-          nome, empresa: empresa || null, documento: documento || null,
+          nome,
+          empresa: empresa || null,
+          cnpj_empresa: cnpjEmpresa || null,
+          documento: documento || null,
+          nome_empreendimento: nomeEmp || null,
           cnpj_empreendimento: cnpjEmp || null,
-          telefone: telefone || null, email, senha, role,
+          telefone: telefone || null,
+          whatsapp_empreendimento: whatsappEmp || null,
+          informacoes_adicionais: infoAdicionais || null,
+          email,
+          senha,
+          role,
         },
       });
       const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
@@ -90,28 +103,51 @@ function SetupDemo() {
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
-          <Field label="Nome do Receptor">
-            <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Pedro de Alcântara" />
-          </Field>
-          <Field label="Imobiliária / Stand">
-            <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Ex: Elite Imóveis Stand Sul" />
-          </Field>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="CNPJ do Empreendimento">
-              <Input value={cnpjEmp} onChange={(e) => setCnpjEmp(e.target.value)} placeholder="00.000.000/0001-00" />
+            <Field label="Nome do Receptor/Contato">
+              <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Pedro de Alcântara" />
             </Field>
-            <Field label="CPF do Receptor">
+            <Field label="CPF do Receptor/Contato">
               <Input value={documento} onChange={(e) => setDocumento(e.target.value)} placeholder="000.000.000-00" />
             </Field>
           </div>
+
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Incorporadora / Imobiliária / Construtora</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Razão Social">
+                <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Ex: Elite Imóveis Stand Sul" />
+              </Field>
+              <Field label="CNPJ">
+                <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(e.target.value)} placeholder="00.000.000/0001-00" />
+              </Field>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Empreendimento</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Nome do Empreendimento">
+                <Input value={nomeEmp} onChange={(e) => setNomeEmp(e.target.value)} placeholder="Ex: Elite Imoveis Empreendimentos" />
+              </Field>
+              <Field label="CNPJ do Empreendimento">
+                <Input value={cnpjEmp} onChange={(e) => setCnpjEmp(e.target.value)} placeholder="00.000.000/0001-00" />
+              </Field>
+            </div>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="WhatsApp do Receptor">
               <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="Ex: 5511999999999" />
             </Field>
-            <Field label="E-mail Administrativo">
-              <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="comercial@elite.com" />
+            <Field label="WhatsApp do Empreendimento">
+              <Input value={whatsappEmp} onChange={(e) => setWhatsappEmp(e.target.value)} placeholder="Ex: 5511999999999" />
             </Field>
           </div>
+
+          <Field label="E-mail Administrativo">
+            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="comercial@elite.com" />
+          </Field>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Senha de Acesso">
@@ -129,6 +165,17 @@ function SetupDemo() {
                 {AREAS.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
               </SelectContent>
             </Select>
+          </Field>
+
+          <Field label="Informações Adicionais">
+            <textarea
+              value={infoAdicionais}
+              onChange={(e) => setInfoAdicionais(e.target.value)}
+              maxLength={2000}
+              rows={4}
+              placeholder="Detalhes do stand, observações, particularidades…"
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
           </Field>
 
           <Button type="submit" disabled={busy} className="w-full bg-orange text-orange-foreground hover:bg-orange/90">
@@ -153,3 +200,4 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
