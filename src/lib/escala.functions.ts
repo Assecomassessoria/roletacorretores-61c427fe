@@ -90,14 +90,21 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
     const feriadoSet = new Set((fer ?? []).map((f) => f.data as string));
     const cMap = new Map((cs ?? []).map((c) => [c.id, c]));
 
-    const slotsBy = new Map<string, { id: string; corretor_id: string | null; periodos: string[] }>();
-    (slots ?? []).forEach((s: any) =>
-      slotsBy.set(`${s.equipe}|${s.data}`, {
-        id: s.id,
+    // Vários corretores podem ocupar o mesmo (equipe, dia). Agrupamos por chave.
+    const slotsBy = new Map<
+      string,
+      Array<{ slot_id: string; corretor_id: string | null; periodos: string[] }>
+    >();
+    (slots ?? []).forEach((s: any) => {
+      const k = `${s.equipe}|${s.data}`;
+      const arr = slotsBy.get(k) ?? [];
+      arr.push({
+        slot_id: s.id,
         corretor_id: s.corretor_id,
         periodos: (s.periodos ?? ["manha", "tarde"]) as string[],
-      }),
-    );
+      });
+      slotsBy.set(k, arr);
+    });
 
     const equipes = ["alfa", "beta"] as const;
     const nomesEquipes: Record<string, string> = {
@@ -111,22 +118,50 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
         .filter((d) => !feriadoSet.has(d))
         .map((d) => {
           const key = `${equipe}|${d}`;
-          const s = slotsBy.get(key);
-          const corr = s?.corretor_id ? cMap.get(s.corretor_id) : null;
+          const list = slotsBy.get(key) ?? [];
+          const corretores = list
+            .filter((s) => s.corretor_id)
+            .map((s) => {
+              const c: any = cMap.get(s.corretor_id!);
+              return c
+                ? {
+                    slot_id: s.slot_id,
+                    id: c.id,
+                    nome: c.nome,
+                    creci: c.creci,
+                    equipe: c.equipe ?? null,
+                    periodos: s.periodos,
+                  }
+                : null;
+            })
+            .filter(Boolean) as Array<{
+              slot_id: string;
+              id: string;
+              nome: string;
+              creci: string | null;
+              equipe: string | null;
+              periodos: string[];
+            }>;
           const dt = new Date(`${d}T12:00:00`);
+          // Compat: primeiro corretor exposto como `corretor` para consumidores antigos.
+          const primeiro = corretores[0] ?? null;
           return {
             data: d,
             data_br: dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
             dia_semana: DIAS[dt.getDay()],
-            slot_id: s?.id ?? null,
-            periodos: s?.periodos ?? [],
-            corretor: corr ? { id: corr.id, nome: corr.nome, creci: corr.creci, equipe: (corr as any).equipe ?? null } : null,
+            slot_id: primeiro?.slot_id ?? null,
+            periodos: primeiro?.periodos ?? [],
+            corretor: primeiro
+              ? { id: primeiro.id, nome: primeiro.nome, creci: primeiro.creci, equipe: primeiro.equipe }
+              : null,
+            corretores,
           };
         }),
     }));
 
     return { feriados: Array.from(feriadoSet), escala, equipe_alfa_nome: nomesEquipes.alfa, equipe_beta_nome: nomesEquipes.beta };
   });
+
 
 
 const InscreverInput = z.object({
@@ -176,30 +211,32 @@ export const inscreverEscala = createServerFn({ method: "POST" })
       .eq("equipe", data.equipe)
       .in("data", dias);
 
-    const jaInscrito = (existentes ?? []).find((s: any) => s.corretor_id === corretor.id);
-    if (jaInscrito) {
-      const dt = new Date(`${jaInscrito.data}T12:00:00`);
+    // Já inscrito neste mesmo dia? Apenas confirma sem erro.
+    const jaInscritoDoDia = (existentes ?? []).find(
+      (s: any) => s.corretor_id === corretor.id && s.data === data.data,
+    );
+    if (jaInscritoDoDia) {
+      const dt = new Date(`${data.data}T12:00:00`);
       return {
         ok: true,
         ja_inscrito: true,
-        data: jaInscrito.data,
+        data: data.data,
         data_br: dt.toLocaleDateString("pt-BR"),
         dia_semana: DIAS[dt.getDay()],
         corretor_nome: corretor.nome,
-        periodos: (jaInscrito as any).periodos ?? [],
+        periodos: (jaInscritoDoDia as any).periodos ?? [],
       };
     }
 
-    const slotDoDia = (existentes ?? []).find((s: any) => s.data === data.data);
-    if (slotDoDia && (slotDoDia as any).corretor_id) {
-      throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
-    }
-
-    if (slotDoDia) {
+    // Se existir um slot vago herdado (corretor_id null), reaproveita; senão insere nova linha.
+    const slotVago = (existentes ?? []).find(
+      (s: any) => s.data === data.data && !s.corretor_id,
+    );
+    if (slotVago) {
       const { error: upErr } = await supabaseAdmin
         .from("escala_semanal")
         .update({ corretor_id: corretor.id, periodos: data.periodos } as any)
-        .eq("id", (slotDoDia as any).id);
+        .eq("id", (slotVago as any).id);
       if (upErr) throw new Error(upErr.message);
     } else {
       const { error: insErr } = await supabaseAdmin
@@ -213,6 +250,7 @@ export const inscreverEscala = createServerFn({ method: "POST" })
         } as any);
       if (insErr) throw new Error(insErr.message);
     }
+
 
 
     const dt = new Date(`${data.data}T12:00:00`);
