@@ -343,8 +343,7 @@ function TotemPage() {
                 Recepção, Coordenador e Gerência: acessem com suas credenciais para acompanhar o fluxo de atendimento em tempo real.
               </p>
               <div className="mt-3 flex gap-2">
-                <Input
-                  type="password"
+                <PasswordInput
                   value={staffPass}
                   onChange={(e) => setStaffPass(e.target.value)}
                   placeholder="Senha de acesso"
