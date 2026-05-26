@@ -75,12 +75,12 @@ function MinhaEscalaPage() {
     })();
   }, [user, fnMeusEmps, recarregar]);
 
-  async function inscrever(equipe: "alfa" | "beta", data: string) {
+  async function inscrever(equipe: "alfa" | "beta", data: string, periodos: ("manha" | "tarde")[]) {
     if (!empId || !meuNome) return;
     setBusy(`${equipe}-${data}`);
     try {
       await fnInscrever({
-        data: { empreendimento_id: empId, equipe, nome: meuNome, data, periodos: ["manha", "tarde"] },
+        data: { empreendimento_id: empId, equipe, nome: meuNome, data, periodos },
       });
       toast.success("Você foi inscrito nesse dia");
       await recarregar(empId);
@@ -150,9 +150,17 @@ function MinhaEscalaPage() {
                       </p>
                     </div>
                     {vago ? (
-                      <Button size="sm" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data)}>
-                        <UserCheck className="mr-1 h-4 w-4" /> Eu posso
-                      </Button>
+                      <div className="flex flex-wrap gap-1">
+                        <Button size="sm" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha", "tarde"])}>
+                          Integral
+                        </Button>
+                        <Button size="sm" variant="secondary" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha"])}>
+                          Manhã
+                        </Button>
+                        <Button size="sm" variant="secondary" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["tarde"])}>
+                          Tarde
+                        </Button>
+                      </div>
                     ) : ehMeu ? (
                       <Button size="sm" variant="outline" disabled={busy === it.slot_id} onClick={() => liberar(it.slot_id!)}>
                         <UserMinus className="mr-1 h-4 w-4" /> Liberar
