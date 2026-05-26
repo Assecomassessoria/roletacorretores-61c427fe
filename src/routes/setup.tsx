@@ -72,7 +72,14 @@ function SetupDemo() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (senha !== senha2) return toast.error("As senhas não conferem.");
-    if (senha.length < 6) return toast.error("Senha deve ter no mínimo 6 caracteres.");
+    if (senha.length < 8) return toast.error("Senha deve ter no mínimo 8 caracteres.");
+    if (!/[A-Za-z]/.test(senha) || !/\d/.test(senha)) {
+      return toast.error("Senha deve conter letras E números.");
+    }
+    const fraca = ["12345678", "123456789", "1234567890", "senha123", "password", "qwerty123", "abcd1234"];
+    if (fraca.includes(senha.toLowerCase())) {
+      return toast.error("Senha muito fraca / conhecida em vazamentos. Use algo único.");
+    }
     setBusy(true);
     try {
       await cadastrar({
@@ -176,12 +183,16 @@ function SetupDemo() {
             <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="comercial@elite.com" />
           </Field>
 
+          <div className="rounded-md border border-orange/30 bg-orange/10 px-3 py-2 text-[11px] text-orange">
+            <strong>Requisitos da senha:</strong> mínimo de <strong>8 caracteres</strong>, contendo <strong>letras e números</strong>. Não use sequências óbvias como <code>12345678</code> ou <code>senha123</code> — o sistema bloqueia senhas vazadas em outros sites.
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Senha de Acesso">
-              <PasswordInput required minLength={6} value={senha} onChange={(e) => setSenha(e.target.value)} />
+              <PasswordInput required minLength={8} value={senha} onChange={(e) => setSenha(e.target.value)} />
             </Field>
             <Field label="Confirmar Senha">
-              <PasswordInput required minLength={6} value={senha2} onChange={(e) => setSenha2(e.target.value)} />
+              <PasswordInput required minLength={8} value={senha2} onChange={(e) => setSenha2(e.target.value)} />
             </Field>
           </div>
 
