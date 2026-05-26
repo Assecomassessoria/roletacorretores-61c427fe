@@ -112,12 +112,12 @@ function Planos() {
   async function assinar(codigo: string) {
     if (authLoading) return;
     if (!session) {
-      // Memoriza o plano e manda para login
+      // Memoriza o plano e manda para o cadastro da incorporadora
       try {
         sessionStorage.setItem("plano_pendente", codigo);
       } catch {}
-      toast.info("Faça login ou crie sua conta para assinar.");
-      navigate({ to: "/login" });
+      toast.info("Crie sua conta de incorporadora para assinar o plano.");
+      navigate({ to: "/setup" });
       return;
     }
     setBusy(codigo);
