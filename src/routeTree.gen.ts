@@ -30,6 +30,7 @@ import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPresencasRouteImport } from './routes/_authenticated/presencas'
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
 import { Route as AuthenticatedMinhaPresencaRouteImport } from './routes/_authenticated/minha-presenca'
+import { Route as AuthenticatedMinhaEscalaRouteImport } from './routes/_authenticated/minha-escala'
 import { Route as AuthenticatedMeuQrcodeRouteImport } from './routes/_authenticated/meu-qrcode'
 import { Route as AuthenticatedMeuCadastroRouteImport } from './routes/_authenticated/meu-cadastro'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
@@ -147,6 +148,12 @@ const AuthenticatedMinhaPresencaRoute =
     path: '/minha-presenca',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMinhaEscalaRoute =
+  AuthenticatedMinhaEscalaRouteImport.update({
+    id: '/minha-escala',
+    path: '/minha-escala',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMeuQrcodeRoute = AuthenticatedMeuQrcodeRouteImport.update({
   id: '/meu-qrcode',
   path: '/meu-qrcode',
@@ -231,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
   '/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/presencas': typeof AuthenticatedPresencasRoute
@@ -264,6 +272,7 @@ export interface FileRoutesByTo {
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
   '/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/presencas': typeof AuthenticatedPresencasRoute
@@ -299,6 +308,7 @@ export interface FileRoutesById {
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
   '/_authenticated/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/_authenticated/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/_authenticated/minha-escala': typeof AuthenticatedMinhaEscalaRoute
   '/_authenticated/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
   '/_authenticated/presencas': typeof AuthenticatedPresencasRoute
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/mensagens'
     | '/meu-cadastro'
     | '/meu-qrcode'
+    | '/minha-escala'
     | '/minha-presenca'
     | '/plantoes'
     | '/presencas'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/mensagens'
     | '/meu-cadastro'
     | '/meu-qrcode'
+    | '/minha-escala'
     | '/minha-presenca'
     | '/plantoes'
     | '/presencas'
@@ -401,6 +413,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mensagens'
     | '/_authenticated/meu-cadastro'
     | '/_authenticated/meu-qrcode'
+    | '/_authenticated/minha-escala'
     | '/_authenticated/minha-presenca'
     | '/_authenticated/plantoes'
     | '/_authenticated/presencas'
@@ -581,6 +594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMinhaPresencaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/minha-escala': {
+      id: '/_authenticated/minha-escala'
+      path: '/minha-escala'
+      fullPath: '/minha-escala'
+      preLoaderRoute: typeof AuthenticatedMinhaEscalaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/meu-qrcode': {
       id: '/_authenticated/meu-qrcode'
       path: '/meu-qrcode'
@@ -671,6 +691,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
   AuthenticatedMeuCadastroRoute: typeof AuthenticatedMeuCadastroRoute
   AuthenticatedMeuQrcodeRoute: typeof AuthenticatedMeuQrcodeRoute
+  AuthenticatedMinhaEscalaRoute: typeof AuthenticatedMinhaEscalaRoute
   AuthenticatedMinhaPresencaRoute: typeof AuthenticatedMinhaPresencaRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
   AuthenticatedPresencasRoute: typeof AuthenticatedPresencasRoute
@@ -689,6 +710,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
   AuthenticatedMeuCadastroRoute: AuthenticatedMeuCadastroRoute,
   AuthenticatedMeuQrcodeRoute: AuthenticatedMeuQrcodeRoute,
+  AuthenticatedMinhaEscalaRoute: AuthenticatedMinhaEscalaRoute,
   AuthenticatedMinhaPresencaRoute: AuthenticatedMinhaPresencaRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
   AuthenticatedPresencasRoute: AuthenticatedPresencasRoute,
