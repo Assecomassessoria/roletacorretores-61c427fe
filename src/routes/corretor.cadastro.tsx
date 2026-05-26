@@ -51,6 +51,8 @@ function CadastroCorretor() {
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [aceiteTermo, setAceiteTermo] = useState(false);
+  const [termoAberto, setTermoAberto] = useState(false);
 
   async function onBuscar(e: FormEvent) {
     e.preventDefault();
