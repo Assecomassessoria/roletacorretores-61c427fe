@@ -14,9 +14,11 @@ import { NavActions } from "@/components/nav-actions";
 import { SugestoesPanel } from "@/components/sugestoes-panel";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico, lookupEmpreendimentosPorCreci } from "@/lib/plantao.functions";
 import { startAuthenticationPlantao, finishAuthenticationPlantao } from "@/lib/webauthn.functions";
-import { Fingerprint } from "lucide-react";
+import { Fingerprint, AlertTriangle } from "lucide-react";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { BiometriaRegisterCard } from "@/components/biometria-register-card";
 
 
 export const Route = createFileRoute("/plantao")({
@@ -36,6 +38,7 @@ type CheckInResult = {
   metodo: string;
   distancia: number | null;
   checks: Check[];
+  login_email?: string | null;
   corretor: { id: string; nome: string; telefone: string | null; creci: string | null; foto_url: string | null };
   empreendimento: { id: string; nome: string };
 };
@@ -74,6 +77,22 @@ function PlantaoPage() {
   const startAuthBio = useServerFn(startAuthenticationPlantao);
   const finishAuthBio = useServerFn(finishAuthenticationPlantao);
   const [bioBusy, setBioBusy] = useState(false);
+  const [bioOfferRegister, setBioOfferRegister] = useState(false);
+  const [bioRegisterReady, setBioRegisterReady] = useState(false);
+
+  const bioLocalKey = (creci: string) =>
+    `bio_local_v1:${typeof window !== "undefined" ? window.location.hostname : "srv"}:${creci.trim().toLowerCase()}`;
+  const hasLocalBioFlag = (creci: string) => {
+    if (typeof window === "undefined") return false;
+    try { return !!window.localStorage.getItem(bioLocalKey(creci)); } catch { return false; }
+  };
+  const setLocalBioFlag = (creci: string, on: boolean) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (on) window.localStorage.setItem(bioLocalKey(creci), "1");
+      else window.localStorage.removeItem(bioLocalKey(creci));
+    } catch { /* ignore */ }
+  };
 
 
 
@@ -234,6 +253,20 @@ function PlantaoPage() {
       setResult(r);
       toast.success(`Presença confirmada por ${r.metodo}`);
       await refreshRoleta(r.empreendimento.id);
+
+      // Se o usuário tentou biometria e este aparelho não tinha a passkey local,
+      // ou se nunca cadastramos a biometria deste dispositivo para este CRECI,
+      // oferecemos cadastrar agora — exige uma sessão Supabase real no browser.
+      const shouldOffer = bioOfferRegister || !hasLocalBioFlag(form.creci);
+      if (shouldOffer && r.login_email) {
+        try {
+          const { error: sErr } = await supabase.auth.signInWithPassword({
+            email: r.login_email,
+            password: form.senha,
+          });
+          if (!sErr) setBioRegisterReady(true);
+        } catch { /* segue sem oferecer */ }
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao confirmar presença");
     } finally {
@@ -409,10 +442,28 @@ function PlantaoPage() {
                     },
                   })) as CheckInResult;
                   setResult(r);
+                  setLocalBioFlag(form.creci, true);
+                  setBioOfferRegister(false);
                   toast.success(`Presença confirmada por biometria (${r.metodo})`);
                   await refreshRoleta(r.empreendimento.id);
                 } catch (err) {
-                  toast.error(err instanceof Error ? err.message : "Falha na biometria — use a senha.");
+                  const msg = err instanceof Error ? err.message : String(err);
+                  const name = (err as { name?: string } | null)?.name ?? "";
+                  // Sinais de "passkey ausente neste aparelho":
+                  // - NotAllowedError (nenhuma credencial compatível ou usuário cancelou)
+                  // - InvalidStateError / "credential" mentions
+                  // - servidor: "Nenhuma biometria cadastrada"/"Credencial não encontrada"
+                  const noLocal =
+                    name === "NotAllowedError" ||
+                    name === "InvalidStateError" ||
+                    /Nenhuma biometria|Credencial não encontrada|Credential|allowCredentials|not allowed/i.test(msg);
+                  if (noLocal) {
+                    setLocalBioFlag(form.creci, false);
+                    setBioOfferRegister(true);
+                    toast.error("Este aparelho ainda não tem biometria cadastrada para este CRECI. Entre com a senha abaixo e ative a biometria deste dispositivo.");
+                  } else {
+                    toast.error(msg || "Falha na biometria — use a senha.");
+                  }
                 } finally {
                   setBioBusy(false);
                 }
@@ -421,12 +472,42 @@ function PlantaoPage() {
               {bioBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2 h-4 w-4" />}
               Entrar com Biometria
             </Button>
+
+            {bioOfferRegister && (
+              <div className="rounded-md border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs">
+                <div className="mb-1 flex items-center gap-2 font-semibold text-amber-900 dark:text-amber-200">
+                  <AlertTriangle className="h-4 w-4" />
+                  Biometria ausente neste aparelho
+                </div>
+                <p className="text-amber-900/90 dark:text-amber-100/90">
+                  Sua passkey foi cadastrada em outro aparelho ou domínio. Faça o check-in com <strong>senha</strong> acima
+                  e, em seguida, toque em <strong>“Cadastrar biometria neste dispositivo”</strong> que aparecerá após a confirmação.
+                </p>
+              </div>
+            )}
           </form>
         ) : null}
 
         {/* Escala Semanal removida da área do Corretor — gerenciada exclusivamente pela Coordenação/Gerência, vinculada ao CNPJ do empreendimento. */}
 
 
+
+        {result && bioRegisterReady && (
+          <div className="mb-4">
+            <BiometriaRegisterCard
+              defaultLabel={typeof navigator !== "undefined" ? navigator.userAgent.split(" ").slice(-1)[0] : ""}
+              onDone={async () => {
+                setLocalBioFlag(form.creci, true);
+                setBioRegisterReady(false);
+                setBioOfferRegister(false);
+                // Encerra a sessão Supabase aberta apenas para o cadastro da passkey;
+                // a página /plantao é pública e não depende de sessão.
+                try { await supabase.auth.signOut(); } catch { /* ignore */ }
+                toast.success("Biometria deste aparelho cadastrada. Da próxima vez, use o botão 'Entrar com Biometria'.");
+              }}
+            />
+          </div>
+        )}
 
         {result && (
           <div className="rounded-lg border border-primary/40 bg-card p-6 text-center shadow-sm">
