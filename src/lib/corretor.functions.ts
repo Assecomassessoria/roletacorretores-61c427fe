@@ -35,26 +35,49 @@ export const habilitarCorretorAcesso = createServerFn({ method: "POST" })
     if (!isAdmin && !master) throw new Error("Sem permissão");
 
     let user_id: string | null = null;
-    const { data: created, error: createErr } =
-      await supabaseAdmin.auth.admin.createUser({
+
+    // 1) Se o corretor já está vinculado a um auth user, sincroniza
+    //    e-mail e reseta a senha padrão neste mesmo usuário.
+    const { data: corretorExistente } = await supabaseAdmin
+      .from("corretores")
+      .select("user_id")
+      .eq("id", data.corretor_id)
+      .maybeSingle();
+
+    if (corretorExistente?.user_id) {
+      user_id = corretorExistente.user_id;
+      const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
         email: data.email,
         password: data.senha,
         email_confirm: true,
         user_metadata: { must_change_password: true },
       });
-    if (createErr) {
-      const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-      const existing = list?.users.find(
-        (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
-      );
-      if (!existing) throw new Error(createErr.message);
-      user_id = existing.id;
-      await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-        password: data.senha,
-        user_metadata: { ...(existing.user_metadata ?? {}), must_change_password: true },
-      });
+      if (updErr) throw new Error(updErr.message);
     } else {
-      user_id = created.user?.id ?? null;
+      // 2) Tenta criar; se e-mail já existir em outra conta, reaproveita.
+      const { data: created, error: createErr } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          password: data.senha,
+          email_confirm: true,
+          user_metadata: { must_change_password: true },
+        });
+      if (createErr) {
+        const { data: list } = await supabaseAdmin.auth.admin.listUsers();
+        const existing = list?.users.find(
+          (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
+        );
+        if (!existing) throw new Error(createErr.message);
+        user_id = existing.id;
+        await supabaseAdmin.auth.admin.updateUserById(existing.id, {
+          email: data.email,
+          password: data.senha,
+          email_confirm: true,
+          user_metadata: { ...(existing.user_metadata ?? {}), must_change_password: true },
+        });
+      } else {
+        user_id = created.user?.id ?? null;
+      }
     }
     if (!user_id) throw new Error("Falha ao obter user_id");
 
