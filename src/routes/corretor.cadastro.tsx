@@ -55,9 +55,17 @@ function CadastroCorretor() {
   const [aceiteTermo, setAceiteTermo] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
 
-  async function onBuscar(e: FormEvent) {
-    e.preventDefault();
-    const digits = cnpj.replace(/\D/g, "");
+  function formatCnpj(v: string) {
+    const d = v.replace(/\D/g, "").slice(0, 14);
+    return d
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/, ".$1/$2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  }
+
+  async function buscarCnpj(valor: string) {
+    const digits = valor.replace(/\D/g, "");
     if (digits.length < 11) return toast.error("Informe o CNPJ do empreendimento.");
     setBuscando(true);
     try {
@@ -74,6 +82,19 @@ function CadastroCorretor() {
     } finally {
       setBuscando(false);
     }
+  }
+
+  async function onBuscar(e: FormEvent) {
+    e.preventDefault();
+    await buscarCnpj(cnpj);
+  }
+
+  function onChangeCnpj(v: string) {
+    const masked = formatCnpj(v);
+    setCnpj(masked);
+    if (emp) setEmp(null);
+    const digits = masked.replace(/\D/g, "");
+    if (digits.length === 14) void buscarCnpj(masked);
   }
 
   async function onCadastrar(e: FormEvent) {
