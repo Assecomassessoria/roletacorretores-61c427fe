@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 type Corretor = {
   id: string;
   nome: string;
+  cpf: string | null;
   creci: string | null;
   telefone: string | null;
   email: string | null;
@@ -34,6 +35,7 @@ type Corretor = {
   user_id: string | null;
   foto_url: string | null;
 };
+type Role = "corretor" | "coordenador" | "gerente" | "incorporadora";
 type Emp = { id: string; nome: string; cnpj: string | null };
 
 export const Route = createFileRoute("/_authenticated/corretores")({
