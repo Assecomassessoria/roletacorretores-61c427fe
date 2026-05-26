@@ -347,18 +347,23 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
     };
   });
 
-// Lookup público: dado um CRECI, devolve a lista de empreendimentos (CNPJs)
-// em que o corretor está vinculado e ativo. Não expõe nome/telefone/email.
-const LookupInput = z.object({ creci: z.string().trim().min(2).max(40) });
+// Lookup público: dado um CRECI **ou e-mail**, devolve a lista de
+// empreendimentos (CNPJs) em que o corretor está vinculado e ativo. Não
+// expõe nome/telefone/email.
+const LookupInput = z.object({ creci: z.string().trim().min(2).max(120) });
 export const lookupEmpreendimentosPorCreci = createServerFn({ method: "POST" })
   .inputValidator((d) => LookupInput.parse(d))
   .handler(async ({ data }) => {
-    const { data: rows, error } = await supabaseAdmin
+    const termo = data.creci.trim();
+    const isEmail = termo.includes("@");
+    const query = supabaseAdmin
       .from("corretores")
       .select("empreendimento_id, ativo, empreendimentos:empreendimento_id(id, nome, cnpj, ativo)")
-      .ilike("creci", data.creci.trim())
       .eq("ativo", true);
-    if (error) throw new Error("Erro ao consultar CRECI.");
+    const { data: rows, error } = await (isEmail
+      ? query.ilike("email", termo)
+      : query.ilike("creci", termo));
+    if (error) throw new Error("Erro ao consultar.");
     const empMap = new Map<string, { id: string; nome: string; cnpj: string | null }>();
     (rows ?? []).forEach((r: { empreendimentos: { id: string; nome: string; cnpj: string | null; ativo: boolean } | null }) => {
       const e = r.empreendimentos;
