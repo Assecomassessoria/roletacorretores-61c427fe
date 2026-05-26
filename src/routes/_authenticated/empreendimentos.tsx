@@ -411,6 +411,38 @@ function EmpreendimentosPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={!!mapaEmp} onOpenChange={(o) => !o && setMapaEmp(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-orange" />
+              {mapaEmp?.nome}
+            </DialogTitle>
+          </DialogHeader>
+          {mapaEmp && mapaEmp.latitude != null && mapaEmp.longitude != null && (
+            <div className="space-y-2">
+              <div className="overflow-hidden rounded-md border border-border">
+                <iframe
+                  title="Mapa do empreendimento"
+                  className="h-64 w-full"
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${mapaEmp.longitude - 0.003},${mapaEmp.latitude - 0.002},${mapaEmp.longitude + 0.003},${mapaEmp.latitude + 0.002}&layer=mapnik&marker=${mapaEmp.latitude},${mapaEmp.longitude}`}
+                />
+              </div>
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${mapaEmp.latitude}&mlon=${mapaEmp.longitude}#map=18/${mapaEmp.latitude}/${mapaEmp.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-xs text-orange hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Abrir mapa em tela cheia
+              </a>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
