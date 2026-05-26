@@ -14,9 +14,11 @@ import { NavActions } from "@/components/nav-actions";
 import { SugestoesPanel } from "@/components/sugestoes-panel";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico, lookupEmpreendimentosPorCreci } from "@/lib/plantao.functions";
 import { startAuthenticationPlantao, finishAuthenticationPlantao } from "@/lib/webauthn.functions";
-import { Fingerprint } from "lucide-react";
+import { Fingerprint, AlertTriangle } from "lucide-react";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { BiometriaRegisterCard } from "@/components/biometria-register-card";
 
 
 export const Route = createFileRoute("/plantao")({
