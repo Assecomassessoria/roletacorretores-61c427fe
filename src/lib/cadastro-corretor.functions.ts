@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Auto-cadastro PÚBLICO do corretor (não requer auth).
+// Autocadastro PÚBLICO do corretor (não requer auth).
 // Fluxo: digita CNPJ → backend localiza o empreendimento → cria conta auth,
 // profile, corretor (status pendente) e papel `corretor` escopado.
 // A gerência aprova depois em /app → Corretores (status_habilitacao=ativo).
@@ -31,9 +31,7 @@ type EmpInfo = {
 };
 
 export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
-  .inputValidator((d) =>
-    z.object({ cnpj: z.string().trim().max(32) }).parse(d),
-  )
+  .inputValidator((d) => z.object({ cnpj: z.string().trim().max(32) }).parse(d))
   .handler(async ({ data }) => {
     const digits = (data.cnpj ?? "").replace(/\D/g, "");
     if (digits.length < 11) return { empreendimento: null as EmpInfo | null };
@@ -56,10 +54,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
     const cnpjDigits = data.cnpj_empreendimento.replace(/\D/g, "");
 
     // 1) Localiza o empreendimento pelo CNPJ
-    const { data: emps } = await supabaseAdmin
-      .from("empreendimentos")
-      .select("id, nome, cnpj")
-      .eq("ativo", true);
+    const { data: emps } = await supabaseAdmin.from("empreendimentos").select("id, nome, cnpj").eq("ativo", true);
     const emp = (emps ?? []).find((e) => {
       const ec = (e.cnpj ?? "").replace(/\D/g, "");
       return ec && ec === cnpjDigits;
@@ -88,10 +83,12 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
     if (!user_id) throw new Error("Falha ao criar conta de acesso.");
 
     // 3) Profile
-    await supabaseAdmin.from("profiles").upsert(
-      { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
-      { onConflict: "id" },
-    );
+    await supabaseAdmin
+      .from("profiles")
+      .upsert(
+        { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
+        { onConflict: "id" },
+      );
 
     // 4) Corretor (pendente). Se já existe corretor com este user_id no empreendimento, atualiza.
     const { data: existingCorretor } = await supabaseAdmin

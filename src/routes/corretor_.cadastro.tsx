@@ -16,10 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Building2, CheckCircle2, Loader2, FileText } from "lucide-react";
-import {
-  buscarEmpreendimentoPorCnpj,
-  cadastroCorretorPublico,
-} from "@/lib/cadastro-corretor.functions";
+import { buscarEmpreendimentoPorCnpj, cadastroCorretorPublico } from "@/lib/cadastro-corretor.functions";
 
 export const Route = createFileRoute("/corretor_/cadastro")({
   component: CadastroCorretor,
@@ -29,7 +26,7 @@ export const Route = createFileRoute("/corretor_/cadastro")({
       {
         name: "description",
         content:
-          "Auto-cadastro do corretor: informe o CNPJ do empreendimento, seus dados e crie sua senha de acesso à roleta.",
+          "Autocadastro do corretor: informe o CNPJ do empreendimento, seus dados e crie sua senha de acesso à roleta.",
       },
     ],
   }),
@@ -67,8 +64,15 @@ function CadastroCorretor() {
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
 
   function onPickFoto(f: File | null) {
-    if (!f) { setFotoFile(null); setFotoPreview(null); return; }
-    if (f.size > 5 * 1024 * 1024) { toast.error("Foto deve ter no máximo 5MB."); return; }
+    if (!f) {
+      setFotoFile(null);
+      setFotoPreview(null);
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      toast.error("Foto deve ter no máximo 5MB.");
+      return;
+    }
     setFotoFile(f);
     const r = new FileReader();
     r.onload = () => setFotoPreview(typeof r.result === "string" ? r.result : null);
@@ -83,8 +87,6 @@ function CadastroCorretor() {
       r.readAsDataURL(f);
     });
   }
-
-
 
   function formatCnpj(v: string) {
     const d = v.replace(/\D/g, "").slice(0, 14);
@@ -183,8 +185,8 @@ function CadastroCorretor() {
             </span>
             <h1 className="mt-3 text-2xl font-bold">Cadastro do Corretor</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Informe o <strong>CNPJ do empreendimento</strong>. Em seguida, complete seus dados e
-              crie sua senha de acesso.
+              Informe o <strong>CNPJ do empreendimento</strong>. Em seguida, complete seus dados e crie sua senha de
+              acesso.
             </p>
           </div>
 
@@ -192,7 +194,9 @@ function CadastroCorretor() {
           {!emp && (
             <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">1</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">
+                  1
+                </span>
                 <Label className="text-xs font-semibold uppercase tracking-wider">
                   Digite o CNPJ do Empreendimento
                 </Label>
@@ -226,7 +230,10 @@ function CadastroCorretor() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setEmp(null); setCnpj(""); }}
+                  onClick={() => {
+                    setEmp(null);
+                    setCnpj("");
+                  }}
                   className="text-[11px] underline hover:no-underline"
                 >
                   Trocar CNPJ
@@ -271,19 +278,11 @@ function CadastroCorretor() {
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
               </Field>
               <Field label="CPF">
-                <Input
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  placeholder="000.000.000-00"
-                />
+                <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
               </Field>
               <div className="grid grid-cols-[1fr_90px_90px] gap-3">
                 <Field label="CRECI (nº)">
-                  <Input
-                    value={creci}
-                    onChange={(e) => setCreci(e.target.value)}
-                    placeholder="000000"
-                  />
+                  <Input value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="000000" />
                 </Field>
                 <Field label="F/J">
                   <select
@@ -307,46 +306,29 @@ function CadastroCorretor() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Telefone / WhatsApp">
-                  <Input
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
-                    placeholder="5511999999999"
-                  />
+                  <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="5511999999999" />
                 </Field>
                 <Field label="E-mail">
-                  <Input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Senha (mín. 8 caracteres)">
-                  <PasswordInput
-                    required
-                    minLength={8}
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
+                  <PasswordInput required minLength={8} value={senha} onChange={(e) => setSenha(e.target.value)} />
                 </Field>
                 <Field label="Confirmar senha">
-                  <PasswordInput
-                    required
-                    minLength={8}
-                    value={senha2}
-                    onChange={(e) => setSenha2(e.target.value)}
-                  />
+                  <PasswordInput required minLength={8} value={senha2} onChange={(e) => setSenha2(e.target.value)} />
                 </Field>
               </div>
 
               <Field label="Equipe — selecione conforme cadastro do Coordenador">
                 <div className="grid grid-cols-2 gap-2">
-                  {([
-                    { key: "alfa", nome: emp.equipe_alfa_nome || "Equipe Alfa" },
-                    { key: "beta", nome: emp.equipe_beta_nome || "Equipe Beta" },
-                  ] as const).map((t) => (
+                  {(
+                    [
+                      { key: "alfa", nome: emp.equipe_alfa_nome || "Equipe Alfa" },
+                      { key: "beta", nome: emp.equipe_beta_nome || "Equipe Beta" },
+                    ] as const
+                  ).map((t) => (
                     <button
                       type="button"
                       key={t.key}
@@ -363,11 +345,13 @@ function CadastroCorretor() {
                 </div>
               </Field>
 
-
-
               <div className="rounded-md border border-orange/30 bg-orange/5 p-3 text-[11px] text-muted-foreground">
-                Seu cadastro entra como <strong>pendente</strong>. A Coordenação ou Incorporadora libera
-                o seu acesso à roleta. Você pode tentar entrar em <Link to="/plantao" className="text-orange underline">/plantao</Link> usando seu CRECI assim que for aprovado.
+                Seu cadastro entra como <strong>pendente</strong>. A Coordenação ou Incorporadora libera o seu acesso à
+                roleta. Você pode tentar entrar em{" "}
+                <Link to="/plantao" className="text-orange underline">
+                  /plantao
+                </Link>{" "}
+                usando seu CRECI assim que for aprovado.
               </div>
 
               <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
@@ -402,35 +386,33 @@ function CadastroCorretor() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Termo de Adesão e Privacidade — Lorenza Roleta 4.0</DialogTitle>
-            <DialogDescription>
-              Leia com atenção antes de prosseguir com o cadastro.
-            </DialogDescription>
+            <DialogDescription>Leia com atenção antes de prosseguir com o cadastro.</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 text-sm leading-relaxed text-foreground/90">
             <section>
               <h3 className="font-semibold">1. Solicitação de Acesso e Finalidade</h3>
               <p>
-                O presente cadastro é uma solicitação de uso das ferramentas de engajamento da
-                Lorenza Roleta 4.0. O objetivo é gerenciar mecânicas de sorteios e roletas premiadas
-                para corretores, visando otimizar a conversão em atendimentos imobiliários.
+                O presente cadastro é uma solicitação de uso das ferramentas de engajamento da Lorenza Roleta 4.0. O
+                objetivo é gerenciar mecânicas de sorteios e roletas premiadas para corretores, visando otimizar a
+                conversão em atendimentos imobiliários.
               </p>
             </section>
 
             <section>
               <h3 className="font-semibold">2. Condição de Aprovação</h3>
               <p>
-                O acesso às funcionalidades da Lorenza Roleta 4.0 não é imediato. A ativação da conta
-                depende obrigatoriamente de análise e aprovação da nossa Gerência/Coordenação, que
-                validará os dados informados para garantir a segurança e a integridade da plataforma.
+                O acesso às funcionalidades da Lorenza Roleta 4.0 não é imediato. A ativação da conta depende
+                obrigatoriamente de análise e aprovação da nossa Gerência/Coordenação, que validará os dados informados
+                para garantir a segurança e a integridade da plataforma.
               </p>
             </section>
 
             <section>
               <h3 className="font-semibold">3. Vínculo Empresarial</h3>
               <p>
-                É obrigatório o preenchimento do campo de identificação do CNPJ vinculado ao
-                empreendimento que será trabalhado através da roleta:
+                É obrigatório o preenchimento do campo de identificação do CNPJ vinculado ao empreendimento que será
+                trabalhado através da roleta:
               </p>
               <div className="mt-2 rounded-md border border-border bg-muted/40 p-3">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -450,19 +432,17 @@ function CadastroCorretor() {
             <section>
               <h3 className="font-semibold">4. Política de Dados</h3>
               <p>
-                As informações coletadas são tratadas com total sigilo dentro do ambiente do Lorento
-                CRM e da Lorenza Roleta 4.0, sendo utilizadas exclusivamente para a gestão de
-                relacionamento e suporte à operação de sorteios. Não realizamos compartilhamento de
-                dados sem autorização expressa.
+                As informações coletadas são tratadas com total sigilo dentro do ambiente do Lorento CRM e da Lorenza
+                Roleta 4.0, sendo utilizadas exclusivamente para a gestão de relacionamento e suporte à operação de
+                sorteios. Não realizamos compartilhamento de dados sem autorização expressa.
               </p>
             </section>
 
             <section>
               <h3 className="font-semibold">5. Aceite</h3>
               <p>
-                Ao prosseguir, você reconhece que este cadastro é uma solicitação sujeita a aprovação
-                e que a veracidade dos dados (incluindo o CNPJ informado) é de sua inteira
-                responsabilidade.
+                Ao prosseguir, você reconhece que este cadastro é uma solicitação sujeita a aprovação e que a veracidade
+                dos dados (incluindo o CNPJ informado) é de sua inteira responsabilidade.
               </p>
             </section>
           </div>
