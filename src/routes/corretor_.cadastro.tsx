@@ -83,8 +83,8 @@ function CadastroCorretor() {
       r.readAsDataURL(f);
     });
   }
-  const [aceiteTermo, setAceiteTermo] = useState(false);
-  const [termoAberto, setTermoAberto] = useState(false);
+
+
 
   function formatCnpj(v: string) {
     const d = v.replace(/\D/g, "").slice(0, 14);
