@@ -73,11 +73,11 @@ function ResetPasswordPage() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="p1">Nova senha</Label>
-              <Input id="p1" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput id="p1" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="p2">Confirmar nova senha</Label>
-              <Input id="p2" type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+              <PasswordInput id="p2" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             </div>
             <Button type="submit" disabled={busy} className="w-full">
               {busy ? "Salvando…" : "Atualizar senha"}
