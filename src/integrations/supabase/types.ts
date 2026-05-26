@@ -224,6 +224,36 @@ export type Database = {
           },
         ]
       }
+      biometric_tokens: {
+        Row: {
+          corretor_id: string
+          created_at: string
+          empreendimento_id: string
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          corretor_id: string
+          created_at?: string
+          empreendimento_id: string
+          expires_at?: string
+          id?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          corretor_id?: string
+          created_at?: string
+          empreendimento_id?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       checkin_falhas: {
         Row: {
           creci: string
@@ -1036,6 +1066,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webauthn_challenges: {
+        Row: {
+          challenge: string
+          corretor_id: string | null
+          created_at: string
+          creci: string | null
+          empreendimento_id: string | null
+          expires_at: string
+          id: string
+          tipo: string
+          user_id: string | null
+        }
+        Insert: {
+          challenge: string
+          corretor_id?: string | null
+          created_at?: string
+          creci?: string | null
+          empreendimento_id?: string | null
+          expires_at?: string
+          id?: string
+          tipo: string
+          user_id?: string | null
+        }
+        Update: {
+          challenge?: string
+          corretor_id?: string | null
+          created_at?: string
+          creci?: string | null
+          empreendimento_id?: string | null
+          expires_at?: string
+          id?: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      webauthn_credentials: {
+        Row: {
+          corretor_id: string | null
+          counter: number
+          created_at: string
+          credential_id: string
+          device_label: string | null
+          id: string
+          last_used_at: string | null
+          public_key: string
+          transports: string[] | null
+          user_id: string
+        }
+        Insert: {
+          corretor_id?: string | null
+          counter?: number
+          created_at?: string
+          credential_id: string
+          device_label?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key: string
+          transports?: string[] | null
+          user_id: string
+        }
+        Update: {
+          corretor_id?: string | null
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          device_label?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key?: string
+          transports?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

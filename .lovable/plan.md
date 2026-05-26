@@ -1,76 +1,77 @@
+## Objetivo
 
-# Área do Coordenador
+Permitir cadastrar uma biometria (digital/Face ID) deste dispositivo logo após criar a conta e, em `/plantao`, validar a presença com Biometria **ou** Senha (fallback).
 
-Criar uma nova área dedicada ao **Coordenador** (acessível também pela Incorporadora/Gerente/Master) que centraliza toda a operação de um empreendimento. Baseada nos mockups enviados (Painel de Operações Pro).
+## Domínios envolvidos
 
-## Nova rota
+- Cadastros: `/setup` (incorporadora/demo) e `/corretor/cadastro` (corretor). Após o cadastro com sucesso, mostramos o botão **“Cadastrar biometria neste dispositivo”**.
+- `/plantao`: além da senha, oferecer botão **“Usar Biometria”**, que abre o sensor do aparelho. Se cancelar/falhar → cai automaticamente para o campo Senha (fallback).
 
-`src/routes/_authenticated/coordenador.tsx` — protegida por role `coordenador` (ou superior). Adicionar link **"Gerente/Coordenador"** no header de navegação.
+## Banco de dados (1 migração)
 
-## Estrutura da página (seções, top → bottom)
+Tabela `public.webauthn_credentials`:
+- `id uuid pk`
+- `user_id uuid` (FK lógica para `auth.users.id`)
+- `corretor_id uuid null` (FK para `public.corretores.id`) — preenchido quando o user_id corresponde a um corretor; facilita a busca em `/plantao` por CRECI.
+- `credential_id text unique` (base64url)
+- `public_key text` (base64url)
+- `counter bigint default 0`
+- `transports text[]`
+- `device_label text` (ex.: “iPhone do João”)
+- `created_at`, `last_used_at`
 
-### 1. Cabeçalho de ações
-- Seletor de empreendimento ativo
-- Botões: **Bater Roleta Oficial**, **Salvar Alterações**, **Envia WhatsApp**, **PDF / Imprimir**
+Tabela `public.webauthn_challenges` (curtíssima duração):
+- `id uuid pk`, `user_id uuid null`, `corretor_id uuid null`, `creci text null`, `empreendimento_id uuid null`
+- `challenge text`, `tipo text check (tipo in ('registration','authentication'))`
+- `expires_at timestamptz` (now() + 5 min)
 
-### 2. Ciclo Operacional Ativo
-Três cards selecionáveis (radio): **Roleta Única** · **Roleta Manhã** · **Roleta Tarde**
+RLS: ambas com RLS ativada. `webauthn_credentials`: SELECT/DELETE somente do próprio `user_id`. `webauthn_challenges`: sem políticas para clientes; todas as operações são feitas pelo `supabaseAdmin` em server functions.
 
-### 3. Configuração de Períodos
-Cards por turno (Comercial / Matutino / Vespertino) com horário início–fim editável.
+## Dependências
 
-### 4. Anexar Políticas e Regras do Plantão (PDF)
-Upload de PDF por empreendimento (storage bucket `plantao-regras`). Mostra arquivo vinculado ou "Nenhum PDF vinculado (usando normas padrão)".
+- `@simplewebauthn/server` (server functions)
+- `@simplewebauthn/browser` (frontend)
 
-### 5. Identidade & Comunicação
-- Nome do empreendimento ativo
-- WhatsApp Grupo (DDD+número) — link do grupo oficial de vendas
+## Server functions (novo arquivo `src/lib/webauthn.functions.ts`)
 
-### 6. Protocolos de Blindagem e Presença
-4 cards indicadores (Geofencing / QR Code / Stand Wi-Fi / Liberação Mestra) + 3 blocos de configuração:
-- **Parâmetros de Cerca GPS** — latitude, longitude, raio (m)
-- **QR Code de Presença** — token ativo + botão "Gerar Novo Token" + preview do QR
-- **Configuração de Rede** — SSID Wi-Fi + IP homologado
+Todas usando `supabaseAdmin` e variáveis `WEBAUTHN_RP_ID` (ex.: `simuladorcorretorelite.com.br` em prod, `localhost` em dev) e `WEBAUTHN_ORIGIN` (derivado da request).
 
-### 7. Gestão de Ativos e Períodos (Equipes)
-Editar nomes **Equipe Alfa** / **Equipe Beta** + botões para acessar cada equipe.
+1. `startRegistration` (auth via `requireSupabaseAuth`) — gera options + salva challenge.
+2. `finishRegistration` (auth) — verifica resposta, grava em `webauthn_credentials` (linkando ao corretor se houver).
+3. `startAuthenticationPlantao` (público) — input: `empreendimento_id`, `creci`. Busca corretor, lista credenciais, devolve options + challenge.
+4. `finishAuthenticationPlantao` (público) — verifica assinatura, atualiza `counter`/`last_used_at`, emite **token de biometria** de uso único (UUID guardado em tabela com TTL 60s) ligado ao corretor+empreendimento+today.
+5. `checkInPlantao` (alteração mínima): aceitar `biometric_token` opcional como alternativa à senha. Quando presente e válido, pula `signInWithPassword`.
 
-### 8. Gestão de Corretores
-- **Cadastros Aguardando Habilitação** (lista com botão Ativar)
-- **Corretores Ativos** com ações Ativar | Desativar | Excluir
+## Frontend
 
-### 9. Auditoria & Automação (Cron)
-Lista de cron jobs ativos (próximas execuções) — read-only.
+### `/setup` e `/corretor/cadastro`
+- Após sucesso do cadastro, em vez de redirecionar imediatamente, mostrar um card final com botão **“Cadastrar biometria neste dispositivo”** (e link “pular por agora”).
+- Botão chama `startRegistration` → `@simplewebauthn/browser` `startRegistration()` → `finishRegistration`. Toast de sucesso/erro. Em seguida segue navegação.
 
-## Backend (migração SQL)
+### `/plantao`
+- Acima do campo Senha: botão grande **“Entrar com Biometria”** (visível quando CRECI + empreendimento estão preenchidos).
+- Fluxo: chama `startAuthenticationPlantao` → `startAuthentication()` no browser → `finishAuthenticationPlantao` → recebe `biometric_token` → submete `checkInPlantao` com o token (e localização/SSID/etc) — sem pedir senha.
+- `try/catch`: qualquer erro (cancelamento, sem credencial, falha de hardware) exibe toast suave e mantém o campo Senha visível como fallback.
 
-Adicionar colunas ao `empreendimentos`:
-- `ciclo_roleta` (`unica`|`manha`|`tarde`)
-- `horario_comercial_inicio/fim`, `horario_matutino_inicio/fim`, `horario_vespertino_inicio/fim`
-- `regras_pdf_url`, `whatsapp_grupo_url`
-- `qr_token`, `ip_homologado`
-- `equipe_alfa_nome` (default 'Equipe Alfa'), `equipe_beta_nome` (default 'Equipe Beta')
+## UI / Padrão visual
 
-Adicionar ao `corretores`:
-- `equipe` (`alfa`|`beta`|null)
-- `status_habilitacao` (`pendente`|`ativo`|`desativado`) — substitui/complementa `ativo`
+- Botões “Cadastrar Biometria” / “Entrar com Biometria” em estilo navy/orange já usado no projeto (`bg-navy`/`bg-orange`), com ícone `Fingerprint` do `lucide-react`.
 
-Storage bucket `plantao-regras` (privado, RLS por empreendimento).
+## Segurança / Notas
 
-## Detalhes técnicos
+- `rpID`: derivado do host (server-side). Subdomínios funcionam se `rpID` for o domínio raiz (`simuladorcorretorelite.com.br`) — configurável via secret.
+- Challenge sempre salvo no servidor; nunca confiar em valor enviado pelo cliente.
+- `biometric_token` é uso único, TTL 60s, vinculado a (corretor, empreendimento, dia).
+- Senha continua existindo (fallback obrigatório).
+- WebAuthn exige HTTPS — preview/published já são HTTPS.
 
-- Componente único grande dividido em sub-componentes locais por seção
-- Mutations via Supabase client direto (já temos RLS)
-- Geração de token QR: `crypto.randomBytes(4).toString('hex').toUpperCase()` + lib `qrcode` para SVG preview
-- Upload PDF: `supabase.storage.from('plantao-regras').upload(...)`
-- Cron list: query em `cron.job` via server function admin
+## Arquivos a criar/editar
 
-## Fora do escopo (perguntar depois)
-- Edição visual avançada dos protocolos (cores/tema por empreendimento)
-- Disparo real de WhatsApp em massa pelo botão "Envia WhatsApp" (apenas abre o grupo por enquanto)
-- Tela dedicada de cada Equipe (Alfa/Beta) — por ora só renomeação
+- **Novo**: `src/lib/webauthn.functions.ts`
+- **Editar**: `src/lib/plantao.functions.ts` (aceitar `biometric_token`)
+- **Editar**: `src/routes/setup.tsx`, `src/routes/corretor_.cadastro.tsx` (card pós-cadastro)
+- **Editar**: `src/routes/plantao.tsx` (botão Biometria)
+- **Novo**: componente `src/components/biometria-button.tsx` (reuso)
+- **Migração**: tabelas `webauthn_credentials`, `webauthn_challenges`, `biometric_tokens`
 
-## Estimativa
-1 migração SQL + 1 rota nova (~600 linhas) + 1 link no header + 1 bucket de storage.
-
-Confirma para eu implementar?
+Confirma para eu executar?
