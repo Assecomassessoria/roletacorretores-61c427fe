@@ -251,7 +251,7 @@ function CadastroCorretor() {
           )}
 
           {/* TELA 2: dados do corretor */}
-          {emp && (
+          {!cadastroOk && emp && (
             <form onSubmit={onCadastrar} className="space-y-3">
               <div className="flex items-center justify-between gap-2 rounded-md bg-success/10 px-3 py-2 text-xs text-success ring-1 ring-success/30">
                 <span className="flex items-center gap-2">
