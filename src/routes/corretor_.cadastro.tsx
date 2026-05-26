@@ -21,7 +21,7 @@ import {
   cadastroCorretorPublico,
 } from "@/lib/cadastro-corretor.functions";
 
-export const Route = createFileRoute("/corretor/cadastro")({
+export const Route = createFileRoute("/corretor_/cadastro")({
   component: CadastroCorretor,
   head: () => ({
     meta: [
