@@ -209,7 +209,7 @@ function SetupDemo() {
           </Field>
 
           <Button type="submit" disabled={busy} className="w-full bg-orange text-orange-foreground hover:bg-orange/90">
-            {busy ? "Aguarde…" : "Escolher Licença e Criar Acesso"}
+            {busy ? "Aguarde…" : "Entrar"}
           </Button>
 
           <p className="text-center text-[11px] text-muted-foreground">
