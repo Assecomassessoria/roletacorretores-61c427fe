@@ -98,18 +98,47 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       throw new Error("Corretor ainda não tem acesso habilitado. Peça à gerência para habilitar o login.");
     }
 
-    const authClient = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
-    const { data: signed, error: sErr } = await authClient.auth.signInWithPassword({
-      email: loginEmail,
-      password: data.senha,
-    });
-    if (sErr || !signed?.user) {
-      await registrarFalha();
-      throw new Error(GENERIC_AUTH_ERROR);
+    let authUserId: string | null = null;
+
+    if (data.biometric_token) {
+      // Autenticação por biometria — valida token de uso único (TTL 60s)
+      const { data: tok } = await supabaseAdmin
+        .from("biometric_tokens")
+        .select("id, corretor_id, empreendimento_id, used_at, expires_at")
+        .eq("token", data.biometric_token)
+        .maybeSingle();
+      const now = new Date();
+      if (
+        !tok ||
+        tok.used_at ||
+        new Date(tok.expires_at) < now ||
+        tok.corretor_id !== corretor.id ||
+        tok.empreendimento_id !== data.empreendimento_id
+      ) {
+        await registrarFalha();
+        throw new Error("Token biométrico inválido ou expirado. Tente novamente.");
+      }
+      await supabaseAdmin.from("biometric_tokens").update({ used_at: now.toISOString() }).eq("id", tok.id);
+      authUserId = corretor.user_id ?? null;
+    } else {
+      if (!data.senha) {
+        await registrarFalha();
+        throw new Error(GENERIC_AUTH_ERROR);
+      }
+      const authClient = createClient(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_PUBLISHABLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false } },
+      );
+      const { data: signed, error: sErr } = await authClient.auth.signInWithPassword({
+        email: loginEmail,
+        password: data.senha,
+      });
+      if (sErr || !signed?.user) {
+        await registrarFalha();
+        throw new Error(GENERIC_AUTH_ERROR);
+      }
+      authUserId = signed.user.id;
     }
 
     const { data: emp, error: eErr } = await supabaseAdmin
