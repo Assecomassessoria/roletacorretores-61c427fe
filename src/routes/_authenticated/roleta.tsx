@@ -59,11 +59,16 @@ function RoletaPage() {
   const pingFn = useServerFn(pingPresenca);
   const varrerFn = useServerFn(varrerAusentes);
   const reativarFn = useServerFn(reativarPresenca);
+  const listarEmpsFn = useServerFn(listarMeusEmpreendimentos);
 
   async function loadEmps() {
-    const { data } = await supabase.from("empreendimentos").select("id,nome,latitude,longitude,raio_metros,periodo_ausencia_minutos").eq("ativo", true).order("nome");
-    setEmps((data as Emp[]) ?? []);
-    if (data && data.length && !empId) setEmpId(data[0].id);
+    try {
+      const { empreendimentos } = await listarEmpsFn({});
+      setEmps((empreendimentos as Emp[]) ?? []);
+      if (empreendimentos.length && !empId) setEmpId(empreendimentos[0].id);
+    } catch (e) {
+      console.error("Erro ao carregar empreendimentos", e);
+    }
   }
   async function loadAll() {
     if (!empId) return;
