@@ -253,6 +253,20 @@ function PlantaoPage() {
       setResult(r);
       toast.success(`Presença confirmada por ${r.metodo}`);
       await refreshRoleta(r.empreendimento.id);
+
+      // Se o usuário tentou biometria e este aparelho não tinha a passkey local,
+      // ou se nunca cadastramos a biometria deste dispositivo para este CRECI,
+      // oferecemos cadastrar agora — exige uma sessão Supabase real no browser.
+      const shouldOffer = bioOfferRegister || !hasLocalBioFlag(form.creci);
+      if (shouldOffer && r.login_email) {
+        try {
+          const { error: sErr } = await supabase.auth.signInWithPassword({
+            email: r.login_email,
+            password: form.senha,
+          });
+          if (!sErr) setBioRegisterReady(true);
+        } catch { /* segue sem oferecer */ }
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao confirmar presença");
     } finally {
