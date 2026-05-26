@@ -19,7 +19,7 @@ type CardDef = { to: string; title: string; desc: string; roles: string[] };
 const CARDS: CardDef[] = [
   { to: "/empreendimentos", title: "Empreendimentos", desc: "Cadastre stands com geofencing e Wi-Fi.", roles: ["incorporadora"] },
   { to: "/coordenador", title: "Gerente / Coordenador", desc: "Painel de Operações Pro: ciclos, equipes, protocolos e escala.", roles: ["incorporadora", "gerente", "coordenador"] },
-  { to: "/corretores", title: "Corretores", desc: "Equipe, dados e ordem da roleta.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
+  { to: "/corretores", title: "Corretores", desc: "Equipe, dados e ordem da roleta.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/plantoes", title: "Plantões & Escala", desc: "Agenda e presença dos corretores.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/presencas", title: "Presenças do dia", desc: "Check-ins validados, método e auditoria.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/roleta", title: "Roleta", desc: "Próximo da vez, status do dia.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
