@@ -104,6 +104,11 @@ function SetupDemo() {
           </p>
         </div>
 
+        {cadastroOk ? (
+          <div className="mt-6 space-y-4">
+            <BiometriaRegisterCard defaultLabel={nome} onDone={() => navigate({ to: "/app" })} />
+          </div>
+        ) : (
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Nome do Receptor/Contato">
