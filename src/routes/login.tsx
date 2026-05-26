@@ -171,19 +171,29 @@ function LoginPage() {
 
         {mode !== "forgot" ? (
           <>
-            <button
-              type="button"
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
-            >
-              {mode === "login" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
-            </button>
+            {/* CTA principal: corretor sempre vem por aqui */}
             <Link
               to="/corretor/cadastro"
-              className="mt-2 block w-full text-center text-xs text-orange hover:underline"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange transition hover:bg-orange hover:text-white"
             >
-              Sou Corretor — quero me cadastrar pelo CNPJ do empreendimento
+              Sou Corretor — cadastrar pelo CNPJ
             </Link>
+            <p className="mt-1 text-center text-[11px] text-muted-foreground">
+              Corretor: <strong>não use</strong> o "Criar conta" abaixo. Cadastre-se sempre pelo botão acima
+              informando o CNPJ do empreendimento.
+            </p>
+
+            <div className="mt-5 border-t border-border pt-4">
+              <button
+                type="button"
+                onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+              >
+                {mode === "login"
+                  ? "Sou Incorporadora / Gerência — criar conta administrativa"
+                  : "Já tem conta? Entrar"}
+              </button>
+            </div>
           </>
         ) : (
           <button
