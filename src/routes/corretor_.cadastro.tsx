@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft, Building2, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { buscarEmpreendimentoPorCnpj, cadastroCorretorPublico } from "@/lib/cadastro-corretor.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { BiometriaRegisterCard } from "@/components/biometria-register-card";
 
 export const Route = createFileRoute("/corretor_/cadastro")({
   component: CadastroCorretor,
@@ -62,6 +64,8 @@ function CadastroCorretor() {
   const [termoAberto, setTermoAberto] = useState(false);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [cadastroOk, setCadastroOk] = useState(false);
+  const [bioSignedIn, setBioSignedIn] = useState(false);
 
   function onPickFoto(f: File | null) {
     if (!f) {
@@ -157,9 +161,15 @@ function CadastroCorretor() {
         },
       });
       toast.success(
-        "Cadastro enviado! Aguardando aprovação da Coordenação/Incorporadora. Você já pode entrar pela área do corretor após a liberação.",
+        "Cadastro enviado! Aguardando aprovação. Você já pode cadastrar sua biometria neste dispositivo.",
       );
-      navigate({ to: "/login" });
+      // Tenta autenticar para permitir cadastro de biometria já neste dispositivo.
+      const { error: sErr } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password: senha,
+      });
+      setBioSignedIn(!sErr);
+      setCadastroOk(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Falha no cadastro";
       toast.error(msg);
@@ -190,8 +200,28 @@ function CadastroCorretor() {
             </p>
           </div>
 
+          {/* TELA 3: cadastrado — oferece biometria */}
+          {cadastroOk && (
+            <div className="space-y-4">
+              <div className="rounded-md border border-success/30 bg-success/10 p-3 text-sm text-success">
+                Cadastro enviado para aprovação. Você pode cadastrar sua biometria agora neste dispositivo.
+              </div>
+              {bioSignedIn ? (
+                <BiometriaRegisterCard defaultLabel={nome} onDone={() => navigate({ to: "/login" })} />
+              ) : (
+                <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
+                  Não foi possível autenticar automaticamente neste dispositivo. Após a Coordenação aprovar seu cadastro,
+                  faça login em <Link to="/login" className="text-orange underline">/login</Link> e cadastre sua biometria nas configurações.
+                  <div className="mt-3">
+                    <Button onClick={() => navigate({ to: "/login" })}>Ir para o login</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TELA 1: somente CNPJ */}
-          {!emp && (
+          {!cadastroOk && !emp && (
             <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">
@@ -221,7 +251,7 @@ function CadastroCorretor() {
           )}
 
           {/* TELA 2: dados do corretor */}
-          {emp && (
+          {!cadastroOk && emp && (
             <form onSubmit={onCadastrar} className="space-y-3">
               <div className="flex items-center justify-between gap-2 rounded-md bg-success/10 px-3 py-2 text-xs text-success ring-1 ring-success/30">
                 <span className="flex items-center gap-2">

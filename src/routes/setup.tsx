@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { NavActions } from "@/components/nav-actions";
+import { BiometriaRegisterCard } from "@/components/biometria-register-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Zap, ArrowLeft } from "lucide-react";
@@ -49,6 +50,7 @@ function SetupDemo() {
   const [role, setRole] = useState<Role>("incorporadora");
   const [infoAdicionais, setInfoAdicionais] = useState("");
   const [busy, setBusy] = useState(false);
+  const [cadastroOk, setCadastroOk] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -75,7 +77,7 @@ function SetupDemo() {
       const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
       if (error) throw error;
       toast.success("Cadastro confirmado. Bem-vindo!");
-      navigate({ to: "/app" });
+      setCadastroOk(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao cadastrar");
     } finally {
@@ -102,6 +104,11 @@ function SetupDemo() {
           </p>
         </div>
 
+        {cadastroOk ? (
+          <div className="mt-6 space-y-4">
+            <BiometriaRegisterCard defaultLabel={nome} onDone={() => navigate({ to: "/app" })} />
+          </div>
+        ) : (
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Nome do Receptor/Contato">
@@ -186,6 +193,7 @@ function SetupDemo() {
             Já tem conta? <Link to="/login" className="text-orange hover:underline">Entrar</Link>
           </p>
         </form>
+        )}
         <NavActions />
       </div>
     </main>

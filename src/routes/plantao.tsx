@@ -13,6 +13,8 @@ import { SiteHeader } from "@/components/site-header";
 import { NavActions } from "@/components/nav-actions";
 import { SugestoesPanel } from "@/components/sugestoes-panel";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico, lookupEmpreendimentosPorCreci } from "@/lib/plantao.functions";
+import { startAuthenticationPlantao, finishAuthenticationPlantao } from "@/lib/webauthn.functions";
+import { Fingerprint } from "lucide-react";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
 
@@ -69,6 +71,11 @@ function PlantaoPage() {
   const carregarEscala = useServerFn(listarEscalaSemanal);
   const inscrever = useServerFn(inscreverEscala);
   const resetAdmin = useServerFn(resetarEscalaAdmin);
+  const startAuthBio = useServerFn(startAuthenticationPlantao);
+  const finishAuthBio = useServerFn(finishAuthenticationPlantao);
+  const [bioBusy, setBioBusy] = useState(false);
+
+
 
   const [resetOpen, setResetOpen] = useState(false);
   const [resetSenha, setResetSenha] = useState("");
@@ -371,9 +378,48 @@ function PlantaoPage() {
               </ul>
             </div>
 
-            <Button type="submit" className="w-full" disabled={busy}>
+            <Button type="submit" className="w-full" disabled={busy || bioBusy}>
               {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
               Confirmar presença & entrar na roleta
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-[var(--navy-deep,#0b1e3f)] text-[var(--navy-deep,#0b1e3f)]"
+              disabled={busy || bioBusy || !form.empreendimento_id || !form.creci}
+              onClick={async () => {
+                if (!form.empreendimento_id || !form.creci) return toast.error("Informe CRECI e empreendimento.");
+                if (typeof window === "undefined" || !window.PublicKeyCredential) return toast.error("Biometria não suportada neste dispositivo.");
+                setBioBusy(true);
+                try {
+                  const { startAuthentication } = await import("@simplewebauthn/browser");
+                  const options = await startAuthBio({ data: { empreendimento_id: form.empreendimento_id, creci: form.creci } });
+                  const response = await startAuthentication({ optionsJSON: options as unknown as Parameters<typeof startAuthentication>[0]["optionsJSON"] });
+                  const { biometric_token } = await finishAuthBio({ data: { empreendimento_id: form.empreendimento_id, creci: form.creci, response } });
+                  const r = (await checkIn({
+                    data: {
+                      empreendimento_id: form.empreendimento_id,
+                      creci: form.creci,
+                      biometric_token,
+                      latitude: coords?.lat,
+                      longitude: coords?.lng,
+                      wifi_ssid: form.wifi_ssid || undefined,
+                      pin: form.pin || undefined,
+                    },
+                  })) as CheckInResult;
+                  setResult(r);
+                  toast.success(`Presença confirmada por biometria (${r.metodo})`);
+                  await refreshRoleta(r.empreendimento.id);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Falha na biometria — use a senha.");
+                } finally {
+                  setBioBusy(false);
+                }
+              }}
+            >
+              {bioBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2 h-4 w-4" />}
+              Entrar com Biometria
             </Button>
           </form>
         ) : null}
