@@ -5,7 +5,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Building2, CheckCircle2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ArrowLeft, Building2, CheckCircle2, Loader2, FileText } from "lucide-react";
 import {
   buscarEmpreendimentoPorCnpj,
   cadastroCorretorPublico,
@@ -42,6 +51,8 @@ function CadastroCorretor() {
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [aceiteTermo, setAceiteTermo] = useState(false);
+  const [termoAberto, setTermoAberto] = useState(false);
 
   async function onBuscar(e: FormEvent) {
     e.preventDefault();
@@ -69,6 +80,7 @@ function CadastroCorretor() {
     if (!emp) return toast.error("Confirme o empreendimento antes.");
     if (senha.length < 8) return toast.error("A senha deve ter no mínimo 8 caracteres.");
     if (senha !== senha2) return toast.error("As senhas não conferem.");
+    if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
     setEnviando(true);
     try {
       await cadastrar({
@@ -201,13 +213,118 @@ function CadastroCorretor() {
                 o seu acesso à roleta. Você pode tentar entrar em <Link to="/plantao" className="text-orange underline">/plantao</Link> usando seu CRECI assim que for aprovado.
               </div>
 
-              <Button type="submit" disabled={enviando} className="w-full">
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
+                <Checkbox
+                  id="aceite-termo"
+                  checked={aceiteTermo}
+                  onCheckedChange={(c) => setAceiteTermo(c === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="aceite-termo" className="text-xs leading-relaxed font-normal cursor-pointer">
+                  Li e aceito o{" "}
+                  <button
+                    type="button"
+                    onClick={() => setTermoAberto(true)}
+                    className="inline-flex items-center gap-1 text-orange underline hover:text-orange/80"
+                  >
+                    <FileText className="h-3 w-3" />
+                    Termo de Adesão e Privacidade — Lorenza Roleta 4.0
+                  </button>
+                </Label>
+              </div>
+
+              <Button type="submit" disabled={enviando || !aceiteTermo} className="w-full">
                 {enviando ? "Enviando…" : "Enviar cadastro para aprovação"}
               </Button>
             </form>
           )}
         </div>
       </div>
+
+      <Dialog open={termoAberto} onOpenChange={setTermoAberto}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Termo de Adesão e Privacidade — Lorenza Roleta 4.0</DialogTitle>
+            <DialogDescription>
+              Leia com atenção antes de prosseguir com o cadastro.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 text-sm leading-relaxed text-foreground/90">
+            <section>
+              <h3 className="font-semibold">1. Solicitação de Acesso e Finalidade</h3>
+              <p>
+                O presente cadastro é uma solicitação de uso das ferramentas de engajamento da
+                Lorenza Roleta 4.0. O objetivo é gerenciar mecânicas de sorteios e roletas premiadas
+                para corretores, visando otimizar a conversão em atendimentos imobiliários.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-semibold">2. Condição de Aprovação</h3>
+              <p>
+                O acesso às funcionalidades da Lorenza Roleta 4.0 não é imediato. A ativação da conta
+                depende obrigatoriamente de análise e aprovação da nossa Gerência/Coordenação, que
+                validará os dados informados para garantir a segurança e a integridade da plataforma.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-semibold">3. Vínculo Empresarial</h3>
+              <p>
+                É obrigatório o preenchimento do campo de identificação do CNPJ vinculado ao
+                empreendimento que será trabalhado através da roleta:
+              </p>
+              <div className="mt-2 rounded-md border border-border bg-muted/40 p-3">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  CNPJ do Empreendimento
+                </div>
+                <div className="mt-1 font-mono text-base">
+                  {emp?.cnpj || cnpj || "___________________________________"}
+                </div>
+                {emp && (
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    Empreendimento: <strong>{emp.nome}</strong>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="font-semibold">4. Política de Dados</h3>
+              <p>
+                As informações coletadas são tratadas com total sigilo dentro do ambiente do Lorento
+                CRM e da Lorenza Roleta 4.0, sendo utilizadas exclusivamente para a gestão de
+                relacionamento e suporte à operação de sorteios. Não realizamos compartilhamento de
+                dados sem autorização expressa.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-semibold">5. Aceite</h3>
+              <p>
+                Ao prosseguir, você reconhece que este cadastro é uma solicitação sujeita a aprovação
+                e que a veracidade dos dados (incluindo o CNPJ informado) é de sua inteira
+                responsabilidade.
+              </p>
+            </section>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setTermoAberto(false)}>
+              Fechar
+            </Button>
+            <Button
+              onClick={() => {
+                setAceiteTermo(true);
+                setTermoAberto(false);
+              }}
+            >
+              Li e aceito o termo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
