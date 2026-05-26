@@ -56,7 +56,7 @@ export const pingPresenca = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin
       .from("plantoes")
-      .update(patch)
+      .update(patch as any)
       .eq("id", data.plantao_id);
     if (error) throw new Error(error.message);
 
