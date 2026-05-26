@@ -170,13 +170,21 @@ function LoginPage() {
         </form>
 
         {mode !== "forgot" ? (
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
-          >
-            {mode === "login" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
+            >
+              {mode === "login" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
+            </button>
+            <Link
+              to="/corretor/cadastro"
+              className="mt-2 block w-full text-center text-xs text-orange hover:underline"
+            >
+              Sou Corretor — quero me cadastrar pelo CNPJ do empreendimento
+            </Link>
+          </>
         ) : (
           <button
             type="button"
