@@ -13,6 +13,8 @@ import { SiteHeader } from "@/components/site-header";
 import { NavActions } from "@/components/nav-actions";
 import { SugestoesPanel } from "@/components/sugestoes-panel";
 import { checkInPlantao, listarEmpreendimentosPublico, roletaDoDiaPublico, lookupEmpreendimentosPorCreci } from "@/lib/plantao.functions";
+import { startAuthenticationPlantao, finishAuthenticationPlantao } from "@/lib/webauthn.functions";
+import { Fingerprint } from "lucide-react";
 import { inscreverEscala, listarEscalaSemanal, resetarEscalaAdmin } from "@/lib/escala.functions";
 import { CalendarDays, Sparkles, ShieldAlert } from "lucide-react";
 
