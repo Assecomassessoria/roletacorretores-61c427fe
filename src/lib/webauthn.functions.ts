@@ -32,13 +32,14 @@ function b64urlEncode(buf: Uint8Array | ArrayBuffer): string {
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function b64urlDecode(s: string): Uint8Array {
+function b64urlDecode(s: string): Uint8Array<ArrayBuffer> {
   s = s.replace(/-/g, "+").replace(/_/g, "/");
   while (s.length % 4) s += "=";
   const bin = atob(s);
-  const out = new Uint8Array(bin.length);
+  const buf = new ArrayBuffer(bin.length);
+  const out = new Uint8Array(buf);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
+  return out as Uint8Array<ArrayBuffer>;
 }
 
 async function cleanupChallenges() {
