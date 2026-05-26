@@ -54,6 +54,7 @@ function EmpreendimentosPage() {
   const [rows, setRows] = useState<Emp[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Emp> | null>(null);
+  const [mapaEmp, setMapaEmp] = useState<Emp | null>(null);
   const listAdmin = useServerFn(listEmpreendimentosAdmin);
 
   async function load() {
