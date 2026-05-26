@@ -37,7 +37,7 @@ const PLANOS = [
     nome: "Plano 30 Teste Elite",
     cor: "white" as const,
     badge: "Trial qualificado · Pagamento único na adesão",
-    preco: "R$ 69,90",
+    preco: "R$ 79,90",
     sub: "/30 dias",
     promo: "Renovação assistida no 25º dia via Lorenza Messenger",
     features: [
