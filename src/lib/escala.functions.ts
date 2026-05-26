@@ -211,30 +211,32 @@ export const inscreverEscala = createServerFn({ method: "POST" })
       .eq("equipe", data.equipe)
       .in("data", dias);
 
-    const jaInscrito = (existentes ?? []).find((s: any) => s.corretor_id === corretor.id);
-    if (jaInscrito) {
-      const dt = new Date(`${jaInscrito.data}T12:00:00`);
+    // Já inscrito neste mesmo dia? Apenas confirma sem erro.
+    const jaInscritoDoDia = (existentes ?? []).find(
+      (s: any) => s.corretor_id === corretor.id && s.data === data.data,
+    );
+    if (jaInscritoDoDia) {
+      const dt = new Date(`${data.data}T12:00:00`);
       return {
         ok: true,
         ja_inscrito: true,
-        data: jaInscrito.data,
+        data: data.data,
         data_br: dt.toLocaleDateString("pt-BR"),
         dia_semana: DIAS[dt.getDay()],
         corretor_nome: corretor.nome,
-        periodos: (jaInscrito as any).periodos ?? [],
+        periodos: (jaInscritoDoDia as any).periodos ?? [],
       };
     }
 
-    const slotDoDia = (existentes ?? []).find((s: any) => s.data === data.data);
-    if (slotDoDia && (slotDoDia as any).corretor_id) {
-      throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
-    }
-
-    if (slotDoDia) {
+    // Se existir um slot vago herdado (corretor_id null), reaproveita; senão insere nova linha.
+    const slotVago = (existentes ?? []).find(
+      (s: any) => s.data === data.data && !s.corretor_id,
+    );
+    if (slotVago) {
       const { error: upErr } = await supabaseAdmin
         .from("escala_semanal")
         .update({ corretor_id: corretor.id, periodos: data.periodos } as any)
-        .eq("id", (slotDoDia as any).id);
+        .eq("id", (slotVago as any).id);
       if (upErr) throw new Error(upErr.message);
     } else {
       const { error: insErr } = await supabaseAdmin
@@ -248,6 +250,7 @@ export const inscreverEscala = createServerFn({ method: "POST" })
         } as any);
       if (insErr) throw new Error(insErr.message);
     }
+
 
 
     const dt = new Date(`${data.data}T12:00:00`);
