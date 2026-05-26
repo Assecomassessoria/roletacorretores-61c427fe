@@ -190,19 +190,30 @@ export const inscreverEscala = createServerFn({ method: "POST" })
       };
     }
 
-    const ocupadoNoDia = (existentes ?? []).find((s: any) => s.data === data.data && s.corretor_id);
-    if (ocupadoNoDia) throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
+    const slotDoDia = (existentes ?? []).find((s: any) => s.data === data.data);
+    if (slotDoDia && (slotDoDia as any).corretor_id) {
+      throw new Error("Esse dia já está ocupado para a Equipe " + data.equipe.toUpperCase());
+    }
 
-    const { error: insErr } = await supabaseAdmin
-      .from("escala_semanal")
-      .insert({
-        empreendimento_id: data.empreendimento_id,
-        equipe: data.equipe,
-        data: data.data,
-        corretor_id: corretor.id,
-        periodos: data.periodos,
-      } as any);
-    if (insErr) throw new Error(insErr.message);
+    if (slotDoDia) {
+      const { error: upErr } = await supabaseAdmin
+        .from("escala_semanal")
+        .update({ corretor_id: corretor.id, periodos: data.periodos } as any)
+        .eq("id", (slotDoDia as any).id);
+      if (upErr) throw new Error(upErr.message);
+    } else {
+      const { error: insErr } = await supabaseAdmin
+        .from("escala_semanal")
+        .insert({
+          empreendimento_id: data.empreendimento_id,
+          equipe: data.equipe,
+          data: data.data,
+          corretor_id: corretor.id,
+          periodos: data.periodos,
+        } as any);
+      if (insErr) throw new Error(insErr.message);
+    }
+
 
     const dt = new Date(`${data.data}T12:00:00`);
     return {
