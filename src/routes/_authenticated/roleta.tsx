@@ -50,8 +50,12 @@ function RoletaPage() {
   const [atendForm, setAtendForm] = useState({ cliente_nome: "", cliente_telefone: "", cliente_email: "", observacoes: "" });
   const [busy, setBusy] = useState(false);
 
+  const pingFn = useServerFn(pingPresenca);
+  const varrerFn = useServerFn(varrerAusentes);
+  const reativarFn = useServerFn(reativarPresenca);
+
   async function loadEmps() {
-    const { data } = await supabase.from("empreendimentos").select("id,nome,latitude,longitude,raio_metros").eq("ativo", true).order("nome");
+    const { data } = await supabase.from("empreendimentos").select("id,nome,latitude,longitude,raio_metros,periodo_ausencia_minutos").eq("ativo", true).order("nome");
     setEmps((data as Emp[]) ?? []);
     if (data && data.length && !empId) setEmpId(data[0].id);
   }
@@ -76,9 +80,61 @@ function RoletaPage() {
   const emp = emps.find((e) => e.id === empId);
   const minhaCorretor = corretores.find((c) => c.user_id === user?.id);
 
+  // Heartbeat de presença (corretor com check-in) + varredura de ausentes (admin) a cada 60s
+  useEffect(() => {
+    if (!empId) return;
+    let cancelado = false;
+
+    async function tick() {
+      try {
+        // Varredura central — qualquer aba aberta basta para manter o estado consistente
+        await varrerFn({ data: { empreendimento_id: empId } });
+      } catch { /* silencioso */ }
+
+      // Heartbeat de geolocalização (apenas se este usuário tem plantão hoje aqui)
+      const meuPlantao = plantoes.find(
+        (p) => p.corretor_id === minhaCorretor?.id && p.presenca_confirmada_em,
+      );
+      if (meuPlantao && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            if (cancelado) return;
+            try {
+              await pingFn({ data: { plantao_id: meuPlantao.id, lat: pos.coords.latitude, lng: pos.coords.longitude } });
+            } catch { /* silencioso */ }
+          },
+          () => { /* sem permissão — ignora */ },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 },
+        );
+      }
+
+      if (!cancelado) loadAll();
+    }
+
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => { cancelado = true; clearInterval(id); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [empId, minhaCorretor?.id, plantoes.length]);
+
+  function presencaInfo(corretorId: string) {
+    const p = plantoes.find((x) => x.corretor_id === corretorId);
+    if (!p) return { status: "sem" as const, label: "sem plantão", min: 0 };
+    if (p.status_presenca === "ausente") return { status: "ausente" as const, label: "Ausente", min: 0 };
+    if (p.fora_desde) {
+      const min = Math.floor((Date.now() - new Date(p.fora_desde).getTime()) / 60000);
+      return { status: "saindo" as const, label: `Saiu há ${min}m`, min };
+    }
+    if (p.presenca_confirmada_em) return { status: "presente" as const, label: "Presente", min: 0 };
+    return { status: "aguardando" as const, label: "Aguardando", min: 0 };
+  }
+
   const fila = useMemo(() => {
-    // presentes hoje
-    const presentes = corretores.filter((c) => plantoes.some((p) => p.corretor_id === c.id && p.presenca_confirmada_em));
+    // só entram presentes (verde); ausentes/saindo são exibidos separadamente
+    const presentes = corretores.filter((c) => {
+      const p = plantoes.find((x) => x.corretor_id === c.id);
+      return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
+    });
     return presentes.sort((a, b) => {
       const ca = counts[a.id] ?? 0, cb = counts[b.id] ?? 0;
       if (ca !== cb) return ca - cb;
@@ -87,6 +143,18 @@ function RoletaPage() {
   }, [corretores, plantoes, counts]);
 
   const proximo = fila[0];
+
+  async function reativar(plantaoId: string) {
+    try {
+      await reativarFn({ data: { plantao_id: plantaoId } });
+      toast.success("Corretor reativado");
+      loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao reativar");
+    }
+  }
+
+
 
   async function confirmarPresenca() {
     if (!minhaCorretor) return toast.error("Você não está cadastrado como corretor neste empreendimento");
