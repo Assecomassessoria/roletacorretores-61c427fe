@@ -143,9 +143,8 @@ function LoginPage() {
                   </button>
                 )}
               </div>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 required
                 minLength={mode === "signup" ? 8 : 6}
                 value={password}
