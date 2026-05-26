@@ -149,7 +149,7 @@ function PlantaoPage() {
 
   async function buscarPorCreci() {
     const creci = form.creci.trim();
-    if (creci.length < 2) return toast.error("Digite seu CRECI");
+    if (creci.length < 2) return toast.error("Digite seu CRECI ou e-mail");
     setLookupBusy(true);
     setEmpsDoCreci(null);
     setForm((s) => ({ ...s, empreendimento_id: "" }));
@@ -157,7 +157,7 @@ function PlantaoPage() {
       const r = await lookupCreci({ data: { creci } });
       const list = r.empreendimentos as EmpCnpj[];
       if (list.length === 0) {
-        toast.error("CRECI não encontrado ou inativo.");
+        toast.error("CRECI/e-mail não encontrado ou inativo.");
         setEmpsDoCreci([]);
         return;
       }
@@ -166,7 +166,7 @@ function PlantaoPage() {
         setForm((s) => ({ ...s, empreendimento_id: list[0].id }));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao consultar CRECI");
+      toast.error(err instanceof Error ? err.message : "Falha ao consultar");
     } finally {
       setLookupBusy(false);
     }
