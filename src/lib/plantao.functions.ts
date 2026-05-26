@@ -366,7 +366,7 @@ export const lookupEmpreendimentosPorCreci = createServerFn({ method: "POST" })
       .eq("ativo", true);
     const { data: rows, error } = await (isEmail
       ? query.ilike("email", termo)
-      : query.ilike("creci", termo));
+      : query.ilike("creci", `${termo}%`));
     if (error) throw new Error("Erro ao consultar.");
     const empMap = new Map<string, { id: string; nome: string; cnpj: string | null }>();
     (rows ?? []).forEach((r: { empreendimentos: { id: string; nome: string; cnpj: string | null; ativo: boolean } | null }) => {
