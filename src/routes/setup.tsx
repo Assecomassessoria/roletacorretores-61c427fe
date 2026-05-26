@@ -143,7 +143,7 @@ function SetupDemo() {
                 <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Ex: Elite Imóveis Stand Sul" />
               </Field>
               <Field label="CNPJ">
-                <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(e.target.value)} placeholder="00.000.000/0001-00" />
+                <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(maskCNPJ(e.target.value))} placeholder="00.000.000/0001-00" inputMode="numeric" />
               </Field>
             </div>
           </div>
