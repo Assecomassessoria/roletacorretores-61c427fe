@@ -4,9 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // Senha padrão de PRIMEIRO ACESSO do corretor.
-// Ele entra com email + 123456 e o sistema obriga a redefinir a senha
-// vinculada ao próprio e-mail no primeiro login.
-export const SENHA_PADRAO_CORRETOR = "123456";
+// Precisa passar na proteção HIBP do Supabase (não pode ser uma senha vazada).
+// O corretor é obrigado a redefinir no primeiro login.
+export const SENHA_PADRAO_CORRETOR = "Corretor@Elite4";
 
 const Input = z.object({
   corretor_id: z.string().uuid(),
