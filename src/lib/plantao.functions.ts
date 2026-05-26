@@ -76,9 +76,22 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       .ilike("creci", data.creci.trim())
       .maybeSingle();
     if (cErr) { console.error(cErr); throw new Error("Erro ao validar credenciais."); }
-    if (!corretor || !corretor.ativo || !corretor.email) {
+    if (!corretor || !corretor.ativo) {
       await registrarFalha();
       throw new Error(GENERIC_AUTH_ERROR);
+    }
+
+    // Autentica pelo e-mail REAL do auth user vinculado (se houver),
+    // não pelo corretor.email — esses podem ter sido editados separadamente.
+    let loginEmail: string | null = null;
+    if (corretor.user_id) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(corretor.user_id);
+      loginEmail = authUser?.user?.email ?? null;
+    }
+    if (!loginEmail) loginEmail = corretor.email;
+    if (!loginEmail) {
+      await registrarFalha();
+      throw new Error("Corretor ainda não tem acesso habilitado. Peça à gerência para habilitar o login.");
     }
 
     const authClient = createClient(
@@ -87,7 +100,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const { data: signed, error: sErr } = await authClient.auth.signInWithPassword({
-      email: corretor.email,
+      email: loginEmail,
       password: data.senha,
     });
     if (sErr || !signed?.user) {
