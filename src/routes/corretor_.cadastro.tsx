@@ -137,16 +137,21 @@ function CadastroCorretor() {
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
     setEnviando(true);
     try {
+      const foto_base64 = fotoFile ? await fileToBase64(fotoFile) : null;
       await cadastrar({
         data: {
           nome,
           cpf: cpf || null,
           creci: creci || null,
+          creci_tipo: creciTipo || null,
+          creci_uf: creciUf ? creciUf.toUpperCase() : null,
           telefone: telefone || null,
           cnpj_empreendimento: emp.cnpj ?? cnpj,
           email: email.trim().toLowerCase(),
           senha,
           equipe,
+          foto_base64,
+          foto_mime: fotoFile?.type ?? null,
         },
       });
       toast.success(
