@@ -11,11 +11,15 @@ const Input = z.object({
   nome: z.string().trim().min(2).max(160),
   cpf: z.string().trim().max(32).optional().nullable(),
   creci: z.string().trim().max(40).optional().nullable(),
+  creci_tipo: z.enum(["F", "J"]).optional().nullable(),
+  creci_uf: z.string().trim().length(2).optional().nullable(),
   telefone: z.string().trim().max(40).optional().nullable(),
   cnpj_empreendimento: z.string().trim().min(11).max(32),
   email: z.string().trim().toLowerCase().email().max(255),
   senha: z.string().min(8).max(72),
   equipe: z.enum(["alfa", "beta"]),
+  foto_base64: z.string().max(8_000_000).optional().nullable(),
+  foto_mime: z.string().max(80).optional().nullable(),
 });
 
 type EmpInfo = {
