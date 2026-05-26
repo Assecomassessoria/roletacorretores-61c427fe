@@ -127,8 +127,8 @@ function SetupDemo() {
           </div>
         ) : (
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
-          <Button type="submit" disabled={busy} className="w-full bg-orange text-orange-foreground hover:bg-orange/90">
-            {busy ? "Aguarde…" : "CLIENTE CADASTRADO - ENTRAR"}
+          <Button asChild className="w-full bg-orange text-orange-foreground hover:bg-orange/90">
+            <Link to="/login">CLIENTE CADASTRADO - ENTRAR</Link>
           </Button>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Nome do Receptor/Contato">
