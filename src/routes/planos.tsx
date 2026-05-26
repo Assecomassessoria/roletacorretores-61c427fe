@@ -231,8 +231,10 @@ function Planos() {
               </ul>
 
               <button
+                onClick={() => assinar(p.codigo)}
+                disabled={busy === p.codigo}
                 className={
-                  "mt-6 w-full rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition " +
+                  "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition disabled:opacity-60 " +
                   (p.cor === "navy"
                     ? "bg-orange text-orange-foreground hover:bg-orange/90"
                     : p.cor === "gold"
@@ -240,6 +242,7 @@ function Planos() {
                       : "bg-[var(--navy-deep)] text-navy-foreground hover:bg-navy")
                 }
               >
+                {busy === p.codigo && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {p.cta}
               </button>
             </div>
