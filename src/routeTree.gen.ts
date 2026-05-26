@@ -23,7 +23,7 @@ import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
-import { Route as CorretorCadastroRouteImport } from './routes/corretor.cadastro'
+import { Route as CorretorCadastroRouteImport } from './routes/corretor_.cadastro'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
@@ -109,9 +109,9 @@ const TotemPropagandaRoute = TotemPropagandaRouteImport.update({
   getParentRoute: () => TotemRoute,
 } as any)
 const CorretorCadastroRoute = CorretorCadastroRouteImport.update({
-  id: '/cadastro',
-  path: '/cadastro',
-  getParentRoute: () => CorretorRoute,
+  id: '/corretor_/cadastro',
+  path: '/corretor/cadastro',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
@@ -192,7 +192,7 @@ const ApiPublicHooksAvisosRenovacaoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRouteWithChildren
+  '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -222,7 +222,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRouteWithChildren
+  '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -254,7 +254,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRouteWithChildren
+  '/corretor': typeof CorretorRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -276,7 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
-  '/corretor/cadastro': typeof CorretorCadastroRoute
+  '/corretor_/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -369,7 +369,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
-    | '/corretor/cadastro'
+    | '/corretor_/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
@@ -379,7 +379,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ApresentacaoRoute: typeof ApresentacaoRoute
-  CorretorRoute: typeof CorretorRouteWithChildren
+  CorretorRoute: typeof CorretorRoute
   GerenciaRoute: typeof GerenciaRoute
   LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
@@ -389,6 +389,7 @@ export interface RootRouteChildren {
   SetupRoute: typeof SetupRoute
   SistemaRoute: typeof SistemaRoute
   TotemRoute: typeof TotemRouteWithChildren
+  CorretorCadastroRoute: typeof CorretorCadastroRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
 }
@@ -493,12 +494,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TotemPropagandaRouteImport
       parentRoute: typeof TotemRoute
     }
-    '/corretor/cadastro': {
-      id: '/corretor/cadastro'
-      path: '/cadastro'
+    '/corretor_/cadastro': {
+      id: '/corretor_/cadastro'
+      path: '/corretor/cadastro'
       fullPath: '/corretor/cadastro'
       preLoaderRoute: typeof CorretorCadastroRouteImport
-      parentRoute: typeof CorretorRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/usuarios': {
       id: '/_authenticated/usuarios'
@@ -635,18 +636,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-interface CorretorRouteChildren {
-  CorretorCadastroRoute: typeof CorretorCadastroRoute
-}
-
-const CorretorRouteChildren: CorretorRouteChildren = {
-  CorretorCadastroRoute: CorretorCadastroRoute,
-}
-
-const CorretorRouteWithChildren = CorretorRoute._addFileChildren(
-  CorretorRouteChildren,
-)
-
 interface TotemRouteChildren {
   TotemPropagandaRoute: typeof TotemPropagandaRoute
 }
@@ -661,7 +650,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ApresentacaoRoute: ApresentacaoRoute,
-  CorretorRoute: CorretorRouteWithChildren,
+  CorretorRoute: CorretorRoute,
   GerenciaRoute: GerenciaRoute,
   LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,
@@ -671,9 +660,20 @@ const rootRouteChildren: RootRouteChildren = {
   SetupRoute: SetupRoute,
   SistemaRoute: SistemaRoute,
   TotemRoute: TotemRouteWithChildren,
+  CorretorCadastroRoute: CorretorCadastroRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
