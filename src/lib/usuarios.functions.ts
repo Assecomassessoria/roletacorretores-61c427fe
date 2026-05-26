@@ -109,9 +109,9 @@ export const cadastroDemo = createServerFn({ method: "POST" })
       { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
       { onConflict: "id" },
     );
-    // Cria empreendimento de demonstração se ainda não houver para este usuário.
+    // Cria empreendimento se ainda não houver para este usuário.
     let empId: string | null = null;
-    if (data.cnpj_empreendimento || data.empresa) {
+    if (data.cnpj_empreendimento || data.nome_empreendimento || data.empresa) {
       const { data: existingEmp } = await supabaseAdmin
         .from("empreendimentos")
         .select("id")
@@ -123,7 +123,7 @@ export const cadastroDemo = createServerFn({ method: "POST" })
         const { data: novoEmp } = await supabaseAdmin
           .from("empreendimentos")
           .insert({
-            nome: data.empresa || `Stand de ${data.nome}`,
+            nome: data.nome_empreendimento || data.empresa || `Stand de ${data.nome}`,
             cnpj: data.cnpj_empreendimento ?? null,
             criado_por: user_id,
           })
