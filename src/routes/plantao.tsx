@@ -36,6 +36,7 @@ type CheckInResult = {
   metodo: string;
   distancia: number | null;
   checks: Check[];
+  login_email?: string | null;
   corretor: { id: string; nome: string; telefone: string | null; creci: string | null; foto_url: string | null };
   empreendimento: { id: string; nome: string };
 };
