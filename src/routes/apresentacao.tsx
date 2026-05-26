@@ -13,7 +13,6 @@ const NAV_BOTTOM = [
   { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
 ];
 
-
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/apresentacao";
 
 export const Route = createFileRoute("/apresentacao")({
@@ -21,7 +20,11 @@ export const Route = createFileRoute("/apresentacao")({
   head: () => ({
     meta: [
       { title: "Ecossistema Elite 4.0 — A Revolução do Plantão" },
-      { name: "description", content: "Do caos do sorteio à fila justa automática. Conheça o Simulador Corretor de Elite 4.0: QR Code na recepção, WhatsApp do corretor e painel de fila transparente em tempo real." },
+      {
+        name: "description",
+        content:
+          "Do caos do sorteio à fila justa automática. Conheça o Simulador Corretor de Elite 4.0: QR Code na recepção, WhatsApp do corretor e painel de fila transparente em tempo real.",
+      },
       { property: "og:title", content: "Ecossistema Elite 4.0 — A Revolução do Plantão" },
       { property: "og:description", content: "Do caos do sorteio à fila justa automática para o seu stand de vendas." },
       { property: "og:type", content: "article" },
@@ -38,7 +41,6 @@ export function ApresentacaoPage() {
     <div className="min-h-screen bg-navy text-cream">
       <SiteHeader />
 
-
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-orange/20">
         <div
@@ -51,12 +53,12 @@ export function ApresentacaoPage() {
               <Sparkles className="h-3 w-3" /> Elite 4.0
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] text-cream sm:text-5xl lg:text-6xl">
-              O <span className="text-orange">Caos Acabou.</span><br />
-              O futuro do seu plantão começa agora.
+              O <span className="text-orange">Caos Acabou.</span>
+              <br />O futuro do seu plantão começa agora.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/80 sm:text-lg">
               Enquanto a concorrência briga com sacos de pano e anotações ilegíveis, sua equipe foca no que importa:
-              vender. Auto-atendimento, fila justa e governança total no stand.
+              vender. Autoatendimento, fila justa e governança total no stand.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -88,25 +90,16 @@ export function ApresentacaoPage() {
                   { t: "O Caos", s: "Confusão. Conflito. Sem clareza." },
                   { t: "A Organização", s: "Transparência. Confiança. Tecnologia." },
                 ].map((b, i) => (
-                  <div
-                    key={b.t}
-                    className={
-                      "px-3 py-3 text-center " +
-                      (i < 2 ? "border-r border-orange/30 " : "")
-                    }
-                  >
+                  <div key={b.t} className={"px-3 py-3 text-center " + (i < 2 ? "border-r border-orange/30 " : "")}>
                     <div className="font-display text-[11px] sm:text-sm font-bold uppercase tracking-wider text-orange leading-tight">
                       {b.t}
                     </div>
-                    <div className="mt-1 text-[9px] sm:text-[11px] text-cream/80 leading-tight">
-                      {b.s}
-                    </div>
+                    <div className="mt-1 text-[9px] sm:text-[11px] text-cream/80 leading-tight">{b.s}</div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -114,15 +107,12 @@ export function ApresentacaoPage() {
       <section className="border-b border-orange/20 bg-navy-deep/40">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <header className="mb-8 text-center">
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange">
-              Vídeo Institucional
-            </span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange">Vídeo Institucional</span>
             <h2 className="mt-3 font-display text-3xl font-bold text-cream sm:text-4xl">
               Conheça o <span className="text-orange">Ecossistema 4.0</span> em movimento
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-cream/70">
-              Em ~1 minuto, veja como a Roleta Corretor organiza o plantão, da recepção ao
-              fechamento.
+              Em ~1 minuto, veja como a Roleta Corretor organiza o plantão, da recepção ao fechamento.
             </p>
           </header>
           <div className="relative mx-auto overflow-hidden rounded-2xl border-2 border-orange/40 shadow-2xl shadow-orange/10">
@@ -165,7 +155,7 @@ export function ApresentacaoPage() {
             {
               tag: "Agilidade",
               img: qrcodeImg,
-              title: "Auto-atendimento na recepção",
+              title: "Autoatendimento na recepção",
               desc: "O cliente chega, aponta o celular para o QR Code do stand e o corretor da vez recebe a notificação direto no WhatsApp.",
               icon: <QrCode className="h-4 w-4" />,
             },
@@ -182,7 +172,11 @@ export function ApresentacaoPage() {
               className="group overflow-hidden rounded-2xl border border-cream/10 bg-navy-deep/60 shadow-xl transition hover:-translate-y-1 hover:border-orange/50"
             >
               <div className="relative overflow-hidden">
-                <img src={s.img} alt={s.title} className="h-64 w-full object-cover transition duration-700 group-hover:scale-105" />
+                <img
+                  src={s.img}
+                  alt={s.title}
+                  className="h-64 w-full object-cover transition duration-700 group-hover:scale-105"
+                />
                 <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-orange/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">
                   {s.icon} {s.tag}
                 </span>
@@ -208,8 +202,9 @@ export function ApresentacaoPage() {
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <h2 className="font-display text-3xl font-bold text-orange sm:text-4xl">Transformação operacional</h2>
           <p className="mt-5 text-base leading-relaxed text-cream/85 sm:text-lg">
-            De sacos de pano para automação inteligente. De conflitos para transparência. De perda de tempo para foco em vendas.
-            A <strong className="text-orange">Fila Justa</strong> é só o começo da engenharia que transforma o lead da recepção em contrato assinado.
+            De sacos de pano para automação inteligente. De conflitos para transparência. De perda de tempo para foco em
+            vendas. A <strong className="text-orange">Fila Justa</strong> é só o começo da engenharia que transforma o
+            lead da recepção em contrato assinado.
           </p>
         </div>
       </section>
@@ -220,7 +215,8 @@ export function ApresentacaoPage() {
           Descubra a <span className="text-orange">engrenagem completa</span>
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-cream/75">
-          Veja como a IA Lorenza qualifica a triagem e o CRM trabalha nos bastidores para que sua equipe foque em fechar negócios.
+          Veja como a IA Lorenza qualifica a triagem e o CRM trabalha nos bastidores para que sua equipe foque em fechar
+          negócios.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
