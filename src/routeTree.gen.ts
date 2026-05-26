@@ -33,6 +33,7 @@ import { Route as AuthenticatedMinhaPresencaRouteImport } from './routes/_authen
 import { Route as AuthenticatedMinhaEscalaRouteImport } from './routes/_authenticated/minha-escala'
 import { Route as AuthenticatedMeuQrcodeRouteImport } from './routes/_authenticated/meu-qrcode'
 import { Route as AuthenticatedMeuCadastroRouteImport } from './routes/_authenticated/meu-cadastro'
+import { Route as AuthenticatedMeuAgendamentoRouteImport } from './routes/_authenticated/meu-agendamento'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
 import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
@@ -165,6 +166,12 @@ const AuthenticatedMeuCadastroRoute =
     path: '/meu-cadastro',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMeuAgendamentoRoute =
+  AuthenticatedMeuAgendamentoRouteImport.update({
+    id: '/meu-agendamento',
+    path: '/meu-agendamento',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
   id: '/mensagens',
   path: '/mensagens',
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-agendamento': typeof AuthenticatedMeuAgendamentoRoute
   '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
   '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
@@ -270,6 +278,7 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-agendamento': typeof AuthenticatedMeuAgendamentoRoute
   '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
   '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
@@ -306,6 +315,7 @@ export interface FileRoutesById {
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
+  '/_authenticated/meu-agendamento': typeof AuthenticatedMeuAgendamentoRoute
   '/_authenticated/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
   '/_authenticated/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
   '/_authenticated/minha-escala': typeof AuthenticatedMinhaEscalaRoute
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/integracoes'
     | '/mensagens'
+    | '/meu-agendamento'
     | '/meu-cadastro'
     | '/meu-qrcode'
     | '/minha-escala'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/integracoes'
     | '/mensagens'
+    | '/meu-agendamento'
     | '/meu-cadastro'
     | '/meu-qrcode'
     | '/minha-escala'
@@ -411,6 +423,7 @@ export interface FileRouteTypes {
     | '/_authenticated/empreendimentos'
     | '/_authenticated/integracoes'
     | '/_authenticated/mensagens'
+    | '/_authenticated/meu-agendamento'
     | '/_authenticated/meu-cadastro'
     | '/_authenticated/meu-qrcode'
     | '/_authenticated/minha-escala'
@@ -615,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeuCadastroRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meu-agendamento': {
+      id: '/_authenticated/meu-agendamento'
+      path: '/meu-agendamento'
+      fullPath: '/meu-agendamento'
+      preLoaderRoute: typeof AuthenticatedMeuAgendamentoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/mensagens': {
       id: '/_authenticated/mensagens'
       path: '/mensagens'
@@ -689,6 +709,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
+  AuthenticatedMeuAgendamentoRoute: typeof AuthenticatedMeuAgendamentoRoute
   AuthenticatedMeuCadastroRoute: typeof AuthenticatedMeuCadastroRoute
   AuthenticatedMeuQrcodeRoute: typeof AuthenticatedMeuQrcodeRoute
   AuthenticatedMinhaEscalaRoute: typeof AuthenticatedMinhaEscalaRoute
@@ -708,6 +729,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
+  AuthenticatedMeuAgendamentoRoute: AuthenticatedMeuAgendamentoRoute,
   AuthenticatedMeuCadastroRoute: AuthenticatedMeuCadastroRoute,
   AuthenticatedMeuQrcodeRoute: AuthenticatedMeuQrcodeRoute,
   AuthenticatedMinhaEscalaRoute: AuthenticatedMinhaEscalaRoute,

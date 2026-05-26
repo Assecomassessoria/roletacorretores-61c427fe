@@ -82,7 +82,7 @@ export const dispararTriagemTotem = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { data: tri, error: triErr } = await supabaseAdmin
       .from("triagens")
-      .select("id, empreendimento_id, opcao_codigo, status, cliente_nome, cliente_telefone, atendimento_id")
+      .select("id, empreendimento_id, opcao_codigo, status, cliente_nome, cliente_telefone, atendimento_id, payload")
       .eq("id", data.triagem_id)
       .maybeSingle();
     if (triErr) throw new Error(triErr.message);
@@ -105,11 +105,51 @@ export const dispararTriagemTotem = createServerFn({ method: "POST" })
       };
     }
 
-    // Fila justa — apenas para opção B (Roleta Vez / 1ª Vista)
     let corretorEscolhido: { id: string; nome: string; foto_url: string | null; creci: string | null; telefone: string | null } | null = null;
     let atendimentoId: string | null = null;
 
-    if (tri.opcao_codigo === "B") {
+    // Agendamento prévio do corretor — usa o corretor pré-atribuído (não passa pela fila)
+    const agendamento = (tri.payload as any)?.agendamento;
+    const corretorPreAtribuido: string | null = agendamento?.corretor_id ?? null;
+
+    if (corretorPreAtribuido) {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: corretor } = await supabaseAdmin
+        .from("corretores")
+        .select("id, nome, foto_url, creci, telefone")
+        .eq("id", corretorPreAtribuido)
+        .maybeSingle();
+      if (corretor) {
+        const { data: plantao } = await supabaseAdmin
+          .from("plantoes")
+          .select("id")
+          .eq("corretor_id", corretor.id)
+          .eq("data", today)
+          .maybeSingle();
+        const { data: novoAtd, error: atdErr } = await supabaseAdmin
+          .from("atendimentos")
+          .insert({
+            empreendimento_id: tri.empreendimento_id,
+            corretor_id: corretor.id,
+            plantao_id: plantao?.id ?? null,
+            cliente_nome: tri.cliente_nome ?? "Visitante",
+            cliente_telefone: tri.cliente_telefone ?? null,
+            cliente_email: agendamento?.cliente_email ?? null,
+            observacoes: "Agendamento prévio do corretor — QR Code apontado no Totem.",
+          })
+          .select("id")
+          .single();
+        if (atdErr) throw new Error(atdErr.message);
+        atendimentoId = novoAtd?.id ?? null;
+        corretorEscolhido = {
+          id: corretor.id,
+          nome: corretor.nome,
+          foto_url: corretor.foto_url ?? null,
+          creci: corretor.creci ?? null,
+          telefone: corretor.telefone ?? null,
+        };
+      }
+    } else if (tri.opcao_codigo === "B") {
       const today = new Date().toISOString().slice(0, 10);
       const wkRef = new Date();
       wkRef.setDate(wkRef.getDate() - wkRef.getDay());
