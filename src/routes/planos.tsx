@@ -91,7 +91,7 @@ const PLANOS = [
     cor: "gold" as const,
     badge: "Recomendado · Maior economia",
     preco: "R$ 134,90",
-    sub: "/Cobrança Anual/Total R$ 1.618,80",
+    sub: "/Cobrança Anual/R$ 1.618,80",
     features: [
       "Todos os benefícios do mensal",
       "Atendimento de inauguração inclusivo",
