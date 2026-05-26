@@ -149,7 +149,7 @@ function PlantaoPage() {
 
   async function buscarPorCreci() {
     const creci = form.creci.trim();
-    if (creci.length < 2) return toast.error("Digite seu CRECI");
+    if (creci.length < 2) return toast.error("Digite seu CRECI ou e-mail");
     setLookupBusy(true);
     setEmpsDoCreci(null);
     setForm((s) => ({ ...s, empreendimento_id: "" }));
@@ -157,7 +157,7 @@ function PlantaoPage() {
       const r = await lookupCreci({ data: { creci } });
       const list = r.empreendimentos as EmpCnpj[];
       if (list.length === 0) {
-        toast.error("CRECI não encontrado ou inativo.");
+        toast.error("CRECI/e-mail não encontrado ou inativo.");
         setEmpsDoCreci([]);
         return;
       }
@@ -166,7 +166,7 @@ function PlantaoPage() {
         setForm((s) => ({ ...s, empreendimento_id: list[0].id }));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao consultar CRECI");
+      toast.error(err instanceof Error ? err.message : "Falha ao consultar");
     } finally {
       setLookupBusy(false);
     }
@@ -309,12 +309,12 @@ function PlantaoPage() {
             className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-sm"
           >
             <div className="space-y-1.5">
-              <Label className="text-xs">CRECI</Label>
+              <Label className="text-xs">CRECI ou e-mail</Label>
               <div className="flex gap-2">
                 <Input
                   required
                   autoComplete="username"
-                  placeholder="Ex.: 123456"
+                  placeholder="Ex.: 123456 ou seu@email.com"
                   value={form.creci}
                   onChange={(e) => {
                     setForm((s) => ({ ...s, creci: e.target.value, empreendimento_id: "" }));
@@ -327,7 +327,7 @@ function PlantaoPage() {
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Digite seu CRECI para localizar automaticamente o(s) empreendimento(s) vinculado(s).
+                Digite seu CRECI ou e-mail cadastrado para localizar automaticamente o(s) empreendimento(s) vinculado(s).
               </p>
             </div>
 

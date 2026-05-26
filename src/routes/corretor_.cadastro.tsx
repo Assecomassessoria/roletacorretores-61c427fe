@@ -47,6 +47,7 @@ function CadastroCorretor() {
     cnpj: string | null;
     equipe_alfa_nome: string | null;
     equipe_beta_nome: string | null;
+    regras_pdf_url: string | null;
   } | null>(null);
 
   const [nome, setNome] = useState("");
@@ -61,6 +62,7 @@ function CadastroCorretor() {
   const [equipe, setEquipe] = useState<"alfa" | "beta" | "">("");
   const [enviando, setEnviando] = useState(false);
   const [aceiteTermo, setAceiteTermo] = useState(false);
+  const [aceiteRegras, setAceiteRegras] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
@@ -141,6 +143,7 @@ function CadastroCorretor() {
     if (senha.length < 8) return toast.error("A senha deve ter no mínimo 8 caracteres.");
     if (senha !== senha2) return toast.error("As senhas não conferem.");
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
+    if (!aceiteRegras) return toast.error("É necessário aceitar as Políticas e Regras do plantão.");
     setEnviando(true);
     try {
       const foto_base64 = fotoFile ? await fileToBase64(fotoFile) : null;
@@ -404,7 +407,33 @@ function CadastroCorretor() {
                 </Label>
               </div>
 
-              <Button type="submit" disabled={enviando || !aceiteTermo} className="w-full">
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
+                <Checkbox
+                  id="aceite-regras"
+                  checked={aceiteRegras}
+                  onCheckedChange={(c) => setAceiteRegras(c === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="aceite-regras" className="text-xs leading-relaxed font-normal cursor-pointer">
+                  Li as{" "}
+                  {emp.regras_pdf_url ? (
+                    <a
+                      href={emp.regras_pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-orange underline hover:text-orange/80"
+                    >
+                      <FileText className="h-3 w-3" />
+                      Políticas e Regras do plantão
+                    </a>
+                  ) : (
+                    <span className="font-semibold">Políticas e Regras do plantão</span>
+                  )}{" "}
+                  definidas pela Coordenação deste empreendimento.
+                </Label>
+              </div>
+
+              <Button type="submit" disabled={enviando || !aceiteTermo || !aceiteRegras} className="w-full">
                 {enviando ? "Enviando…" : "Enviar cadastro para aprovação"}
               </Button>
             </form>

@@ -30,7 +30,7 @@ const CARDS: CardDef[] = [
 ];
 
 function AppDashboard() {
-  const { user, roles, isMaster } = useAuth();
+  const { user, roles, isMaster, loading } = useAuth();
   const assinatura = useAssinatura();
   const visible = CARDS.filter((c) => isMaster || c.roles.some((r) => roles.includes(r as never)));
 
@@ -39,7 +39,7 @@ function AppDashboard() {
       <div>
         <h1 className="text-2xl font-bold">Bem-vindo, {user?.email}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Papéis: {roles.length > 0 ? roles.join(", ") : "carregando…"}
+          Papéis: {roles.length > 0 ? roles.join(", ") : loading ? "carregando…" : "—"}
         </p>
       </div>
 
