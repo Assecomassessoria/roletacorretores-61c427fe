@@ -150,46 +150,49 @@ function CadastroCorretor() {
             </p>
           </div>
 
-          {/* PASSO 1: CNPJ */}
-          <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">1</span>
-              <Label className="text-xs font-semibold uppercase tracking-wider">
-                Digite o CNPJ do Empreendimento
-              </Label>
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="00.000.000/0001-00"
-                value={cnpj}
-                onChange={(e) => onChangeCnpj(e.target.value)}
-                inputMode="numeric"
-                autoFocus
-                required
-              />
-              <Button type="submit" disabled={buscando}>
-                {buscando ? <Loader2 className="h-4 w-4 animate-spin" /> : "Localizar"}
-              </Button>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Passo 2: ao digitar os 14 dígitos, o sistema localiza o empreendimento automaticamente.
-            </p>
-            {emp && (
-              <div className="flex items-center gap-2 rounded-md bg-success/10 px-3 py-2 text-xs text-success ring-1 ring-success/30">
-                <CheckCircle2 className="h-4 w-4" /> Empreendimento localizado:{" "}
-                <strong className="ml-1">{emp.nome}</strong>
-              </div>
-            )}
-          </form>
-
-          {/* PASSO 3: dados do corretor */}
-          {emp && (
-            <form onSubmit={onCadastrar} className="mt-6 space-y-3">
+          {/* TELA 1: somente CNPJ */}
+          {!emp && (
+            <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">3</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">1</span>
                 <Label className="text-xs font-semibold uppercase tracking-wider">
-                  Complete seu cadastro
+                  Digite o CNPJ do Empreendimento
                 </Label>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="00.000.000/0001-00"
+                  value={cnpj}
+                  onChange={(e) => onChangeCnpj(e.target.value)}
+                  inputMode="numeric"
+                  autoFocus
+                  required
+                />
+                <Button type="submit" disabled={buscando}>
+                  {buscando ? <Loader2 className="h-4 w-4 animate-spin" /> : "Localizar"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Ao digitar os 14 dígitos, o sistema localiza o empreendimento e abre a tela de cadastro.
+              </p>
+            </form>
+          )}
+
+          {/* TELA 2: dados do corretor */}
+          {emp && (
+            <form onSubmit={onCadastrar} className="space-y-3">
+              <div className="flex items-center justify-between gap-2 rounded-md bg-success/10 px-3 py-2 text-xs text-success ring-1 ring-success/30">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Empreendimento: <strong>{emp.nome}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { setEmp(null); setCnpj(""); }}
+                  className="text-[11px] underline hover:no-underline"
+                >
+                  Trocar CNPJ
+                </button>
               </div>
               <Field label="Nome completo">
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
