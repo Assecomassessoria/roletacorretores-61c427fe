@@ -579,6 +579,30 @@ function CoordenadorPage() {
                     <Input type="number" value={emp.raio_metros} onChange={(e) => patch("raio_metros", Number(e.target.value) || 0)} />
                   </Field>
                 </div>
+                {emp.latitude != null && emp.longitude != null ? (
+                  <div className="mt-3 space-y-1">
+                    <div className="overflow-hidden rounded-md border border-border">
+                      <iframe
+                        title="Mapa do estande"
+                        className="h-44 w-full"
+                        loading="lazy"
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${emp.longitude - 0.003},${emp.latitude - 0.002},${emp.longitude + 0.003},${emp.latitude + 0.002}&layer=mapnik&marker=${emp.latitude},${emp.longitude}`}
+                      />
+                    </div>
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${emp.latitude}&mlon=${emp.longitude}#map=18/${emp.latitude}/${emp.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-[11px] text-orange hover:underline"
+                    >
+                      Abrir mapa em tela cheia ↗
+                    </a>
+                  </div>
+                ) : (
+                  <p className="mt-3 rounded-md border border-dashed border-border bg-muted/30 p-3 text-center text-[11px] text-muted-foreground">
+                    Informe latitude e longitude para visualizar o mapa do estande.
+                  </p>
+                )}
               </div>
 
               <div className="rounded-lg border border-border p-4">
