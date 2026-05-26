@@ -251,7 +251,7 @@ export const finishAuthenticationPlantao = createServerFn({ method: "POST" })
       expectedRPID: rpID,
       credential: {
         id: cred.credential_id,
-        publicKey: b64urlDecode(cred.public_key),
+        publicKey: new Uint8Array(b64urlDecode(cred.public_key)),
         counter: Number(cred.counter),
         transports: (cred.transports ?? []) as AuthenticatorTransportFuture[],
       },
