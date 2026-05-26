@@ -442,10 +442,28 @@ function PlantaoPage() {
                     },
                   })) as CheckInResult;
                   setResult(r);
+                  setLocalBioFlag(form.creci, true);
+                  setBioOfferRegister(false);
                   toast.success(`Presença confirmada por biometria (${r.metodo})`);
                   await refreshRoleta(r.empreendimento.id);
                 } catch (err) {
-                  toast.error(err instanceof Error ? err.message : "Falha na biometria — use a senha.");
+                  const msg = err instanceof Error ? err.message : String(err);
+                  const name = (err as { name?: string } | null)?.name ?? "";
+                  // Sinais de "passkey ausente neste aparelho":
+                  // - NotAllowedError (nenhuma credencial compatível ou usuário cancelou)
+                  // - InvalidStateError / "credential" mentions
+                  // - servidor: "Nenhuma biometria cadastrada"/"Credencial não encontrada"
+                  const noLocal =
+                    name === "NotAllowedError" ||
+                    name === "InvalidStateError" ||
+                    /Nenhuma biometria|Credencial não encontrada|Credential|allowCredentials|not allowed/i.test(msg);
+                  if (noLocal) {
+                    setLocalBioFlag(form.creci, false);
+                    setBioOfferRegister(true);
+                    toast.error("Este aparelho ainda não tem biometria cadastrada para este CRECI. Entre com a senha abaixo e ative a biometria deste dispositivo.");
+                  } else {
+                    toast.error(msg || "Falha na biometria — use a senha.");
+                  }
                 } finally {
                   setBioBusy(false);
                 }
@@ -454,6 +472,19 @@ function PlantaoPage() {
               {bioBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2 h-4 w-4" />}
               Entrar com Biometria
             </Button>
+
+            {bioOfferRegister && (
+              <div className="rounded-md border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs">
+                <div className="mb-1 flex items-center gap-2 font-semibold text-amber-900 dark:text-amber-200">
+                  <AlertTriangle className="h-4 w-4" />
+                  Biometria ausente neste aparelho
+                </div>
+                <p className="text-amber-900/90 dark:text-amber-100/90">
+                  Sua passkey foi cadastrada em outro aparelho ou domínio. Faça o check-in com <strong>senha</strong> acima
+                  e, em seguida, toque em <strong>“Cadastrar biometria neste dispositivo”</strong> que aparecerá após a confirmação.
+                </p>
+              </div>
+            )}
           </form>
         ) : null}
 
