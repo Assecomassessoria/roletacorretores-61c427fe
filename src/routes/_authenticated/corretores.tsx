@@ -189,7 +189,7 @@ function CorretoresPage() {
                 <Plus className="mr-1 h-4 w-4" /> Novo
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   {editing?.id ? "Editar corretor" : "Novo corretor"}
