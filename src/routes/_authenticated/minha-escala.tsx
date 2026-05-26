@@ -38,6 +38,7 @@ function MinhaEscalaPage() {
   const [empNome, setEmpNome] = useState<string>("");
   const [meuCorretorId, setMeuCorretorId] = useState<string | null>(null);
   const [meuNome, setMeuNome] = useState<string>("");
+  const [minhaEquipe, setMinhaEquipe] = useState<"alfa" | "beta" | null>(null);
   const [escala, setEscala] = useState<EscalaEquipe[]>([]);
 
   const recarregar = useCallback(async (id: string) => {
@@ -59,15 +60,18 @@ function MinhaEscalaPage() {
         setEmpNome(emp.nome);
         const { data: c } = await supabase
           .from("corretores")
-          .select("id,nome")
+          .select("id,nome,equipe")
           .eq("user_id", user.id)
           .eq("empreendimento_id", emp.id)
           .maybeSingle();
         if (c) {
           setMeuCorretorId(c.id);
           setMeuNome(c.nome);
+          const eq = (c as any).equipe;
+          if (eq === "alfa" || eq === "beta") setMinhaEquipe(eq);
         }
         await recarregar(emp.id);
+
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Erro ao carregar");
       } finally {
