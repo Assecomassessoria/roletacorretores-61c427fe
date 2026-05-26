@@ -28,6 +28,7 @@ type EmpInfo = {
   cnpj: string | null;
   equipe_alfa_nome: string | null;
   equipe_beta_nome: string | null;
+  regras_pdf_url: string | null;
 };
 
 export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
@@ -38,7 +39,7 @@ export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
 
     const { data: rows } = await supabaseAdmin
       .from("empreendimentos")
-      .select("id, nome, cnpj, equipe_alfa_nome, equipe_beta_nome")
+      .select("id, nome, cnpj, equipe_alfa_nome, equipe_beta_nome, regras_pdf_url")
       .eq("ativo", true);
 
     const match = (rows ?? []).find((e) => {
