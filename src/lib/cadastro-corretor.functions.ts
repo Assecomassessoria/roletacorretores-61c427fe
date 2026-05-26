@@ -11,11 +11,15 @@ const Input = z.object({
   nome: z.string().trim().min(2).max(160),
   cpf: z.string().trim().max(32).optional().nullable(),
   creci: z.string().trim().max(40).optional().nullable(),
+  creci_tipo: z.enum(["F", "J"]).optional().nullable(),
+  creci_uf: z.string().trim().length(2).optional().nullable(),
   telefone: z.string().trim().max(40).optional().nullable(),
   cnpj_empreendimento: z.string().trim().min(11).max(32),
   email: z.string().trim().toLowerCase().email().max(255),
   senha: z.string().min(8).max(72),
   equipe: z.enum(["alfa", "beta"]),
+  foto_base64: z.string().max(8_000_000).optional().nullable(),
+  foto_mime: z.string().max(80).optional().nullable(),
 });
 
 type EmpInfo = {
@@ -97,10 +101,34 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       .eq("empreendimento_id", emp.id)
       .maybeSingle();
 
+    // CRECI composto: "12345-F/SP"
+    const creciNum = (data.creci ?? "").trim();
+    const creciFmt = creciNum
+      ? `${creciNum}${data.creci_tipo ? "-" + data.creci_tipo : ""}${data.creci_uf ? "/" + data.creci_uf.toUpperCase() : ""}`
+      : null;
+
+    // Upload de foto (opcional) ao bucket 'corretores'
+    let foto_url: string | null = null;
+    if (data.foto_base64 && data.foto_mime) {
+      try {
+        const m = data.foto_base64.match(/^data:[^;]+;base64,(.*)$/);
+        const b64 = m ? m[1] : data.foto_base64;
+        const bytes = Buffer.from(b64, "base64");
+        const ext = data.foto_mime.includes("png") ? "png" : "jpg";
+        const path = `${emp.id}/${user_id}/foto-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabaseAdmin.storage
+          .from("corretores")
+          .upload(path, bytes, { contentType: data.foto_mime, upsert: true });
+        if (!upErr) foto_url = path;
+      } catch {
+        // silencioso — foto é opcional
+      }
+    }
+
     const corretorPayload = {
       nome: data.nome,
       cpf: (data.cpf ?? "").replace(/\D/g, "") || null,
-      creci: data.creci ?? null,
+      creci: creciFmt,
       telefone: data.telefone ?? null,
       email: data.email,
       empreendimento_id: emp.id,
@@ -108,6 +136,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       status_habilitacao: "pendente",
       ativo: false,
       equipe: data.equipe,
+      ...(foto_url ? { foto_url } : {}),
     };
 
     if (existingCorretor) {

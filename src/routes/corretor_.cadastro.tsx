@@ -53,6 +53,8 @@ function CadastroCorretor() {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [creci, setCreci] = useState("");
+  const [creciTipo, setCreciTipo] = useState<"F" | "J" | "">("");
+  const [creciUf, setCreciUf] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -61,6 +63,28 @@ function CadastroCorretor() {
   const [enviando, setEnviando] = useState(false);
   const [aceiteTermo, setAceiteTermo] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+
+  function onPickFoto(f: File | null) {
+    if (!f) { setFotoFile(null); setFotoPreview(null); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Foto deve ter no máximo 5MB."); return; }
+    setFotoFile(f);
+    const r = new FileReader();
+    r.onload = () => setFotoPreview(typeof r.result === "string" ? r.result : null);
+    r.readAsDataURL(f);
+  }
+
+  function fileToBase64(f: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(typeof r.result === "string" ? r.result : "");
+      r.onerror = reject;
+      r.readAsDataURL(f);
+    });
+  }
+
+
 
   function formatCnpj(v: string) {
     const d = v.replace(/\D/g, "").slice(0, 14);
@@ -113,16 +137,21 @@ function CadastroCorretor() {
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
     setEnviando(true);
     try {
+      const foto_base64 = fotoFile ? await fileToBase64(fotoFile) : null;
       await cadastrar({
         data: {
           nome,
           cpf: cpf || null,
           creci: creci || null,
+          creci_tipo: creciTipo || null,
+          creci_uf: creciUf ? creciUf.toUpperCase() : null,
           telefone: telefone || null,
           cnpj_empreendimento: emp.cnpj ?? cnpj,
           email: email.trim().toLowerCase(),
           senha,
           equipe,
+          foto_base64,
+          foto_mime: fotoFile?.type ?? null,
         },
       });
       toast.success(
@@ -203,19 +232,77 @@ function CadastroCorretor() {
                   Trocar CNPJ
                 </button>
               </div>
+              <Field label="Foto (opcional)">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 text-[10px] text-muted-foreground">
+                    {fotoPreview ? (
+                      <img src={fotoPreview} alt="Prévia" className="h-full w-full object-cover" />
+                    ) : (
+                      "Sem foto"
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      id="foto-corretor"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => onPickFoto(e.target.files?.[0] ?? null)}
+                    />
+                    <label
+                      htmlFor="foto-corretor"
+                      className="cursor-pointer rounded-md border border-border bg-background px-3 py-1.5 text-xs hover:bg-muted/50"
+                    >
+                      {fotoPreview ? "Trocar foto" : "Adicionar foto"}
+                    </label>
+                    {fotoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => onPickFoto(null)}
+                        className="text-[11px] text-muted-foreground underline hover:text-foreground"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </Field>
               <Field label="Nome completo">
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="CPF">
+              <Field label="CPF">
+                <Input
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value)}
+                  placeholder="000.000.000-00"
+                />
+              </Field>
+              <div className="grid grid-cols-[1fr_90px_90px] gap-3">
+                <Field label="CRECI (nº)">
                   <Input
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
-                    placeholder="000.000.000-00"
+                    value={creci}
+                    onChange={(e) => setCreci(e.target.value)}
+                    placeholder="000000"
                   />
                 </Field>
-                <Field label="CRECI">
-                  <Input value={creci} onChange={(e) => setCreci(e.target.value)} />
+                <Field label="F/J">
+                  <select
+                    value={creciTipo}
+                    onChange={(e) => setCreciTipo(e.target.value as "F" | "J" | "")}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                  >
+                    <option value="">—</option>
+                    <option value="F">F</option>
+                    <option value="J">J</option>
+                  </select>
+                </Field>
+                <Field label="Estado">
+                  <Input
+                    value={creciUf}
+                    onChange={(e) => setCreciUf(e.target.value.toUpperCase().slice(0, 2))}
+                    placeholder="UF"
+                    maxLength={2}
+                  />
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
