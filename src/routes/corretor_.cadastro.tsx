@@ -161,9 +161,15 @@ function CadastroCorretor() {
         },
       });
       toast.success(
-        "Cadastro enviado! Aguardando aprovação da Coordenação/Incorporadora. Você já pode entrar pela área do corretor após a liberação.",
+        "Cadastro enviado! Aguardando aprovação. Você já pode cadastrar sua biometria neste dispositivo.",
       );
-      navigate({ to: "/login" });
+      // Tenta autenticar para permitir cadastro de biometria já neste dispositivo.
+      const { error: sErr } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password: senha,
+      });
+      setBioSignedIn(!sErr);
+      setCadastroOk(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Falha no cadastro";
       toast.error(msg);
