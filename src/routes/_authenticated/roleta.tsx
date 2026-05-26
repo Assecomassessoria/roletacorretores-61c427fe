@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pingPresenca, varrerAusentes, reativarPresenca } from "@/lib/presenca.functions";
+import { listarMeusEmpreendimentos } from "@/lib/meus-empreendimentos.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
