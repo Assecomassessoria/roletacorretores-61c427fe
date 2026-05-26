@@ -200,8 +200,28 @@ function CadastroCorretor() {
             </p>
           </div>
 
+          {/* TELA 3: cadastrado — oferece biometria */}
+          {cadastroOk && (
+            <div className="space-y-4">
+              <div className="rounded-md border border-success/30 bg-success/10 p-3 text-sm text-success">
+                Cadastro enviado para aprovação. Você pode cadastrar sua biometria agora neste dispositivo.
+              </div>
+              {bioSignedIn ? (
+                <BiometriaRegisterCard defaultLabel={nome} onDone={() => navigate({ to: "/login" })} />
+              ) : (
+                <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
+                  Não foi possível autenticar automaticamente neste dispositivo. Após a Coordenação aprovar seu cadastro,
+                  faça login em <Link to="/login" className="text-orange underline">/login</Link> e cadastre sua biometria nas configurações.
+                  <div className="mt-3">
+                    <Button onClick={() => navigate({ to: "/login" })}>Ir para o login</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TELA 1: somente CNPJ */}
-          {!emp && (
+          {!cadastroOk && !emp && (
             <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">
