@@ -337,7 +337,19 @@ function CorretoresPage() {
                   </div>
                 </Field>
 
-                <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Ordem na roleta"><Input type="number" value={editing?.ordem_roleta ?? 0} onChange={(e) => setEditing((s) => ({ ...s, ordem_roleta: +e.target.value }))} /></Field>
+                  <Field label="Status do cadastro">
+                    <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={editing?.ativo ?? true}
+                        onChange={(e) => setEditing((s) => ({ ...s, ativo: e.target.checked }))}
+                      />
+                      <span>{editing?.ativo === false ? "Inativo (bloqueia login)" : "Ativo"}</span>
+                    </label>
+                  </Field>
+                </div>
 
                 <div className="rounded-md border border-orange/30 bg-orange/5 p-3 text-xs">
                   <p className="font-bold uppercase tracking-wider text-orange">
