@@ -53,12 +53,36 @@ function CadastroCorretor() {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [creci, setCreci] = useState("");
+  const [creciTipo, setCreciTipo] = useState<"F" | "J" | "">("");
+  const [creciUf, setCreciUf] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
   const [equipe, setEquipe] = useState<"alfa" | "beta" | "">("");
   const [enviando, setEnviando] = useState(false);
+  const [aceiteTermo, setAceiteTermo] = useState(false);
+  const [termoAberto, setTermoAberto] = useState(false);
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+
+  function onPickFoto(f: File | null) {
+    if (!f) { setFotoFile(null); setFotoPreview(null); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Foto deve ter no máximo 5MB."); return; }
+    setFotoFile(f);
+    const r = new FileReader();
+    r.onload = () => setFotoPreview(typeof r.result === "string" ? r.result : null);
+    r.readAsDataURL(f);
+  }
+
+  function fileToBase64(f: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(typeof r.result === "string" ? r.result : "");
+      r.onerror = reject;
+      r.readAsDataURL(f);
+    });
+  }
   const [aceiteTermo, setAceiteTermo] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
 
