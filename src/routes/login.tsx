@@ -42,6 +42,13 @@ function LoginPage() {
         toast.success("Bem-vindo!");
         navigate({ to: "/app" });
       } else if (mode === "signup") {
+        if (password.length < 8) {
+          throw new Error("A senha deve ter pelo menos 8 caracteres.");
+        }
+        const fraca = ["12345678", "123456789", "1234567890", "senha123", "password", "qwerty123"];
+        if (fraca.includes(password.toLowerCase())) {
+          throw new Error("Senha muito fraca / conhecida em vazamentos. Use letras, números e símbolos.");
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -51,7 +58,7 @@ function LoginPage() {
           },
         });
         if (error) throw error;
-        toast.success("Cadastro criado. Verifique seu e-mail para confirmar.");
+        toast.success("Cadastro criado. Verifique seu e-mail para confirmar antes de entrar.");
         setMode("login");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -62,7 +69,23 @@ function LoginPage() {
         setMode("login");
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro desconhecido";
+      const raw = err instanceof Error ? err.message : "Erro desconhecido";
+      const code = (err as { code?: string } | null)?.code ?? "";
+      const lower = raw.toLowerCase();
+      let msg = raw;
+      if (code === "weak_password" || lower.includes("weak") || lower.includes("pwned") || lower.includes("compromised") || lower.includes("leaked")) {
+        msg = "Senha muito fraca ou já vazada em outros sites. Use ao menos 8 caracteres com letras, números e símbolos.";
+      } else if (code === "user_already_exists" || lower.includes("already registered") || lower.includes("user already")) {
+        msg = "Este e-mail já está cadastrado. Faça login ou recupere sua senha.";
+      } else if (lower.includes("invalid login")) {
+        msg = "E-mail ou senha incorretos. Se acabou de se cadastrar, confirme seu e-mail antes de entrar.";
+      } else if (lower.includes("email not confirmed")) {
+        msg = "Confirme seu e-mail antes de entrar — verifique a caixa de entrada e o spam.";
+      } else if (lower.includes("invalid email") || lower.includes("invalid format")) {
+        msg = "E-mail inválido.";
+      } else if (lower.includes("rate") || lower.includes("too many")) {
+        msg = "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+      }
       toast.error(msg);
     } finally {
       setBusy(false);
