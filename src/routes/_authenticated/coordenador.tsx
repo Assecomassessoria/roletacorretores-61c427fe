@@ -140,7 +140,39 @@ function CoordenadorPage() {
   const propagandaFileRef = useRef<HTMLInputElement>(null);
   const [propagandas, setPropagandas] = useState<Propaganda[]>([]);
   const [novoTituloProp, setNovoTituloProp] = useState("");
+  const [endereco, setEndereco] = useState({ rua: "", numero: "", cidade: "", cep: "" });
+  const [geocodando, setGeocodando] = useState(false);
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
+
+  async function geocodificarEndereco() {
+    const { rua, numero, cidade, cep } = endereco;
+    if (!rua && !cidade && !cep) {
+      toast.error("Informe ao menos rua, cidade ou CEP.");
+      return;
+    }
+    const query = [rua && `${rua}${numero ? `, ${numero}` : ""}`, cidade, cep, "Brasil"]
+      .filter(Boolean).join(", ");
+    setGeocodando(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.error("Endereço não encontrado.");
+        return;
+      }
+      const { lat, lon } = data[0];
+      patch("latitude", Number(lat));
+      patch("longitude", Number(lon));
+      toast.success("Coordenadas atualizadas — Salvar para persistir.");
+    } catch {
+      toast.error("Falha ao consultar geocodificação.");
+    } finally {
+      setGeocodando(false);
+    }
+  }
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
   useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); void carregarPropagandas(); } }, [empId]);
