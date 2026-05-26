@@ -105,7 +105,7 @@ export const habilitarCorretorAcesso = createServerFn({ method: "POST" })
 
     const { error: upErr } = await supabaseAdmin
       .from("corretores")
-      .update({ user_id, email: data.email, ativo: true, status_habilitacao: "habilitado" })
+      .update({ user_id, email: data.email, ativo: true, status_habilitacao: "ativo" })
       .eq("id", data.corretor_id);
     if (upErr) throw new Error(upErr.message);
 
