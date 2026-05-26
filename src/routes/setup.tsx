@@ -50,6 +50,7 @@ function SetupDemo() {
   const [role, setRole] = useState<Role>("incorporadora");
   const [infoAdicionais, setInfoAdicionais] = useState("");
   const [busy, setBusy] = useState(false);
+  const [cadastroOk, setCadastroOk] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -76,7 +77,7 @@ function SetupDemo() {
       const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
       if (error) throw error;
       toast.success("Cadastro confirmado. Bem-vindo!");
-      navigate({ to: "/app" });
+      setCadastroOk(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao cadastrar");
     } finally {
