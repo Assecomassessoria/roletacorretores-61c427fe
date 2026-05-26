@@ -29,6 +29,10 @@ import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedPresencasRouteImport } from './routes/_authenticated/presencas'
 import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
+import { Route as AuthenticatedMinhaPresencaRouteImport } from './routes/_authenticated/minha-presenca'
+import { Route as AuthenticatedMinhaEscalaRouteImport } from './routes/_authenticated/minha-escala'
+import { Route as AuthenticatedMeuQrcodeRouteImport } from './routes/_authenticated/meu-qrcode'
+import { Route as AuthenticatedMeuCadastroRouteImport } from './routes/_authenticated/meu-cadastro'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
 import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
@@ -138,6 +142,29 @@ const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
   path: '/plantoes',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMinhaPresencaRoute =
+  AuthenticatedMinhaPresencaRouteImport.update({
+    id: '/minha-presenca',
+    path: '/minha-presenca',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinhaEscalaRoute =
+  AuthenticatedMinhaEscalaRouteImport.update({
+    id: '/minha-escala',
+    path: '/minha-escala',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeuQrcodeRoute = AuthenticatedMeuQrcodeRouteImport.update({
+  id: '/meu-qrcode',
+  path: '/meu-qrcode',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMeuCadastroRoute =
+  AuthenticatedMeuCadastroRouteImport.update({
+    id: '/meu-cadastro',
+    path: '/meu-cadastro',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
   id: '/mensagens',
   path: '/mensagens',
@@ -209,6 +236,10 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
+  '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
+  '/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/presencas': typeof AuthenticatedPresencasRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -239,6 +270,10 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
+  '/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/minha-escala': typeof AuthenticatedMinhaEscalaRoute
+  '/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/plantoes': typeof AuthenticatedPlantoesRoute
   '/presencas': typeof AuthenticatedPresencasRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -271,6 +306,10 @@ export interface FileRoutesById {
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
+  '/_authenticated/meu-cadastro': typeof AuthenticatedMeuCadastroRoute
+  '/_authenticated/meu-qrcode': typeof AuthenticatedMeuQrcodeRoute
+  '/_authenticated/minha-escala': typeof AuthenticatedMinhaEscalaRoute
+  '/_authenticated/minha-presenca': typeof AuthenticatedMinhaPresencaRoute
   '/_authenticated/plantoes': typeof AuthenticatedPlantoesRoute
   '/_authenticated/presencas': typeof AuthenticatedPresencasRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -303,6 +342,10 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/integracoes'
     | '/mensagens'
+    | '/meu-cadastro'
+    | '/meu-qrcode'
+    | '/minha-escala'
+    | '/minha-presenca'
     | '/plantoes'
     | '/presencas'
     | '/relatorios'
@@ -333,6 +376,10 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/integracoes'
     | '/mensagens'
+    | '/meu-cadastro'
+    | '/meu-qrcode'
+    | '/minha-escala'
+    | '/minha-presenca'
     | '/plantoes'
     | '/presencas'
     | '/relatorios'
@@ -364,6 +411,10 @@ export interface FileRouteTypes {
     | '/_authenticated/empreendimentos'
     | '/_authenticated/integracoes'
     | '/_authenticated/mensagens'
+    | '/_authenticated/meu-cadastro'
+    | '/_authenticated/meu-qrcode'
+    | '/_authenticated/minha-escala'
+    | '/_authenticated/minha-presenca'
     | '/_authenticated/plantoes'
     | '/_authenticated/presencas'
     | '/_authenticated/relatorios'
@@ -536,6 +587,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlantoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/minha-presenca': {
+      id: '/_authenticated/minha-presenca'
+      path: '/minha-presenca'
+      fullPath: '/minha-presenca'
+      preLoaderRoute: typeof AuthenticatedMinhaPresencaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/minha-escala': {
+      id: '/_authenticated/minha-escala'
+      path: '/minha-escala'
+      fullPath: '/minha-escala'
+      preLoaderRoute: typeof AuthenticatedMinhaEscalaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meu-qrcode': {
+      id: '/_authenticated/meu-qrcode'
+      path: '/meu-qrcode'
+      fullPath: '/meu-qrcode'
+      preLoaderRoute: typeof AuthenticatedMeuQrcodeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meu-cadastro': {
+      id: '/_authenticated/meu-cadastro'
+      path: '/meu-cadastro'
+      fullPath: '/meu-cadastro'
+      preLoaderRoute: typeof AuthenticatedMeuCadastroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/mensagens': {
       id: '/_authenticated/mensagens'
       path: '/mensagens'
@@ -610,6 +689,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
+  AuthenticatedMeuCadastroRoute: typeof AuthenticatedMeuCadastroRoute
+  AuthenticatedMeuQrcodeRoute: typeof AuthenticatedMeuQrcodeRoute
+  AuthenticatedMinhaEscalaRoute: typeof AuthenticatedMinhaEscalaRoute
+  AuthenticatedMinhaPresencaRoute: typeof AuthenticatedMinhaPresencaRoute
   AuthenticatedPlantoesRoute: typeof AuthenticatedPlantoesRoute
   AuthenticatedPresencasRoute: typeof AuthenticatedPresencasRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
@@ -625,6 +708,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
+  AuthenticatedMeuCadastroRoute: AuthenticatedMeuCadastroRoute,
+  AuthenticatedMeuQrcodeRoute: AuthenticatedMeuQrcodeRoute,
+  AuthenticatedMinhaEscalaRoute: AuthenticatedMinhaEscalaRoute,
+  AuthenticatedMinhaPresencaRoute: AuthenticatedMinhaPresencaRoute,
   AuthenticatedPlantoesRoute: AuthenticatedPlantoesRoute,
   AuthenticatedPresencasRoute: AuthenticatedPresencasRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
