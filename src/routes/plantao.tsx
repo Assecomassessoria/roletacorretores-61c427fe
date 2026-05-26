@@ -492,6 +492,23 @@ function PlantaoPage() {
 
 
 
+        {result && bioRegisterReady && (
+          <div className="mb-4">
+            <BiometriaRegisterCard
+              defaultLabel={typeof navigator !== "undefined" ? navigator.userAgent.split(" ").slice(-1)[0] : ""}
+              onDone={async () => {
+                setLocalBioFlag(form.creci, true);
+                setBioRegisterReady(false);
+                setBioOfferRegister(false);
+                // Encerra a sessão Supabase aberta apenas para o cadastro da passkey;
+                // a página /plantao é pública e não depende de sessão.
+                try { await supabase.auth.signOut(); } catch { /* ignore */ }
+                toast.success("Biometria deste aparelho cadastrada. Da próxima vez, use o botão 'Entrar com Biometria'.");
+              }}
+            />
+          </div>
+        )}
+
         {result && (
           <div className="rounded-lg border border-primary/40 bg-card p-6 text-center shadow-sm">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
