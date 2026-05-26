@@ -152,20 +152,28 @@ function CadastroCorretor() {
 
           {/* PASSO 1: CNPJ */}
           <form onSubmit={onBuscar} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
-            <Label className="text-xs font-semibold uppercase tracking-wider">
-              CNPJ do Empreendimento
-            </Label>
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">1</span>
+              <Label className="text-xs font-semibold uppercase tracking-wider">
+                Digite o CNPJ do Empreendimento
+              </Label>
+            </div>
             <div className="flex gap-2">
               <Input
                 placeholder="00.000.000/0001-00"
                 value={cnpj}
-                onChange={(e) => setCnpj(e.target.value)}
+                onChange={(e) => onChangeCnpj(e.target.value)}
+                inputMode="numeric"
+                autoFocus
                 required
               />
               <Button type="submit" disabled={buscando}>
                 {buscando ? <Loader2 className="h-4 w-4 animate-spin" /> : "Localizar"}
               </Button>
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              Passo 2: ao digitar os 14 dígitos, o sistema localiza o empreendimento automaticamente.
+            </p>
             {emp && (
               <div className="flex items-center gap-2 rounded-md bg-success/10 px-3 py-2 text-xs text-success ring-1 ring-success/30">
                 <CheckCircle2 className="h-4 w-4" /> Empreendimento localizado:{" "}
@@ -174,9 +182,15 @@ function CadastroCorretor() {
             )}
           </form>
 
-          {/* PASSO 2: dados do corretor */}
+          {/* PASSO 3: dados do corretor */}
           {emp && (
             <form onSubmit={onCadastrar} className="mt-6 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange text-[11px] font-bold text-white">3</span>
+                <Label className="text-xs font-semibold uppercase tracking-wider">
+                  Complete seu cadastro
+                </Label>
+              </div>
               <Field label="Nome completo">
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
               </Field>
