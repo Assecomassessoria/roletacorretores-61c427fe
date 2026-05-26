@@ -5,13 +5,17 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const Input = z.object({
   creci: z.string().trim().min(2).max(40),
-  senha: z.string().min(4).max(64),
+  senha: z.string().min(4).max(64).optional(),
+  biometric_token: z.string().min(8).max(120).optional(),
   empreendimento_id: z.string().uuid(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   wifi_ssid: z.string().max(64).optional(),
   qr_token: z.string().max(120).optional(),
   pin: z.string().max(20).optional(),
+}).refine((d) => !!d.senha || !!d.biometric_token, {
+  message: "Informe a senha ou use a biometria.",
+  path: ["senha"],
 });
 
 function distMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
