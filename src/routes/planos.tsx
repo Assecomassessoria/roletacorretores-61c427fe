@@ -58,7 +58,7 @@ const PLANOS = [
     badge: "Cadastro de demonstração / experiência",
     preco: "R$ 179,90",
     sub: "ÚNICO",
-    promo: "90 dias de uso completo",
+    promo: "59,90/Mês - 90 dias de uso completo",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
