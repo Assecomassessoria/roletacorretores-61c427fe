@@ -42,7 +42,13 @@ function CadastroCorretor() {
 
   const [cnpj, setCnpj] = useState("");
   const [buscando, setBuscando] = useState(false);
-  const [emp, setEmp] = useState<{ id: string; nome: string; cnpj: string | null } | null>(null);
+  const [emp, setEmp] = useState<{
+    id: string;
+    nome: string;
+    cnpj: string | null;
+    equipe_alfa_nome: string | null;
+    equipe_beta_nome: string | null;
+  } | null>(null);
 
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -51,6 +57,7 @@ function CadastroCorretor() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
+  const [equipe, setEquipe] = useState<"alfa" | "beta" | "">("");
   const [enviando, setEnviando] = useState(false);
   const [aceiteTermo, setAceiteTermo] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
@@ -100,6 +107,7 @@ function CadastroCorretor() {
   async function onCadastrar(e: FormEvent) {
     e.preventDefault();
     if (!emp) return toast.error("Confirme o empreendimento antes.");
+    if (!equipe) return toast.error("Selecione sua equipe (Alfa ou Beta).");
     if (senha.length < 8) return toast.error("A senha deve ter no mínimo 8 caracteres.");
     if (senha !== senha2) return toast.error("As senhas não conferem.");
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
@@ -114,6 +122,7 @@ function CadastroCorretor() {
           cnpj_empreendimento: emp.cnpj ?? cnpj,
           email: email.trim().toLowerCase(),
           senha,
+          equipe,
         },
       });
       toast.success(
@@ -244,6 +253,30 @@ function CadastroCorretor() {
                   />
                 </Field>
               </div>
+
+              <Field label="Equipe — selecione conforme cadastro do Coordenador">
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { key: "alfa", nome: emp.equipe_alfa_nome || "Equipe Alfa" },
+                    { key: "beta", nome: emp.equipe_beta_nome || "Equipe Beta" },
+                  ] as const).map((t) => (
+                    <button
+                      type="button"
+                      key={t.key}
+                      onClick={() => setEquipe(t.key)}
+                      className={`rounded-md border px-3 py-2.5 text-sm font-medium transition ${
+                        equipe === t.key
+                          ? "border-orange bg-orange/10 text-orange ring-1 ring-orange"
+                          : "border-border bg-background hover:bg-muted/50"
+                      }`}
+                    >
+                      {t.nome}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+
 
               <div className="rounded-md border border-orange/30 bg-orange/5 p-3 text-[11px] text-muted-foreground">
                 Seu cadastro entra como <strong>pendente</strong>. A Coordenação ou Incorporadora libera

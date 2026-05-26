@@ -15,7 +15,16 @@ const Input = z.object({
   cnpj_empreendimento: z.string().trim().min(11).max(32),
   email: z.string().trim().toLowerCase().email().max(255),
   senha: z.string().min(8).max(72),
+  equipe: z.enum(["alfa", "beta"]),
 });
+
+type EmpInfo = {
+  id: string;
+  nome: string;
+  cnpj: string | null;
+  equipe_alfa_nome: string | null;
+  equipe_beta_nome: string | null;
+};
 
 export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
   .inputValidator((d) =>
@@ -23,19 +32,18 @@ export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const digits = (data.cnpj ?? "").replace(/\D/g, "");
-    if (digits.length < 11) return { empreendimento: null as null | { id: string; nome: string; cnpj: string | null } };
+    if (digits.length < 11) return { empreendimento: null as EmpInfo | null };
 
-    // Tenta primeiro com CNPJ exato, depois normalizado
     const { data: rows } = await supabaseAdmin
       .from("empreendimentos")
-      .select("id, nome, cnpj")
+      .select("id, nome, cnpj, equipe_alfa_nome, equipe_beta_nome")
       .eq("ativo", true);
 
     const match = (rows ?? []).find((e) => {
       const ec = (e.cnpj ?? "").replace(/\D/g, "");
       return ec && ec === digits;
     });
-    return { empreendimento: match ?? null };
+    return { empreendimento: (match ?? null) as EmpInfo | null };
   });
 
 export const cadastroCorretorPublico = createServerFn({ method: "POST" })
@@ -99,6 +107,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       user_id,
       status_habilitacao: "pendente",
       ativo: false,
+      equipe: data.equipe,
     };
 
     if (existingCorretor) {
