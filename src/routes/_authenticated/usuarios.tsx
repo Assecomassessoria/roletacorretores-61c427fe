@@ -178,8 +178,8 @@ function UsuariosPage() {
               <SelectContent>{ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Senha"><Input type="password" required minLength={6} value={novo.senha} onChange={(e) => setNovo({ ...novo, senha: e.target.value })} /></Field>
-          <Field label="Confirmar Senha"><Input type="password" required minLength={6} value={novo.senha2} onChange={(e) => setNovo({ ...novo, senha2: e.target.value })} /></Field>
+          <Field label="Senha"><PasswordInput required minLength={6} value={novo.senha} onChange={(e) => setNovo({ ...novo, senha: e.target.value })} /></Field>
+          <Field label="Confirmar Senha"><PasswordInput required minLength={6} value={novo.senha2} onChange={(e) => setNovo({ ...novo, senha2: e.target.value })} /></Field>
           <div className="sm:col-span-2">
             <Button type="submit" disabled={busy} className="bg-orange text-orange-foreground hover:bg-orange/90">
               {busy ? "Criando…" : "Criar usuário"}
