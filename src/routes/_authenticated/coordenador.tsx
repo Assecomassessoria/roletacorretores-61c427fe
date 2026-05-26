@@ -41,7 +41,9 @@ type Emp = {
   roleta_automatica: boolean;
   roleta_auto_horarios: string[];
   modo_propaganda: boolean;
+  periodo_ausencia_minutos: number;
 };
+
 
 type Propaganda = {
   id: string;
@@ -200,6 +202,7 @@ function CoordenadorPage() {
       roleta_automatica: emp.roleta_automatica,
       roleta_auto_horarios: emp.roleta_auto_horarios,
       modo_propaganda: emp.modo_propaganda,
+      periodo_ausencia_minutos: emp.periodo_ausencia_minutos,
     } as any).eq("id", emp.id);
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -477,6 +480,32 @@ function CoordenadorPage() {
 
           {/* Períodos */}
           <Card title="Configuração de períodos">
+            <div className="mb-4 rounded-lg border border-amber/40 bg-amber/5 p-4">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="flex-1 min-w-[220px]">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    ⏱ Período de ausência (minutos)
+                  </Label>
+                  <p className="mb-2 text-[11px] text-muted-foreground">
+                    Quando o corretor sair do raio do stand, o sistema começa a contar.
+                    Ao atingir este tempo, ele é marcado como <strong>Ausente</strong> e
+                    removido automaticamente da roleta.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      min={5}
+                      max={240}
+                      step={5}
+                      className="w-28"
+                      value={emp.periodo_ausencia_minutos ?? 60}
+                      onChange={(e) => patch("periodo_ausencia_minutos", Math.max(5, Math.min(240, Number(e.target.value) || 60)))}
+                    />
+                    <span className="text-sm text-muted-foreground">minutos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="grid gap-4 md:grid-cols-3">
               <PeriodoCard titulo="Comercial" badge="(2) Períodos"
                 inicio={emp.horario_comercial_inicio} fim={emp.horario_comercial_fim}
@@ -489,6 +518,7 @@ function CoordenadorPage() {
                 onChange={(i, f) => { patch("horario_vespertino_inicio", i); patch("horario_vespertino_fim", f); }} />
             </div>
           </Card>
+
 
           {/* PDF + Identidade */}
           <div className="grid gap-4 md:grid-cols-2">
