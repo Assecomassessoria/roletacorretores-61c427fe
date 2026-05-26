@@ -279,8 +279,10 @@ function CorretoresPage() {
                   </p>
                   <p className="mt-1 text-muted-foreground">
                     Ao salvar, o corretor entra em <strong>ÁREA CORRETOR</strong> com o
-                    e-mail informado e a senha padrão <strong>123456</strong>. No primeiro
-                    login o sistema obriga ele a criar uma nova senha vinculada ao próprio e-mail.
+                    e-mail informado e a senha padrão <strong>Corretor@Elite4</strong>.
+                    No primeiro login o sistema obriga ele a criar uma nova senha
+                    vinculada ao próprio e-mail. (A senha padrão atende à política
+                    anti-vazamento do servidor — não use <code>123456</code>.)
                   </p>
                 </div>
 
