@@ -64,6 +64,8 @@ function CadastroCorretor() {
   const [termoAberto, setTermoAberto] = useState(false);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [cadastroOk, setCadastroOk] = useState(false);
+  const [bioSignedIn, setBioSignedIn] = useState(false);
 
   function onPickFoto(f: File | null) {
     if (!f) {
