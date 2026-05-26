@@ -310,35 +310,83 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
     wk.setDate(wk.getDate() - wk.getDay());
     const wkStart = wk.toISOString().slice(0, 10);
 
-    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
-      supabaseAdmin.from("empreendimentos").select("id, nome").eq("id", data.empreendimento_id).maybeSingle(),
+    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([
+      supabaseAdmin.from("empreendimentos").select("id, nome, criterios_sorteio").eq("id", data.empreendimento_id).maybeSingle(),
       supabaseAdmin.from("corretores").select("id, nome, telefone, creci, ordem_roleta, ativo, foto_url").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
-      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
+      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status, data").eq("empreendimento_id", data.empreendimento_id),
       supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
+      supabaseAdmin.from("triagens").select("atendimento_id, created_at, atendimentos:atendimento_id(corretor_id, empreendimento_id)").eq("empreendimento_id", data.empreendimento_id).gte("created_at", `${wkStart}T00:00:00Z`),
     ]);
 
     if (!emp) throw new Error("Empreendimento não encontrado");
+
+    const psHoje = (ps ?? []).filter((p: { data: string }) => p.data === today);
 
     const counts: Record<string, number> = {};
     (ats ?? []).forEach((a: { corretor_id: string }) => {
       counts[a.corretor_id] = (counts[a.corretor_id] ?? 0) + 1;
     });
 
+    // Leads = triagens na semana (por corretor do atendimento vinculado)
+    const leads: Record<string, number> = {};
+    (tris ?? []).forEach((t: any) => {
+      const cid = t.atendimentos?.corretor_id;
+      if (cid) leads[cid] = (leads[cid] ?? 0) + 1;
+    });
+
+    // Participação na semana = nº de plantões distintos do corretor na semana
+    const participacao: Record<string, Set<string>> = {};
+    (ps ?? []).forEach((p: { corretor_id: string; data: string }) => {
+      if (p.data >= wkStart && p.data <= today) {
+        (participacao[p.corretor_id] ??= new Set()).add(p.data);
+      }
+    });
+
+    // Chegada = timestamp de presença confirmada hoje
+    const chegada: Record<string, number> = {};
+    psHoje.forEach((p: { corretor_id: string; presenca_confirmada_em: string | null }) => {
+      if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime();
+    });
+
     const presentes = (cs ?? []).filter((c) =>
-      (ps ?? []).some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
+      psHoje.some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
     );
 
-    const filaBase = presentes
-      .map((c) => ({
-        id: c.id,
-        nome: c.nome,
-        creci: c.creci,
-        telefone: c.telefone,
-        foto_url: (c as { foto_url?: string | null }).foto_url ?? null,
-        atendimentos_semana: counts[c.id] ?? 0,
-        ordem_roleta: c.ordem_roleta ?? 0,
-      }))
-      .sort((a, b) => a.atendimentos_semana - b.atendimentos_semana || a.ordem_roleta - b.ordem_roleta);
+    const criterios: string[] = ((emp as any).criterios_sorteio ?? []).length
+      ? (emp as any).criterios_sorteio
+      : ["menor_atendimentos", "ordem_sorteio"];
+
+    const filaBase = presentes.map((c) => ({
+      id: c.id,
+      nome: c.nome,
+      creci: c.creci,
+      telefone: c.telefone,
+      foto_url: (c as { foto_url?: string | null }).foto_url ?? null,
+      atendimentos_semana: counts[c.id] ?? 0,
+      leads_semana: leads[c.id] ?? 0,
+      participacao_semana: participacao[c.id]?.size ?? 0,
+      chegada_em: chegada[c.id] ?? Number.MAX_SAFE_INTEGER,
+      ordem_roleta: c.ordem_roleta ?? 0,
+    }));
+
+    function valor(item: typeof filaBase[number], cr: string): number {
+      switch (cr) {
+        case "ordem_chegada": return item.chegada_em;
+        case "ordem_sorteio": return item.ordem_roleta;
+        case "participacao_semana": return item.participacao_semana;
+        case "menor_atendimentos": return item.atendimentos_semana;
+        case "menor_leads_semana": return item.leads_semana;
+        default: return 0;
+      }
+    }
+
+    filaBase.sort((a, b) => {
+      for (const cr of criterios) {
+        const va = valor(a, cr), vb = valor(b, cr);
+        if (va !== vb) return va - vb;
+      }
+      return a.ordem_roleta - b.ordem_roleta;
+    });
 
     const fila = await Promise.all(filaBase.map(async (c) => ({ ...c, foto_url: await signFoto(c.foto_url) })));
 
@@ -347,6 +395,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       data: today,
       total_presentes: fila.length,
       proximo_id: fila[0]?.id ?? null,
+      criterios_sorteio: criterios,
       fila,
     };
   });
