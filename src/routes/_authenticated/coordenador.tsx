@@ -244,6 +244,7 @@ function CoordenadorPage() {
       roleta_auto_horarios: emp.roleta_auto_horarios,
       modo_propaganda: emp.modo_propaganda,
       periodo_ausencia_minutos: emp.periodo_ausencia_minutos,
+      criterios_sorteio: emp.criterios_sorteio,
     } as any).eq("id", emp.id);
     setSaving(false);
     if (error) return toast.error(error.message);
