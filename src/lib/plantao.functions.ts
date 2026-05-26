@@ -73,14 +73,18 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       });
     }
 
-    const { data: corretor, error: cErr } = await supabaseAdmin
+    const termoCreci = data.creci.trim();
+    const isEmailLogin = termoCreci.includes("@");
+    const baseQ = supabaseAdmin
       .from("corretores")
       .select("id, nome, telefone, email, creci, user_id, empreendimento_id, ativo, ordem_roleta, foto_url")
-      .eq("empreendimento_id", data.empreendimento_id)
-      .ilike("creci", data.creci.trim())
-      .maybeSingle();
+      .eq("empreendimento_id", data.empreendimento_id);
+    const { data: candidatos, error: cErr } = await (isEmailLogin
+      ? baseQ.ilike("email", termoCreci)
+      : baseQ.ilike("creci", `${termoCreci}%`));
     if (cErr) { console.error(cErr); throw new Error("Erro ao validar credenciais."); }
-    if (!corretor || !corretor.ativo) {
+    const corretor = (candidatos ?? []).find((c) => c.ativo) ?? null;
+    if (!corretor) {
       await registrarFalha();
       throw new Error(GENERIC_AUTH_ERROR);
     }
