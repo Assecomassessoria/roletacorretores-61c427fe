@@ -150,6 +150,11 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {mode === "signup" && (
+                <p className="text-xs text-muted-foreground">
+                  Mínimo 8 caracteres. Evite senhas óbvias como <code>123456</code> — o sistema bloqueia senhas vazadas em outros sites.
+                </p>
+              )}
             </div>
           )}
 
