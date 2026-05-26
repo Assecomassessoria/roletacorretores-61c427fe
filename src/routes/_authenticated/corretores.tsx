@@ -12,10 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
+import {
+  habilitarCorretorAcesso,
+  definirFuncaoCorretor,
+  gerarSenhaPrimeiroAcesso,
+} from "@/lib/corretor.functions";
 import { listCorretoresAdmin, getCorretorAdmin } from "@/lib/empreendimentos-admin.functions";
 import { QRCodeCanvas } from "qrcode.react";
 import { SignedImg } from "@/components/signed-img";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Corretor = {
   id: string;
