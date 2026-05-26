@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { MapPin, UserCheck, ArrowRight, RotateCcw } from "lucide-react";
+import { MapPin, UserCheck, ArrowRight, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 
 type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number };
 type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean };
@@ -40,7 +40,13 @@ function distMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
 
 function RoletaPage() {
   const { user, roles } = useAuth();
+  const router = useRouter();
+  const navigate = useNavigate();
   const isAdmin = roles.some((r) => ["incorporadora", "gerente", "coordenador"].includes(r));
+  async function handleSair() {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  }
   const [emps, setEmps] = useState<Emp[]>([]);
   const [empId, setEmpId] = useState<string>("");
   const [corretores, setCorretores] = useState<Corretor[]>([]);
@@ -209,6 +215,14 @@ function RoletaPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <Button variant="outline" size="sm" onClick={() => router.history.back()}>
+          <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleSair}>
+          <LogOut className="mr-1 h-4 w-4" /> Sair
+        </Button>
+      </div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Roleta de atendimentos</h1>
@@ -216,10 +230,17 @@ function RoletaPage() {
         </div>
         <div className="w-64">
           <Label className="text-xs">Empreendimento</Label>
-          <Select value={empId} onValueChange={setEmpId}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+          <Select value={empId} onValueChange={setEmpId} disabled={emps.length === 0}>
+            <SelectTrigger>
+              <SelectValue placeholder={emps.length === 0 ? "Nenhum vinculado" : "Selecione…"} />
+            </SelectTrigger>
             <SelectContent>{emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
           </Select>
+          {emps.length === 0 && (
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Seu usuário ainda não está vinculado a um empreendimento. Solicite à Incorporadora.
+            </p>
+          )}
         </div>
       </div>
 
