@@ -77,6 +77,22 @@ function PlantaoPage() {
   const startAuthBio = useServerFn(startAuthenticationPlantao);
   const finishAuthBio = useServerFn(finishAuthenticationPlantao);
   const [bioBusy, setBioBusy] = useState(false);
+  const [bioOfferRegister, setBioOfferRegister] = useState(false);
+  const [bioRegisterReady, setBioRegisterReady] = useState(false);
+
+  const bioLocalKey = (creci: string) =>
+    `bio_local_v1:${typeof window !== "undefined" ? window.location.hostname : "srv"}:${creci.trim().toLowerCase()}`;
+  const hasLocalBioFlag = (creci: string) => {
+    if (typeof window === "undefined") return false;
+    try { return !!window.localStorage.getItem(bioLocalKey(creci)); } catch { return false; }
+  };
+  const setLocalBioFlag = (creci: string, on: boolean) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (on) window.localStorage.setItem(bioLocalKey(creci), "1");
+      else window.localStorage.removeItem(bioLocalKey(creci));
+    } catch { /* ignore */ }
+  };
 
 
 
