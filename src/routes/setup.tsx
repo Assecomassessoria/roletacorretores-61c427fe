@@ -127,11 +127,8 @@ function SetupDemo() {
           </div>
         ) : (
         <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/20 p-4">
-            <p className="text-center text-sm font-semibold text-muted-foreground">CLIENTE CADASTRADO</p>
-          </div>
           <Button type="submit" disabled={busy} className="w-full bg-orange text-orange-foreground hover:bg-orange/90">
-            {busy ? "Aguarde…" : "ENTRAR"}
+            {busy ? "Aguarde…" : "CLIENTE CADASTRADO - ENTRAR"}
           </Button>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Nome do Receptor/Contato">
