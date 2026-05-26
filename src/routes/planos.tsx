@@ -1,9 +1,14 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { NavActions } from "@/components/nav-actions";
-import { ArrowLeft, Check, Zap } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Zap } from "lucide-react";
 import { useAssinatura } from "@/lib/use-assinatura";
+import { useAuth } from "@/lib/auth";
+import { criarCheckoutPlano } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/planos")({
   component: Planos,
@@ -28,6 +33,7 @@ export const Route = createFileRoute("/planos")({
 
 const PLANOS = [
   {
+    codigo: "trial_30d",
     nome: "Plano 30 Teste Elite",
     cor: "white" as const,
     badge: "Trial qualificado · Pagamento único na adesão",
@@ -46,12 +52,13 @@ const PLANOS = [
     cta: "Assinar 30 dias experiência",
   },
   {
+    codigo: "experiencia_90_dias",
     nome: "Experiência 90 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 179,90",
+    preco: "R$ 359,60",
     sub: "ÚNICO",
-    promo: "R$ 59,90 trial",
+    promo: "90 dias de uso completo",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
@@ -61,10 +68,11 @@ const PLANOS = [
     cta: "Assinar plano experiência (90 dias)",
   },
   {
+    codigo: "mensal_elite_recorrente",
     nome: "Plano Mensal Elite",
     cor: "white" as const,
     badge: "Profissional · Cobrança mensal",
-    preco: "R$ 159,90",
+    preco: "R$ 169,90",
     sub: "/mês",
     features: [
       "Cadastro ilimitado de corretores",
@@ -78,11 +86,12 @@ const PLANOS = [
     cta: "Assinar plano mensal",
   },
   {
+    codigo: "anual_executivo",
     nome: "Plano Anual Executivo",
     cor: "gold" as const,
     badge: "Recomendado · Maior economia",
-    preco: "R$ 129,90",
-    sub: "/mês · cobrança anual",
+    preco: "R$ 1.606,80",
+    sub: "/ano",
     features: [
       "Todos os benefícios do mensal",
       "Atendimento de inauguração inclusivo",
@@ -95,6 +104,38 @@ const PLANOS = [
 
 function Planos() {
   const assinatura = useAssinatura();
+  const { session, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const checkout = useServerFn(criarCheckoutPlano);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function assinar(codigo: string) {
+    if (authLoading) return;
+    if (!session) {
+      // Memoriza o plano e manda para login
+      try {
+        sessionStorage.setItem("plano_pendente", codigo);
+      } catch {}
+      toast.info("Faça login ou crie sua conta para assinar.");
+      navigate({ to: "/login" });
+      return;
+    }
+    setBusy(codigo);
+    try {
+      const res = await checkout({ data: { plano_codigo: codigo } });
+      if (res?.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error("Não foi possível abrir o checkout.");
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Erro ao iniciar checkout";
+      toast.error(msg);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   // Assinante já ativo (sem janela de renovação) não precisa ver planos.
   if (!assinatura.loading && assinatura.status === "ativa") {
     return <Navigate to="/app" />;
@@ -190,8 +231,10 @@ function Planos() {
               </ul>
 
               <button
+                onClick={() => assinar(p.codigo)}
+                disabled={busy === p.codigo}
                 className={
-                  "mt-6 w-full rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition " +
+                  "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest shadow-sm transition disabled:opacity-60 " +
                   (p.cor === "navy"
                     ? "bg-orange text-orange-foreground hover:bg-orange/90"
                     : p.cor === "gold"
@@ -199,6 +242,7 @@ function Planos() {
                       : "bg-[var(--navy-deep)] text-navy-foreground hover:bg-navy")
                 }
               >
+                {busy === p.codigo && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {p.cta}
               </button>
             </div>

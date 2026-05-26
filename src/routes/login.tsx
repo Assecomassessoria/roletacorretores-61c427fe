@@ -23,7 +23,13 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && session && mode !== "forgot") navigate({ to: "/app" });
+    if (!loading && session && mode !== "forgot") {
+      let pendente: string | null = null;
+      try {
+        pendente = sessionStorage.getItem("plano_pendente");
+      } catch {}
+      navigate({ to: pendente ? "/planos" : "/app" });
+    }
   }, [loading, session, navigate, mode]);
 
   async function onSubmit(e: FormEvent) {
