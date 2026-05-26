@@ -72,7 +72,7 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     // Leitura pública: a página /plantao é acessível sem login.
     const dias = semanaUteis();
-    const [{ data: fer }, { data: slots }, { data: cs }] = await Promise.all([
+    const [{ data: fer }, { data: slots }, { data: cs }, { data: emp }] = await Promise.all([
       supabaseAdmin.from("feriados").select("data").eq("empreendimento_id", data.empreendimento_id).in("data", dias),
       supabaseAdmin
         .from("escala_semanal")
@@ -80,6 +80,11 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
         .eq("empreendimento_id", data.empreendimento_id)
         .in("data", dias),
       supabaseAdmin.from("corretores").select("id, nome, creci, equipe").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
+      supabaseAdmin
+        .from("empreendimentos")
+        .select("equipe_alfa_nome, equipe_beta_nome")
+        .eq("id", data.empreendimento_id)
+        .maybeSingle(),
     ]);
 
     const feriadoSet = new Set((fer ?? []).map((f) => f.data as string));
@@ -95,8 +100,13 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
     );
 
     const equipes = ["alfa", "beta"] as const;
+    const nomesEquipes: Record<string, string> = {
+      alfa: (emp as any)?.equipe_alfa_nome ?? "Equipe Alfa",
+      beta: (emp as any)?.equipe_beta_nome ?? "Equipe Beta",
+    };
     const escala = equipes.map((equipe) => ({
       equipe,
+      equipe_nome: nomesEquipes[equipe],
       itens: dias
         .filter((d) => !feriadoSet.has(d))
         .map((d) => {
@@ -110,13 +120,14 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
             dia_semana: DIAS[dt.getDay()],
             slot_id: s?.id ?? null,
             periodos: s?.periodos ?? [],
-            corretor: corr ? { id: corr.id, nome: corr.nome, creci: corr.creci } : null,
+            corretor: corr ? { id: corr.id, nome: corr.nome, creci: corr.creci, equipe: (corr as any).equipe ?? null } : null,
           };
         }),
     }));
 
-    return { feriados: Array.from(feriadoSet), escala };
+    return { feriados: Array.from(feriadoSet), escala, equipe_alfa_nome: nomesEquipes.alfa, equipe_beta_nome: nomesEquipes.beta };
   });
+
 
 const InscreverInput = z.object({
   empreendimento_id: z.string().uuid(),
