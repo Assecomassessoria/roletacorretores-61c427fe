@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -105,12 +106,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
         <MestraGear />
-        <LorenzaChat />
+        {isHome && <LorenzaChat />}
         <Toaster richColors position="top-right" />
       </AuthProvider>
     </QueryClientProvider>
