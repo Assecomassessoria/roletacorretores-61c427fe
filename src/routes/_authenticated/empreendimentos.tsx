@@ -397,7 +397,14 @@ function EmpreendimentosPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  {canEdit && <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>}
+                  <div className="flex items-center justify-end gap-1">
+                    {r.latitude != null && r.longitude != null && (
+                      <Button size="sm" variant="ghost" title="Ver no mapa" onClick={() => setMapaEmp(r)}>
+                        <MapIcon className="h-3.5 w-3.5 text-orange" />
+                      </Button>
+                    )}
+                    {canEdit && <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
