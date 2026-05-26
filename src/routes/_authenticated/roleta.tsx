@@ -80,7 +80,7 @@ function RoletaPage() {
     setCounts(map);
   }
 
-  useEffect(() => { loadEmps(); }, []);
+  useEffect(() => { if (user?.id) loadEmps(); }, [user?.id]);
   useEffect(() => { loadAll(); /* eslint-disable-next-line */ }, [empId]);
 
   const emp = emps.find((e) => e.id === empId);
