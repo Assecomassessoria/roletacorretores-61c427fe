@@ -72,7 +72,14 @@ function SetupDemo() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (senha !== senha2) return toast.error("As senhas não conferem.");
-    if (senha.length < 6) return toast.error("Senha deve ter no mínimo 6 caracteres.");
+    if (senha.length < 8) return toast.error("Senha deve ter no mínimo 8 caracteres.");
+    if (!/[A-Za-z]/.test(senha) || !/\d/.test(senha)) {
+      return toast.error("Senha deve conter letras E números.");
+    }
+    const fraca = ["12345678", "123456789", "1234567890", "senha123", "password", "qwerty123", "abcd1234"];
+    if (fraca.includes(senha.toLowerCase())) {
+      return toast.error("Senha muito fraca / conhecida em vazamentos. Use algo único.");
+    }
     setBusy(true);
     try {
       await cadastrar({
