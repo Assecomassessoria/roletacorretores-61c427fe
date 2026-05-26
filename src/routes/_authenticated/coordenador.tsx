@@ -520,6 +520,96 @@ function CoordenadorPage() {
             </div>
           </Card>
 
+          {/* Auditoria do Sorteio — critérios da roleta */}
+          <Card title="Auditoria do Sorteio" icon={<Shield className="h-4 w-4" />}>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Selecione os critérios que valem para o sorteio deste stand. A ordem em que
+              você marca define a prioridade (Critério 1 é o principal; os seguintes servem
+              como desempate). Cada stand tem sua própria regra — escolha quantas achar
+              necessário.
+            </p>
+            <ul className="space-y-2">
+              {CRITERIOS_SORTEIO.map((cr) => {
+                const sel = emp.criterios_sorteio ?? [];
+                const idx = sel.indexOf(cr.code);
+                const checked = idx >= 0;
+                function toggle() {
+                  const lista = [...(emp!.criterios_sorteio ?? [])];
+                  if (checked) {
+                    patch("criterios_sorteio", lista.filter((c) => c !== cr.code));
+                  } else {
+                    patch("criterios_sorteio", [...lista, cr.code]);
+                  }
+                }
+                return (
+                  <li
+                    key={cr.code}
+                    className={`flex items-start gap-3 rounded-md border p-3 transition ${
+                      checked ? "border-primary/60 bg-primary/5" : "border-border"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 accent-primary"
+                      checked={checked}
+                      onChange={toggle}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold">{cr.label}</span>
+                        {checked && (
+                          <Badge className="bg-primary text-primary-foreground">
+                            Critério {idx + 1}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">{cr.hint}</p>
+                    </div>
+                    {checked && (
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const lista = [...(emp!.criterios_sorteio ?? [])];
+                            [lista[idx - 1], lista[idx]] = [lista[idx], lista[idx - 1]];
+                            patch("criterios_sorteio", lista);
+                          }}
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2"
+                          disabled={idx === sel.length - 1}
+                          onClick={() => {
+                            const lista = [...(emp!.criterios_sorteio ?? [])];
+                            [lista[idx + 1], lista[idx]] = [lista[idx], lista[idx + 1]];
+                            patch("criterios_sorteio", lista);
+                          }}
+                        >
+                          ↓
+                        </Button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {(emp.criterios_sorteio ?? []).length === 0 && (
+              <p className="mt-3 rounded-md border border-dashed border-amber/50 bg-amber/5 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-400">
+                Nenhum critério selecionado — a roleta usará o padrão (menor nº de atendimentos, desempate por ordem de sorteio).
+              </p>
+            )}
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Após selecionar, clique em <strong>Salvar Alterações</strong>. O texto da
+              auditoria aparece no painel <em>/plantão</em> conforme a regra definida aqui.
+            </p>
+          </Card>
+
           {/* Períodos */}
           <Card title="Configuração de períodos">
             <div className="mb-4 rounded-lg border border-amber/40 bg-amber/5 p-4">
