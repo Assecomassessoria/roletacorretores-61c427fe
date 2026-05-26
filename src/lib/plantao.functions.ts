@@ -267,6 +267,10 @@ export const checkInPlantao = createServerFn({ method: "POST" })
       metodo: metodoOk,
       distancia,
       checks,
+      // login_email só é devolvido quando a autenticação foi por SENHA
+      // (não em fluxo biométrico), para permitir cadastrar passkey deste
+      // aparelho logo após o check-in.
+      login_email: data.biometric_token ? null : loginEmail,
       corretor: {
         id: corretor.id,
         nome: corretor.nome,
