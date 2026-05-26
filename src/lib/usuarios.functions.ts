@@ -87,9 +87,13 @@ const DemoRoleEnum = z.enum(["corretor"]);
 const DemoInput = z.object({
   nome: z.string().trim().min(2).max(120),
   empresa: z.string().trim().max(160).optional().nullable(),
+  cnpj_empresa: z.string().trim().max(32).optional().nullable(),
   documento: z.string().trim().max(32).optional().nullable(),
+  nome_empreendimento: z.string().trim().max(160).optional().nullable(),
   cnpj_empreendimento: z.string().trim().max(32).optional().nullable(),
   telefone: z.string().trim().max(40).optional().nullable(),
+  whatsapp_empreendimento: z.string().trim().max(40).optional().nullable(),
+  informacoes_adicionais: z.string().trim().max(2000).optional().nullable(),
   email: z.string().trim().toLowerCase().email().max(255),
   senha: z.string().min(6).max(72),
   // aceita o campo mas força sempre `corretor` no servidor
