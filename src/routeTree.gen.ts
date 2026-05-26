@@ -23,6 +23,7 @@ import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
+import { Route as CorretorCadastroRouteImport } from './routes/corretor.cadastro'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
@@ -107,6 +108,11 @@ const TotemPropagandaRoute = TotemPropagandaRouteImport.update({
   path: '/propaganda',
   getParentRoute: () => TotemRoute,
 } as any)
+const CorretorCadastroRoute = CorretorCadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => CorretorRoute,
+} as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -186,7 +192,7 @@ const ApiPublicHooksAvisosRenovacaoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRoute
+  '/corretor': typeof CorretorRouteWithChildren
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -215,7 +222,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRoute
+  '/corretor': typeof CorretorRouteWithChildren
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -246,7 +254,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/apresentacao': typeof ApresentacaoRoute
-  '/corretor': typeof CorretorRoute
+  '/corretor': typeof CorretorRouteWithChildren
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
@@ -299,6 +308,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/roleta'
     | '/usuarios'
+    | '/corretor/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/roleta'
     | '/usuarios'
+    | '/corretor/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
@@ -358,6 +369,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/roleta'
     | '/_authenticated/usuarios'
+    | '/corretor/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/hooks/avisos-renovacao'
@@ -367,7 +379,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ApresentacaoRoute: typeof ApresentacaoRoute
-  CorretorRoute: typeof CorretorRoute
+  CorretorRoute: typeof CorretorRouteWithChildren
   GerenciaRoute: typeof GerenciaRoute
   LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
@@ -480,6 +492,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/totem/propaganda'
       preLoaderRoute: typeof TotemPropagandaRouteImport
       parentRoute: typeof TotemRoute
+    }
+    '/corretor/cadastro': {
+      id: '/corretor/cadastro'
+      path: '/cadastro'
+      fullPath: '/corretor/cadastro'
+      preLoaderRoute: typeof CorretorCadastroRouteImport
+      parentRoute: typeof CorretorRoute
     }
     '/_authenticated/usuarios': {
       id: '/_authenticated/usuarios'
@@ -616,6 +635,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface CorretorRouteChildren {
+  CorretorCadastroRoute: typeof CorretorCadastroRoute
+}
+
+const CorretorRouteChildren: CorretorRouteChildren = {
+  CorretorCadastroRoute: CorretorCadastroRoute,
+}
+
+const CorretorRouteWithChildren = CorretorRoute._addFileChildren(
+  CorretorRouteChildren,
+)
+
 interface TotemRouteChildren {
   TotemPropagandaRoute: typeof TotemPropagandaRoute
 }
@@ -630,7 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ApresentacaoRoute: ApresentacaoRoute,
-  CorretorRoute: CorretorRoute,
+  CorretorRoute: CorretorRouteWithChildren,
   GerenciaRoute: GerenciaRoute,
   LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,

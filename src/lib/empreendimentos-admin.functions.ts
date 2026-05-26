@@ -50,7 +50,7 @@ export const listCorretoresAdmin = createServerFn({ method: "GET" })
     await ensureAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("corretores")
-      .select("id,nome,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
+      .select("id,nome,cpf,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
       .order("ordem_roleta");
     if (error) throw new Error(error.message);
     return { rows: data ?? [] };
@@ -64,7 +64,7 @@ export const getCorretorAdmin = createServerFn({ method: "POST" })
     await ensureAdmin(context.userId);
     const { data: row, error } = await supabaseAdmin
       .from("corretores")
-      .select("id,nome,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
+      .select("id,nome,cpf,creci,telefone,email,empreendimento_id,ordem_roleta,ativo,user_id,foto_url,status_habilitacao,equipe")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);

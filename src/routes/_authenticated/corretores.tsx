@@ -12,14 +12,20 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Pencil, Plus, Upload, X, QrCode, Download, Share2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { habilitarCorretorAcesso } from "@/lib/corretor.functions";
+import {
+  habilitarCorretorAcesso,
+  definirFuncaoCorretor,
+  gerarSenhaPrimeiroAcesso,
+} from "@/lib/corretor.functions";
 import { listCorretoresAdmin, getCorretorAdmin } from "@/lib/empreendimentos-admin.functions";
 import { QRCodeCanvas } from "qrcode.react";
 import { SignedImg } from "@/components/signed-img";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Corretor = {
   id: string;
   nome: string;
+  cpf: string | null;
   creci: string | null;
   telefone: string | null;
   email: string | null;
@@ -29,6 +35,7 @@ type Corretor = {
   user_id: string | null;
   foto_url: string | null;
 };
+type Role = "corretor" | "coordenador" | "gerente" | "incorporadora";
 type Emp = { id: string; nome: string; cnpj: string | null };
 
 export const Route = createFileRoute("/_authenticated/corretores")({
@@ -49,8 +56,11 @@ function CorretoresPage() {
   const [fotoUploading, setFotoUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const habilitar = useServerFn(habilitarCorretorAcesso);
+  const definirFuncao = useServerFn(definirFuncaoCorretor);
   const fetchCorretores = useServerFn(listCorretoresAdmin);
   const fetchCorretor = useServerFn(getCorretorAdmin);
+  const [funcaoSel, setFuncaoSel] = useState<Role>("corretor");
+  const [savingFuncao, setSavingFuncao] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -110,6 +120,7 @@ function CorretoresPage() {
 
     const payload = {
       nome: editing.nome ?? "",
+      cpf: (editing.cpf ?? "").replace(/\D/g, "") || null,
       creci: editing.creci ?? null,
       telefone: editing.telefone ?? null,
       email: editing.email ?? null,
@@ -132,8 +143,15 @@ function CorretoresPage() {
 
     if (habilitarAcesso && corretorId && editing.email) {
       try {
-        await habilitar({ data: { corretor_id: corretorId, email: editing.email } });
-        toast.success("Acesso criado. O corretor deve usar 'Esqueci minha senha' para definir a senha de primeiro acesso.");
+        const res = await habilitar({
+          data: {
+            corretor_id: corretorId,
+            email: editing.email,
+            nome: editing.nome ?? null,
+            cpf: (editing.cpf ?? "").replace(/\D/g, "") || null,
+          },
+        });
+        toast.success(`Acesso criado. Senha de 1º acesso: ${res.senha}`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
         toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);
@@ -234,6 +252,54 @@ function CorretoresPage() {
                   <Field label="CRECI"><Input value={editing?.creci ?? ""} onChange={(e) => setEditing((s) => ({ ...s, creci: e.target.value }))} /></Field>
                   <Field label="Telefone"><Input value={editing?.telefone ?? ""} onChange={(e) => setEditing((s) => ({ ...s, telefone: e.target.value }))} /></Field>
                 </div>
+                <Field label="CPF (usado para gerar a senha de 1º acesso)">
+                  <Input
+                    placeholder="000.000.000-00"
+                    value={editing?.cpf ?? ""}
+                    onChange={(e) => setEditing((s) => ({ ...s, cpf: e.target.value }))}
+                  />
+                </Field>
+
+                {/* Definir Função — abaixo do CPF, conforme solicitado.
+                    Tanto Incorporadora quanto Gerência/Coordenação podem promover. */}
+                {editing?.id && editing?.user_id && (
+                  <Field label="Definir Função (papel deste usuário no empreendimento)">
+                    <div className="flex gap-2">
+                      <Select value={funcaoSel} onValueChange={(v) => setFuncaoSel(v as Role)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="corretor">Corretor</SelectItem>
+                          <SelectItem value="coordenador">Coordenador</SelectItem>
+                          <SelectItem value="gerente">Gerente</SelectItem>
+                          <SelectItem value="incorporadora">Incorporadora</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={savingFuncao}
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          setSavingFuncao(true);
+                          try {
+                            await definirFuncao({ data: { corretor_id: editing.id, role: funcaoSel } });
+                            toast.success(`Função atualizada para '${funcaoSel}'.`);
+                          } catch (err) {
+                            toast.error(err instanceof Error ? err.message : "Falha ao definir função");
+                          } finally {
+                            setSavingFuncao(false);
+                          }
+                        }}
+                      >
+                        {savingFuncao ? "Salvando…" : "Aplicar função"}
+                      </Button>
+                    </div>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      Mesmo acessando como Incorporadora ou Coordenação, é aqui que se promove o usuário deste cadastro.
+                    </p>
+                  </Field>
+                )}
+
                 <Field label="E-mail (vincula à conta de login)"><Input type="email" value={editing?.email ?? ""} onChange={(e) => setEditing((s) => ({ ...s, email: e.target.value }))} /></Field>
 
                 {/* Empreendimento por NOME ou CNPJ */}
@@ -278,12 +344,17 @@ function CorretoresPage() {
                     Primeiro acesso do corretor
                   </p>
                   <p className="mt-1 text-muted-foreground">
-                    Ao salvar, o corretor entra em <strong>ÁREA CORRETOR</strong> com o
-                    e-mail informado e a senha padrão <strong>Corretor@Elite4</strong>.
-                    No primeiro login o sistema obriga ele a criar uma nova senha
-                    vinculada ao próprio e-mail. (A senha padrão atende à política
-                    anti-vazamento do servidor — não use <code>123456</code>.)
+                    Ao salvar, é gerada uma senha personalizada com{" "}
+                    <strong>2 primeiras letras do nome + 6 primeiros dígitos do CPF</strong>{" "}
+                    (ex.: <code>Lu282767</code>). Quando faltar CPF ou nome válidos, usamos a
+                    senha padrão <strong>Corretor@Elite4</strong>. No 1º login o corretor é
+                    obrigado a criar uma nova senha vinculada ao próprio e-mail.
                   </p>
+                  {editing?.nome && (editing?.cpf ?? "").replace(/\D/g, "").length >= 6 && (
+                    <p className="mt-2 rounded bg-orange/10 px-2 py-1 font-mono text-[11px] text-orange">
+                      Senha que será gerada: {gerarSenhaPrimeiroAcesso(editing.nome, editing.cpf ?? "")}
+                    </p>
+                  )}
                 </div>
 
                 <DialogFooter className="gap-2">
