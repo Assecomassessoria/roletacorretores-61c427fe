@@ -47,6 +47,7 @@ function CadastroCorretor() {
     cnpj: string | null;
     equipe_alfa_nome: string | null;
     equipe_beta_nome: string | null;
+    regras_pdf_url: string | null;
   } | null>(null);
 
   const [nome, setNome] = useState("");
@@ -61,6 +62,7 @@ function CadastroCorretor() {
   const [equipe, setEquipe] = useState<"alfa" | "beta" | "">("");
   const [enviando, setEnviando] = useState(false);
   const [aceiteTermo, setAceiteTermo] = useState(false);
+  const [aceiteRegras, setAceiteRegras] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
