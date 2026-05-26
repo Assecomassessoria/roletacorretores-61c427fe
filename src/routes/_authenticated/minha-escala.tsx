@@ -150,9 +150,17 @@ function MinhaEscalaPage() {
                       </p>
                     </div>
                     {vago ? (
-                      <Button size="sm" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data)}>
-                        <UserCheck className="mr-1 h-4 w-4" /> Eu posso
-                      </Button>
+                      <div className="flex flex-wrap gap-1">
+                        <Button size="sm" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha", "tarde"])}>
+                          Integral
+                        </Button>
+                        <Button size="sm" variant="secondary" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha"])}>
+                          Manhã
+                        </Button>
+                        <Button size="sm" variant="secondary" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["tarde"])}>
+                          Tarde
+                        </Button>
+                      </div>
                     ) : ehMeu ? (
                       <Button size="sm" variant="outline" disabled={busy === it.slot_id} onClick={() => liberar(it.slot_id!)}>
                         <UserMinus className="mr-1 h-4 w-4" /> Liberar
