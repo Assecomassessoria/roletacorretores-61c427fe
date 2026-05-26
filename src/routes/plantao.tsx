@@ -71,6 +71,11 @@ function PlantaoPage() {
   const carregarEscala = useServerFn(listarEscalaSemanal);
   const inscrever = useServerFn(inscreverEscala);
   const resetAdmin = useServerFn(resetarEscalaAdmin);
+  const startAuthBio = useServerFn(startAuthenticationPlantao);
+  const finishAuthBio = useServerFn(finishAuthenticationPlantao);
+  const [bioBusy, setBioBusy] = useState(false);
+
+
 
   const [resetOpen, setResetOpen] = useState(false);
   const [resetSenha, setResetSenha] = useState("");
