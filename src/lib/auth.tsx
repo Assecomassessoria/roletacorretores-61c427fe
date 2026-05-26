@@ -69,7 +69,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    setRoles((data ?? []).map((r) => r.role as Role));
+    const loaded = (data ?? []).map((r) => r.role as Role);
+    // Fallback: se nenhum papel veio via user_roles mas o usuário já está
+    // vinculado a um corretor, garante o papel 'corretor' para não travar
+    // a tela em "carregando…".
+    if (loaded.length === 0) {
+      const { data: cs } = await supabase
+        .from("corretores")
+        .select("id")
+        .eq("user_id", userId)
+        .limit(1);
+      if ((cs ?? []).length > 0) loaded.push("corretor");
+    }
+    setRoles(loaded);
   }
 
   const signOut = async () => {
