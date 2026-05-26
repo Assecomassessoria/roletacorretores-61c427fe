@@ -28,8 +28,7 @@ export function BiometriaRegisterCard({ onDone, defaultLabel }: Props) {
     try {
       const { startRegistration } = await import("@simplewebauthn/browser");
       const options = await start({});
-      // @ts-expect-error simplewebauthn options shape
-      const response = await startRegistration({ optionsJSON: options });
+      const response = await startRegistration({ optionsJSON: options as unknown as Parameters<typeof startRegistration>[0]["optionsJSON"] });
       await finish({ data: { response, device_label: label || null } });
       setOk(true);
       toast.success("Biometria cadastrada neste dispositivo!");
