@@ -24,6 +24,32 @@ export const criarAgendamento = createServerFn({ method: "POST" })
     if (corrErr) throw new Error(corrErr.message);
     if (!corretor) throw new Error("Você precisa estar cadastrado como corretor para criar agendamentos.");
 
+    // Cria o atendimento imediatamente (sem passar pela roleta) — assim o
+    // agendamento já entra no Histórico Consolidado da Mesa de Recepção.
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: plantao } = await supabase
+      .from("plantoes")
+      .select("id")
+      .eq("corretor_id", corretor.id)
+      .eq("data", today)
+      .maybeSingle();
+
+    const { data: atd, error: atdErr } = await supabase
+      .from("atendimentos")
+      .insert({
+        empreendimento_id: corretor.empreendimento_id,
+        corretor_id: corretor.id,
+        plantao_id: plantao?.id ?? null,
+        cliente_nome: data.cliente_nome,
+        cliente_telefone: data.cliente_whatsapp,
+        cliente_email: data.cliente_email ?? null,
+        observacoes: `Agendamento prévio do corretor ${corretor.nome} para ${data.data_agendamento}.`,
+        criado_por: userId,
+      })
+      .select("id")
+      .single();
+    if (atdErr) throw new Error(atdErr.message);
+
     const { data: triagem, error } = await supabase
       .from("triagens")
       .insert({
@@ -31,7 +57,8 @@ export const criarAgendamento = createServerFn({ method: "POST" })
         opcao_codigo: "A",
         acao: "agendamento_corretor",
         origem: "painel",
-        status: "aguardando",
+        status: "atendido",
+        atendimento_id: atd.id,
         cliente_nome: data.cliente_nome,
         cliente_telefone: data.cliente_whatsapp,
         criado_por: userId,
@@ -43,6 +70,11 @@ export const criarAgendamento = createServerFn({ method: "POST" })
             data_agendamento: data.data_agendamento,
             cliente_email: data.cliente_email ?? null,
           },
+          corretor_escolhido: {
+            id: corretor.id,
+            nome: corretor.nome,
+            via: "agendamento_previo",
+          },
         } as never,
       })
       .select("id, created_at")
@@ -51,6 +83,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
 
     return {
       triagem_id: triagem.id,
+      atendimento_id: atd.id,
       corretor: { id: corretor.id, nome: corretor.nome },
     };
   });
