@@ -125,7 +125,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       }
     }
 
-    const corretorPayload: Record<string, unknown> = {
+    const corretorPayload = {
       nome: data.nome,
       cpf: (data.cpf ?? "").replace(/\D/g, "") || null,
       creci: creciFmt,
@@ -136,8 +136,8 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       status_habilitacao: "pendente",
       ativo: false,
       equipe: data.equipe,
+      ...(foto_url ? { foto_url } : {}),
     };
-    if (foto_url) corretorPayload.foto_url = foto_url;
 
     if (existingCorretor) {
       await supabaseAdmin.from("corretores").update(corretorPayload).eq("id", existingCorretor.id);
