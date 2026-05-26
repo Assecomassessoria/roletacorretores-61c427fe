@@ -40,7 +40,13 @@ function distMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
 
 function RoletaPage() {
   const { user, roles } = useAuth();
+  const router = useRouter();
+  const navigate = useNavigate();
   const isAdmin = roles.some((r) => ["incorporadora", "gerente", "coordenador"].includes(r));
+  async function handleSair() {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  }
   const [emps, setEmps] = useState<Emp[]>([]);
   const [empId, setEmpId] = useState<string>("");
   const [corretores, setCorretores] = useState<Corretor[]>([]);
