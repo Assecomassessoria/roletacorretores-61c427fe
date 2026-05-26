@@ -295,23 +295,41 @@ function RoletaPage() {
       </div>
 
       <section className="mt-6 rounded-lg border border-border bg-card p-5">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Plantões de hoje</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Plantões de hoje {emp ? <span className="ml-2 normal-case text-[11px] text-muted-foreground">· período de ausência: {emp.periodo_ausencia_minutos}min</span> : null}
+        </h2>
         {plantoes.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sem plantões agendados para hoje.</p>
         ) : (
           <ul className="space-y-1.5">
             {plantoes.map((p) => {
               const c = corretores.find((x) => x.id === p.corretor_id);
+              const info = presencaInfo(p.corretor_id);
+              const badgeClass =
+                info.status === "presente" ? "bg-emerald-600 hover:bg-emerald-600 text-white" :
+                info.status === "ausente" ? "bg-red-600 hover:bg-red-600 text-white" :
+                info.status === "saindo" ? "bg-amber-500 hover:bg-amber-500 text-white" :
+                "";
               return (
                 <li key={p.id} className="flex items-center justify-between text-sm">
                   <span>{c?.nome ?? "—"} <span className="text-muted-foreground">· {p.hora_inicio.slice(0,5)}–{p.hora_fim.slice(0,5)}</span></span>
-                  {p.presenca_confirmada_em ? <Badge>presente</Badge> : <Badge variant="outline">aguardando</Badge>}
+                  <div className="flex items-center gap-2">
+                    {p.presenca_confirmada_em
+                      ? <Badge className={badgeClass}>{info.label}</Badge>
+                      : <Badge variant="outline">aguardando</Badge>}
+                    {isAdmin && info.status === "ausente" && (
+                      <Button size="sm" variant="outline" onClick={() => reativar(p.id)}>
+                        <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reativar
+                      </Button>
+                    )}
+                  </div>
                 </li>
               );
             })}
           </ul>
         )}
       </section>
+
 
       <Dialog open={!!atendOpen} onOpenChange={(o) => !o && setAtendOpen(null)}>
         <DialogContent>
