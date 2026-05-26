@@ -138,11 +138,12 @@ function MinhaEscalaPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {escala.map((eq) => (
           <section key={eq.equipe} className="rounded-lg border border-border bg-card p-5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-orange">Equipe {eq.equipe.toUpperCase()}</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-orange">{eq.equipe_nome ?? `Equipe ${eq.equipe.toUpperCase()}`}</h2>
             <ul className="mt-3 divide-y divide-border">
               {eq.itens.map((it) => {
                 const ehMeu = it.corretor?.id === meuCorretorId;
                 const vago = !it.corretor;
+                const podeAgir = minhaEquipe ? eq.equipe === minhaEquipe : true;
                 const key = `${eq.equipe}-${it.data}`;
                 return (
                   <li key={key} className="flex items-center justify-between gap-3 py-3">
@@ -154,7 +155,7 @@ function MinhaEscalaPage() {
                         {it.corretor ? `${it.corretor.nome}${it.corretor.creci ? ` · ${it.corretor.creci}` : ""}` : "Vago"}
                       </p>
                     </div>
-                    {vago ? (
+                    {vago && podeAgir ? (
                       <div className="flex flex-wrap gap-1">
                         <Button size="sm" variant="outline" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha", "tarde"])}>
                           Integral
@@ -179,6 +180,7 @@ function MinhaEscalaPage() {
               {eq.itens.length === 0 && (
                 <li className="py-3 text-xs text-muted-foreground">Sem dias úteis nesta semana.</li>
               )}
+
             </ul>
           </section>
         ))}
