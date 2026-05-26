@@ -653,14 +653,25 @@ function PlantaoPage() {
               </ol>
             )}
 
-            {roleta && roleta.fila.length > 0 && (
-              <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
-                <strong className="text-foreground">Auditoria do sorteio:</strong> ordenação por fila justa —
-                menor número de atendimentos na semana, desempate por <code>ordem_roleta</code>. Próximo da vez:{" "}
-                <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
-                {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
-              </footer>
-            )}
+            {roleta && roleta.fila.length > 0 && (() => {
+              const CRIT_LABELS: Record<string, string> = {
+                ordem_chegada: "ordem de chegada (presença confirmada)",
+                ordem_sorteio: "ordem de sorteio (ordem_roleta)",
+                participacao_semana: "menor participação na semana",
+                menor_atendimentos: "menor nº de atendimentos na semana",
+                menor_leads_semana: "menor nº de leads na semana",
+              };
+              const crits: string[] = (roleta as any).criterios_sorteio ?? ["menor_atendimentos","ordem_sorteio"];
+              const descricao = crits.map((c, i) => `Critério ${i + 1}: ${CRIT_LABELS[c] ?? c}`).join(" · ");
+              return (
+                <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                  <strong className="text-foreground">Auditoria do sorteio:</strong> conforme definição administrativa do stand —{" "}
+                  {descricao}. Próximo da vez:{" "}
+                  <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
+                  {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
+                </footer>
+              );
+            })()}
           </section>
         )}
 
