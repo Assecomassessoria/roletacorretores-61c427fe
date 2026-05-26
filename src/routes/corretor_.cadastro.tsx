@@ -232,19 +232,77 @@ function CadastroCorretor() {
                   Trocar CNPJ
                 </button>
               </div>
+              <Field label="Foto (opcional)">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/40 text-[10px] text-muted-foreground">
+                    {fotoPreview ? (
+                      <img src={fotoPreview} alt="Prévia" className="h-full w-full object-cover" />
+                    ) : (
+                      "Sem foto"
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      id="foto-corretor"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => onPickFoto(e.target.files?.[0] ?? null)}
+                    />
+                    <label
+                      htmlFor="foto-corretor"
+                      className="cursor-pointer rounded-md border border-border bg-background px-3 py-1.5 text-xs hover:bg-muted/50"
+                    >
+                      {fotoPreview ? "Trocar foto" : "Adicionar foto"}
+                    </label>
+                    {fotoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => onPickFoto(null)}
+                        className="text-[11px] text-muted-foreground underline hover:text-foreground"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </Field>
               <Field label="Nome completo">
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="CPF">
+              <Field label="CPF">
+                <Input
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value)}
+                  placeholder="000.000.000-00"
+                />
+              </Field>
+              <div className="grid grid-cols-[1fr_90px_90px] gap-3">
+                <Field label="CRECI (nº)">
                   <Input
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
-                    placeholder="000.000.000-00"
+                    value={creci}
+                    onChange={(e) => setCreci(e.target.value)}
+                    placeholder="000000"
                   />
                 </Field>
-                <Field label="CRECI">
-                  <Input value={creci} onChange={(e) => setCreci(e.target.value)} />
+                <Field label="F/J">
+                  <select
+                    value={creciTipo}
+                    onChange={(e) => setCreciTipo(e.target.value as "F" | "J" | "")}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                  >
+                    <option value="">—</option>
+                    <option value="F">F</option>
+                    <option value="J">J</option>
+                  </select>
+                </Field>
+                <Field label="Estado">
+                  <Input
+                    value={creciUf}
+                    onChange={(e) => setCreciUf(e.target.value.toUpperCase().slice(0, 2))}
+                    placeholder="UF"
+                    maxLength={2}
+                  />
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
