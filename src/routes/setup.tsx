@@ -32,9 +32,26 @@ const AREAS: { value: Role; label: string }[] = [
   { value: "incorporadora", label: "⚙️ INCORPORADORA (SETUP)" },
 ];
 
+function maskCPF(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+function maskCNPJ(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 14);
+  return d
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
 function SetupDemo() {
   const navigate = useNavigate();
   const cadastrar = useServerFn(cadastroDemo);
+
 
   const [nome, setNome] = useState("");
   const [documento, setDocumento] = useState("");
