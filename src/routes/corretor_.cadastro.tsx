@@ -42,7 +42,13 @@ function CadastroCorretor() {
 
   const [cnpj, setCnpj] = useState("");
   const [buscando, setBuscando] = useState(false);
-  const [emp, setEmp] = useState<{ id: string; nome: string; cnpj: string | null } | null>(null);
+  const [emp, setEmp] = useState<{
+    id: string;
+    nome: string;
+    cnpj: string | null;
+    equipe_alfa_nome: string | null;
+    equipe_beta_nome: string | null;
+  } | null>(null);
 
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
