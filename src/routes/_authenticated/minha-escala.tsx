@@ -75,12 +75,12 @@ function MinhaEscalaPage() {
     })();
   }, [user, fnMeusEmps, recarregar]);
 
-  async function inscrever(equipe: "alfa" | "beta", data: string) {
+  async function inscrever(equipe: "alfa" | "beta", data: string, periodos: ("manha" | "tarde")[]) {
     if (!empId || !meuNome) return;
     setBusy(`${equipe}-${data}`);
     try {
       await fnInscrever({
-        data: { empreendimento_id: empId, equipe, nome: meuNome, data, periodos: ["manha", "tarde"] },
+        data: { empreendimento_id: empId, equipe, nome: meuNome, data, periodos },
       });
       toast.success("Você foi inscrito nesse dia");
       await recarregar(empId);
