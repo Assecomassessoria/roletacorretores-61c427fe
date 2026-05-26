@@ -245,7 +245,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
     if (upErr) throw new Error(upErr.message);
 
     await supabaseAdmin.from("audit_log").insert({
-      user_id: signed.user.id,
+      user_id: authUserId,
       user_email: loginEmail,
       acao: "presenca_confirmada",
       recurso: `plantao:${plantaoId}`,
@@ -253,6 +253,7 @@ export const checkInPlantao = createServerFn({ method: "POST" })
         empreendimento_id: emp.id,
         corretor_id: corretor.id,
         metodo_aprovado: metodoOk,
+        autenticacao: data.biometric_token ? "biometria" : "senha",
         distancia_m: distancia,
         wifi_ssid_informado: data.wifi_ssid ?? null,
         qrcode_validado: checks.find((c) => c.metodo === "qrcode")?.ok ?? null,
