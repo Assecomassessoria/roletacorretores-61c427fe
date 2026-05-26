@@ -5,6 +5,7 @@ import { cadastroDemo } from "@/lib/usuarios.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { NavActions } from "@/components/nav-actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -114,10 +115,10 @@ function SetupDemo() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Senha de Acesso">
-              <Input type="password" required minLength={6} value={senha} onChange={(e) => setSenha(e.target.value)} />
+              <PasswordInput required minLength={6} value={senha} onChange={(e) => setSenha(e.target.value)} />
             </Field>
             <Field label="Confirmar Senha">
-              <Input type="password" required minLength={6} value={senha2} onChange={(e) => setSenha2(e.target.value)} />
+              <PasswordInput required minLength={6} value={senha2} onChange={(e) => setSenha2(e.target.value)} />
             </Field>
           </div>
 

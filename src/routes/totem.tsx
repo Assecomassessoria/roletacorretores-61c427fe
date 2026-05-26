@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -342,8 +343,7 @@ function TotemPage() {
                 Recepção, Coordenador e Gerência: acessem com suas credenciais para acompanhar o fluxo de atendimento em tempo real.
               </p>
               <div className="mt-3 flex gap-2">
-                <Input
-                  type="password"
+                <PasswordInput
                   value={staffPass}
                   onChange={(e) => setStaffPass(e.target.value)}
                   placeholder="Senha de acesso"

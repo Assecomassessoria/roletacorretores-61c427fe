@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -189,8 +190,7 @@ function CadastroCorretor() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Senha (mín. 8 caracteres)">
-                  <Input
-                    type="password"
+                  <PasswordInput
                     required
                     minLength={8}
                     value={senha}
@@ -198,8 +198,7 @@ function CadastroCorretor() {
                   />
                 </Field>
                 <Field label="Confirmar senha">
-                  <Input
-                    type="password"
+                  <PasswordInput
                     required
                     minLength={8}
                     value={senha2}
