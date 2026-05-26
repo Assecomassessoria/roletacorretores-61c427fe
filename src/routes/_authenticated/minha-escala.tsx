@@ -20,10 +20,11 @@ type Item = {
   dia_semana: string;
   slot_id: string | null;
   periodos: string[];
-  corretor: { id: string; nome: string; creci: string | null } | null;
+  corretor: { id: string; nome: string; creci: string | null; equipe?: string | null } | null;
 };
 
-type EscalaEquipe = { equipe: "alfa" | "beta"; itens: Item[] };
+type EscalaEquipe = { equipe: "alfa" | "beta"; equipe_nome: string; itens: Item[] };
+
 
 function MinhaEscalaPage() {
   const { user } = useAuth();
