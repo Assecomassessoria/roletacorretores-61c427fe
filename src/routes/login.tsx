@@ -28,6 +28,7 @@ function LoginPage() {
       let pendente: string | null = null;
       try {
         pendente = sessionStorage.getItem("plano_pendente");
+        if (pendente) sessionStorage.removeItem("plano_pendente");
       } catch {}
       navigate({ to: pendente ? "/planos" : "/app" });
     }
