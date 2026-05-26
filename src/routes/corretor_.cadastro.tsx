@@ -407,7 +407,33 @@ function CadastroCorretor() {
                 </Label>
               </div>
 
-              <Button type="submit" disabled={enviando || !aceiteTermo} className="w-full">
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
+                <Checkbox
+                  id="aceite-regras"
+                  checked={aceiteRegras}
+                  onCheckedChange={(c) => setAceiteRegras(c === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="aceite-regras" className="text-xs leading-relaxed font-normal cursor-pointer">
+                  Li as{" "}
+                  {emp.regras_pdf_url ? (
+                    <a
+                      href={emp.regras_pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-orange underline hover:text-orange/80"
+                    >
+                      <FileText className="h-3 w-3" />
+                      Políticas e Regras do plantão
+                    </a>
+                  ) : (
+                    <span className="font-semibold">Políticas e Regras do plantão</span>
+                  )}{" "}
+                  definidas pela Coordenação deste empreendimento.
+                </Label>
+              </div>
+
+              <Button type="submit" disabled={enviando || !aceiteTermo || !aceiteRegras} className="w-full">
                 {enviando ? "Enviando…" : "Enviar cadastro para aprovação"}
               </Button>
             </form>
