@@ -107,6 +107,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
       user_id,
       status_habilitacao: "pendente",
       ativo: false,
+      equipe: data.equipe,
     };
 
     if (existingCorretor) {
