@@ -101,6 +101,7 @@ function CadastroCorretor() {
   async function onCadastrar(e: FormEvent) {
     e.preventDefault();
     if (!emp) return toast.error("Confirme o empreendimento antes.");
+    if (!equipe) return toast.error("Selecione sua equipe (Alfa ou Beta).");
     if (senha.length < 8) return toast.error("A senha deve ter no mínimo 8 caracteres.");
     if (senha !== senha2) return toast.error("As senhas não conferem.");
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
@@ -115,6 +116,7 @@ function CadastroCorretor() {
           cnpj_empreendimento: emp.cnpj ?? cnpj,
           email: email.trim().toLowerCase(),
           senha,
+          equipe,
         },
       });
       toast.success(
