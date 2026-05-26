@@ -140,7 +140,39 @@ function CoordenadorPage() {
   const propagandaFileRef = useRef<HTMLInputElement>(null);
   const [propagandas, setPropagandas] = useState<Propaganda[]>([]);
   const [novoTituloProp, setNovoTituloProp] = useState("");
+  const [endereco, setEndereco] = useState({ rua: "", numero: "", cidade: "", cep: "" });
+  const [geocodando, setGeocodando] = useState(false);
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
+
+  async function geocodificarEndereco() {
+    const { rua, numero, cidade, cep } = endereco;
+    if (!rua && !cidade && !cep) {
+      toast.error("Informe ao menos rua, cidade ou CEP.");
+      return;
+    }
+    const query = [rua && `${rua}${numero ? `, ${numero}` : ""}`, cidade, cep, "Brasil"]
+      .filter(Boolean).join(", ");
+    setGeocodando(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.error("Endereço não encontrado.");
+        return;
+      }
+      const { lat, lon } = data[0];
+      patch("latitude", Number(lat));
+      patch("longitude", Number(lon));
+      toast.success("Coordenadas atualizadas — Salvar para persistir.");
+    } catch {
+      toast.error("Falha ao consultar geocodificação.");
+    } finally {
+      setGeocodando(false);
+    }
+  }
 
   useEffect(() => { if (podeAcessar) void carregarEmps(); }, [podeAcessar]);
   useEffect(() => { if (empId) { void carregarEmp(); void carregarCorretores(); void carregarPropagandas(); } }, [empId]);
@@ -603,6 +635,38 @@ function CoordenadorPage() {
                     Informe latitude e longitude para visualizar o mapa do estande.
                   </p>
                 )}
+
+                <div className="mt-4 rounded-md border border-dashed border-border p-3">
+                  <h4 className="mb-2 text-xs font-semibold text-muted-foreground">Definir por endereço</h4>
+                  <div className="grid gap-2 sm:grid-cols-[1fr_90px]">
+                    <Field label="Rua/Avenida">
+                      <Input value={endereco.rua} onChange={(e) => setEndereco({ ...endereco, rua: e.target.value })} placeholder="Av. Brasil" />
+                    </Field>
+                    <Field label="Nº">
+                      <Input value={endereco.numero} onChange={(e) => setEndereco({ ...endereco, numero: e.target.value })} placeholder="123" />
+                    </Field>
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <Field label="Cidade">
+                      <Input value={endereco.cidade} onChange={(e) => setEndereco({ ...endereco, cidade: e.target.value })} placeholder="Sorocaba" />
+                    </Field>
+                    <Field label="CEP">
+                      <Input value={endereco.cep} onChange={(e) => setEndereco({ ...endereco, cep: e.target.value })} placeholder="00000-000" />
+                    </Field>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3 w-full"
+                    onClick={geocodificarEndereco}
+                    disabled={geocodando}
+                  >
+                    {geocodando ? "Buscando..." : "Salvar Endereço"}
+                  </Button>
+                  <p className="mt-2 text-[10px] text-muted-foreground">
+                    Busca lat/long via OpenStreetMap. Confira o pino no mapa e clique em Salvar no topo para persistir.
+                  </p>
+                </div>
               </div>
 
               <div className="rounded-lg border border-border p-4">
