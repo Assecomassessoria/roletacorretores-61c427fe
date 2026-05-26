@@ -132,7 +132,7 @@ function SetupDemo() {
               <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Pedro de Alcântara" />
             </Field>
             <Field label="CPF do Receptor/Contato">
-              <Input value={documento} onChange={(e) => setDocumento(e.target.value)} placeholder="000.000.000-00" />
+              <Input value={documento} onChange={(e) => setDocumento(maskCPF(e.target.value))} placeholder="000.000.000-00" inputMode="numeric" />
             </Field>
           </div>
 
