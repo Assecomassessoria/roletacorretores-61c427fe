@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft, Building2, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { buscarEmpreendimentoPorCnpj, cadastroCorretorPublico } from "@/lib/cadastro-corretor.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { BiometriaRegisterCard } from "@/components/biometria-register-card";
 
 export const Route = createFileRoute("/corretor_/cadastro")({
   component: CadastroCorretor,
