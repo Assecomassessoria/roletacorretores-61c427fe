@@ -143,6 +143,7 @@ function CadastroCorretor() {
     if (senha.length < 8) return toast.error("A senha deve ter no mínimo 8 caracteres.");
     if (senha !== senha2) return toast.error("As senhas não conferem.");
     if (!aceiteTermo) return toast.error("É necessário aceitar o Termo de Adesão e Privacidade.");
+    if (!aceiteRegras) return toast.error("É necessário aceitar as Políticas e Regras do plantão.");
     setEnviando(true);
     try {
       const foto_base64 = fotoFile ? await fileToBase64(fotoFile) : null;
