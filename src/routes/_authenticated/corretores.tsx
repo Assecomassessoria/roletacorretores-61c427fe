@@ -56,8 +56,11 @@ function CorretoresPage() {
   const [fotoUploading, setFotoUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const habilitar = useServerFn(habilitarCorretorAcesso);
+  const definirFuncao = useServerFn(definirFuncaoCorretor);
   const fetchCorretores = useServerFn(listCorretoresAdmin);
   const fetchCorretor = useServerFn(getCorretorAdmin);
+  const [funcaoSel, setFuncaoSel] = useState<Role>("corretor");
+  const [savingFuncao, setSavingFuncao] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -117,6 +120,7 @@ function CorretoresPage() {
 
     const payload = {
       nome: editing.nome ?? "",
+      cpf: (editing.cpf ?? "").replace(/\D/g, "") || null,
       creci: editing.creci ?? null,
       telefone: editing.telefone ?? null,
       email: editing.email ?? null,
@@ -139,8 +143,15 @@ function CorretoresPage() {
 
     if (habilitarAcesso && corretorId && editing.email) {
       try {
-        await habilitar({ data: { corretor_id: corretorId, email: editing.email } });
-        toast.success("Acesso criado. O corretor deve usar 'Esqueci minha senha' para definir a senha de primeiro acesso.");
+        const res = await habilitar({
+          data: {
+            corretor_id: corretorId,
+            email: editing.email,
+            nome: editing.nome ?? null,
+            cpf: (editing.cpf ?? "").replace(/\D/g, "") || null,
+          },
+        });
+        toast.success(`Acesso criado. Senha de 1º acesso: ${res.senha}`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
         toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);
