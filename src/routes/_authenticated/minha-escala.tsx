@@ -14,16 +14,24 @@ export const Route = createFileRoute("/_authenticated/minha-escala")({
   head: () => ({ meta: [{ title: "Minha Escala — Roleta Corretor" }] }),
 });
 
+type CorretorSlot = {
+  slot_id: string;
+  id: string;
+  nome: string;
+  creci: string | null;
+  equipe?: string | null;
+  periodos: string[];
+};
+
 type Item = {
   data: string;
   data_br: string;
   dia_semana: string;
-  slot_id: string | null;
-  periodos: string[];
-  corretor: { id: string; nome: string; creci: string | null; equipe?: string | null } | null;
+  corretores: CorretorSlot[];
 };
 
 type EscalaEquipe = { equipe: "alfa" | "beta"; equipe_nome: string; itens: Item[] };
+
 
 
 function MinhaEscalaPage() {
