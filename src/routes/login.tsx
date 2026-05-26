@@ -179,23 +179,11 @@ function LoginPage() {
               Sou Corretor — cadastrar pelo CNPJ
             </Link>
             <p className="mt-1 text-center text-[11px] text-muted-foreground">
-              Corretor: <strong>não use</strong> o "Criar conta" abaixo. Cadastre-se sempre pelo botão acima
-              informando o CNPJ do empreendimento.
+              Corretor: cadastre-se pelo botão acima informando o CNPJ do empreendimento.
             </p>
-
-            <div className="mt-5 border-t border-border pt-4">
-              <button
-                type="button"
-                onClick={() => setMode(mode === "login" ? "signup" : "login")}
-                className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
-              >
-                {mode === "login"
-                  ? "Sou Incorporadora / Gerência — criar conta administrativa"
-                  : "Já tem conta? Entrar"}
-              </button>
-            </div>
           </>
         ) : (
+
           <button
             type="button"
             onClick={() => setMode("login")}
