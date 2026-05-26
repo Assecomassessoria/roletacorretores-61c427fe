@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X } from "lucide-react";
+import { Pencil, Plus, MapPin, Wifi, QrCode, KeyRound, Navigation, UploadCloud, Image as ImageIcon, Palette, X, Map as MapIcon, ExternalLink } from "lucide-react";
 import { SignedImg } from "@/components/signed-img";
 import { listEmpreendimentosAdmin } from "@/lib/empreendimentos-admin.functions";
 
