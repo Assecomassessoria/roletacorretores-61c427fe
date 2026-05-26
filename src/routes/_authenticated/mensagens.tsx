@@ -108,6 +108,29 @@ function MensagensPage() {
     return linhas.join("\n");
   }, [titulo, corpo, empAtual]);
 
+  function tocarBeep() {
+    try {
+      const AC = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      if (!AC) return;
+      const ctx = new AC();
+      const now = ctx.currentTime;
+      // dois beeps curtos (estilo notificação)
+      [880, 1320].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + i * 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.25, now + i * 0.18 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.18 + 0.16);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now + i * 0.18);
+        osc.stop(now + i * 0.18 + 0.18);
+      });
+      setTimeout(() => ctx.close().catch(() => {}), 800);
+    } catch { /* ignore */ }
+  }
+
   async function salvar(canalEnvio: Mensagem["canal"]) {
     if (!empId) return toast.error("Selecione um empreendimento");
     if (!titulo.trim() || !corpo.trim())
@@ -123,6 +146,7 @@ function MensagensPage() {
     });
     setEnviando(false);
     if (error) return toast.error(error.message);
+    tocarBeep();
     toast.success(
       canalEnvio === "sistema"
         ? "Comunicado publicado no sistema"
