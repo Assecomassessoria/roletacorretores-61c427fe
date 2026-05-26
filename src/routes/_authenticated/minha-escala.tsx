@@ -149,21 +149,44 @@ function MinhaEscalaPage() {
             <h2 className="text-sm font-bold uppercase tracking-wider text-orange">{eq.equipe_nome ?? `Equipe ${eq.equipe.toUpperCase()}`}</h2>
             <ul className="mt-3 divide-y divide-border">
               {eq.itens.map((it) => {
-                const ehMeu = it.corretor?.id === meuCorretorId;
-                const vago = !it.corretor;
-                const podeAgir = minhaEquipe ? eq.equipe === minhaEquipe : true;
+                const meuSlot = it.corretores.find((c) => c.id === meuCorretorId);
+                const jaInscrito = !!meuSlot;
+                const podeAgir = (minhaEquipe ? eq.equipe === minhaEquipe : true) && !jaInscrito;
                 const key = `${eq.equipe}-${it.data}`;
                 return (
-                  <li key={key} className="flex items-center justify-between gap-3 py-3">
-                    <div className="min-w-0">
+                  <li key={key} className="flex items-start justify-between gap-3 py-3">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">
                         {it.dia_semana} <span className="text-muted-foreground">· {it.data_br}</span>
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {it.corretor ? `${it.corretor.nome}${it.corretor.creci ? ` · ${it.corretor.creci}` : ""}` : "Vago"}
-                      </p>
+                      {it.corretores.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">Vago</p>
+                      ) : (
+                        <ul className="mt-1 space-y-0.5">
+                          {it.corretores.map((c) => (
+                            <li key={c.slot_id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span className="truncate">
+                                {c.nome}
+                                {c.creci ? ` · ${c.creci}` : ""}
+                                {c.id === meuCorretorId ? " (você)" : ""}
+                              </span>
+                              {c.id === meuCorretorId && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 px-2 text-xs"
+                                  disabled={busy === c.slot_id}
+                                  onClick={() => liberar(c.slot_id)}
+                                >
+                                  <UserMinus className="mr-1 h-3 w-3" /> Liberar
+                                </Button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    {vago && podeAgir ? (
+                    {podeAgir && (
                       <div className="flex flex-wrap gap-1">
                         <Button size="sm" variant="outline" disabled={busy === key} onClick={() => inscrever(eq.equipe, it.data, ["manha", "tarde"])}>
                           Integral
@@ -175,12 +198,6 @@ function MinhaEscalaPage() {
                           Tarde
                         </Button>
                       </div>
-                    ) : ehMeu ? (
-                      <Button size="sm" variant="outline" disabled={busy === it.slot_id} onClick={() => liberar(it.slot_id!)}>
-                        <UserMinus className="mr-1 h-4 w-4" /> Liberar
-                      </Button>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
                     )}
                   </li>
                 );
@@ -188,6 +205,7 @@ function MinhaEscalaPage() {
               {eq.itens.length === 0 && (
                 <li className="py-3 text-xs text-muted-foreground">Sem dias úteis nesta semana.</li>
               )}
+
 
             </ul>
           </section>
