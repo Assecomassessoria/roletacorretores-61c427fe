@@ -248,6 +248,30 @@ function CadastroCorretor() {
                 </Field>
               </div>
 
+              <Field label="Equipe — selecione conforme cadastro do Coordenador">
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { key: "alfa", nome: emp.equipe_alfa_nome || "Equipe Alfa" },
+                    { key: "beta", nome: emp.equipe_beta_nome || "Equipe Beta" },
+                  ] as const).map((t) => (
+                    <button
+                      type="button"
+                      key={t.key}
+                      onClick={() => setEquipe(t.key)}
+                      className={`rounded-md border px-3 py-2.5 text-sm font-medium transition ${
+                        equipe === t.key
+                          ? "border-orange bg-orange/10 text-orange ring-1 ring-orange"
+                          : "border-border bg-background hover:bg-muted/50"
+                      }`}
+                    >
+                      {t.nome}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+
+
               <div className="rounded-md border border-orange/30 bg-orange/5 p-3 text-[11px] text-muted-foreground">
                 Seu cadastro entra como <strong>pendente</strong>. A Coordenação ou Incorporadora libera
                 o seu acesso à roleta. Você pode tentar entrar em <Link to="/plantao" className="text-orange underline">/plantao</Link> usando seu CRECI assim que for aprovado.
