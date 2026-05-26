@@ -385,6 +385,7 @@ export type Database = {
           cor_secundaria: string | null
           created_at: string
           criado_por: string | null
+          criterios_sorteio: string[]
           endereco: string | null
           equipe_alfa_nome: string
           equipe_beta_nome: string
@@ -422,6 +423,7 @@ export type Database = {
           cor_secundaria?: string | null
           created_at?: string
           criado_por?: string | null
+          criterios_sorteio?: string[]
           endereco?: string | null
           equipe_alfa_nome?: string
           equipe_beta_nome?: string
@@ -459,6 +461,7 @@ export type Database = {
           cor_secundaria?: string | null
           created_at?: string
           criado_por?: string | null
+          criterios_sorteio?: string[]
           endereco?: string | null
           equipe_alfa_nome?: string
           equipe_beta_nome?: string
