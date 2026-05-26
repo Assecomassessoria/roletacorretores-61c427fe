@@ -1,9 +1,14 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { NavActions } from "@/components/nav-actions";
-import { ArrowLeft, Check, Zap } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Zap } from "lucide-react";
 import { useAssinatura } from "@/lib/use-assinatura";
+import { useAuth } from "@/lib/auth";
+import { criarCheckoutPlano } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/planos")({
   component: Planos,
