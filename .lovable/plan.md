@@ -1,77 +1,55 @@
+# Período de Ausência — Detecção automática e remoção da roleta
+
 ## Objetivo
+Quando o corretor sair do raio do stand (geofence) ou perder o Wi-Fi homologado, o sistema começa a contar o tempo. Ao atingir o **Período de Ausência** configurado pelo Coordenador (ex.: 60 min), o painel marca o corretor como **Ausente** e ele é **removido automaticamente da roleta** do dia.
 
-Permitir cadastrar uma biometria (digital/Face ID) deste dispositivo logo após criar a conta e, em `/plantao`, validar a presença com Biometria **ou** Senha (fallback).
+## Passo 1 — Configuração (Coordenador)
+- Novo campo `periodo_ausencia_minutos` em `empreendimentos` (default 60).
+- UI em `/coordenador`, dentro do bloco "Configuração de períodos", logo acima de Comercial/Matutino/Vespertino:
+  - Input numérico **"Período de ausência (minutos)"** com slider 5–240.
+  - Salva junto com o restante do empreendimento.
 
-## Domínios envolvidos
+## Passo 2 — Detecção (corretor presente)
+- Em `plantoes`, novos campos:
+  - `ultimo_ping_em timestamptz` — atualizado a cada heartbeat dentro do raio.
+  - `fora_desde timestamptz` — primeiro momento detectado fora do raio (NULL = dentro).
+  - `status_presenca text` — `'presente' | 'ausente'` (cache derivado).
+- No painel `/roleta` (e `/plantao` quando o corretor tem check-in), um hook envia ping de geolocalização a cada 60s:
+  - Dentro do raio → atualiza `ultimo_ping_em`, zera `fora_desde`, status `presente`.
+  - Fora do raio → mantém `fora_desde` (preserva o primeiro), status calculado pelo tempo decorrido.
+- Em `/roleta`, a fila marca:
+  - 🟢 **Presente** (verde) — dentro do raio.
+  - 🔴 **Ausente** (vermelho) — fora do raio há ≥ `periodo_ausencia_minutos`.
+  - 🟡 **Saiu há X min** — fora, mas ainda dentro do prazo.
 
-- Cadastros: `/setup` (incorporadora/demo) e `/corretor/cadastro` (corretor). Após o cadastro com sucesso, mostramos o botão **“Cadastrar biometria neste dispositivo”**.
-- `/plantao`: além da senha, oferecer botão **“Usar Biometria”**, que abre o sensor do aparelho. Se cancelar/falhar → cai automaticamente para o campo Senha (fallback).
+## Passo 3 — Auto-remoção da roleta
+- Server fn `marcarAusentesEAtualizarRoleta` (chamada periodicamente pelo painel `/roleta` a cada 60s):
+  - Para cada plantão do dia com `fora_desde IS NOT NULL` e `now() - fora_desde >= periodo_ausencia_minutos`:
+    - Atualiza `status_presenca = 'ausente'`, `status = 'ausente'`.
+    - Corretor sai da fila (`fila` em `/roleta` já filtra por `status_presenca = 'presente'`).
+  - Se o corretor voltar (ping dentro do raio) **antes** do prazo, volta para presente; **depois** do prazo permanece ausente até admin reativar.
 
-## Banco de dados (1 migração)
+## Detalhes técnicos
+- Migration:
+  - `ALTER TABLE empreendimentos ADD COLUMN periodo_ausencia_minutos integer NOT NULL DEFAULT 60;`
+  - `ALTER TABLE plantoes ADD COLUMN ultimo_ping_em timestamptz, ADD COLUMN fora_desde timestamptz, ADD COLUMN status_presenca text NOT NULL DEFAULT 'presente';`
+  - Política RLS extra em `plantoes` para o corretor atualizar `ultimo_ping_em`/`fora_desde`/`status_presenca` da própria linha (o trigger guard atual já permite, pois não está na lista bloqueada — verifico).
+- Server fn nova `src/lib/presenca.functions.ts`:
+  - `pingPresenca({ plantao_id, lat, lng })` — calcula distância e atualiza colunas.
+  - `varrerAusentes({ empreendimento_id })` — aplica regra de auto-remoção (admin via `supabaseAdmin`, sem auth).
+- Frontend:
+  - `/coordenador`: novo campo no bloco de períodos.
+  - `/roleta`: hook `useEffect` com `setInterval(60_000)` enviando ping + varrendo ausentes; badges coloridas (verde/amarelo/vermelho) na fila.
 
-Tabela `public.webauthn_credentials`:
-- `id uuid pk`
-- `user_id uuid` (FK lógica para `auth.users.id`)
-- `corretor_id uuid null` (FK para `public.corretores.id`) — preenchido quando o user_id corresponde a um corretor; facilita a busca em `/plantao` por CRECI.
-- `credential_id text unique` (base64url)
-- `public_key text` (base64url)
-- `counter bigint default 0`
-- `transports text[]`
-- `device_label text` (ex.: “iPhone do João”)
-- `created_at`, `last_used_at`
+## Arquivos afetados
+- `supabase/migrations/<nova>.sql` (schema + policy)
+- `src/lib/presenca.functions.ts` (nova)
+- `src/routes/_authenticated/coordenador.tsx` (campo de configuração)
+- `src/routes/_authenticated/roleta.tsx` (ping + badges + varredura)
+- `src/integrations/supabase/types.ts` (auto-gerado pela migration)
 
-Tabela `public.webauthn_challenges` (curtíssima duração):
-- `id uuid pk`, `user_id uuid null`, `corretor_id uuid null`, `creci text null`, `empreendimento_id uuid null`
-- `challenge text`, `tipo text check (tipo in ('registration','authentication'))`
-- `expires_at timestamptz` (now() + 5 min)
-
-RLS: ambas com RLS ativada. `webauthn_credentials`: SELECT/DELETE somente do próprio `user_id`. `webauthn_challenges`: sem políticas para clientes; todas as operações são feitas pelo `supabaseAdmin` em server functions.
-
-## Dependências
-
-- `@simplewebauthn/server` (server functions)
-- `@simplewebauthn/browser` (frontend)
-
-## Server functions (novo arquivo `src/lib/webauthn.functions.ts`)
-
-Todas usando `supabaseAdmin` e variáveis `WEBAUTHN_RP_ID` (ex.: `simuladorcorretorelite.com.br` em prod, `localhost` em dev) e `WEBAUTHN_ORIGIN` (derivado da request).
-
-1. `startRegistration` (auth via `requireSupabaseAuth`) — gera options + salva challenge.
-2. `finishRegistration` (auth) — verifica resposta, grava em `webauthn_credentials` (linkando ao corretor se houver).
-3. `startAuthenticationPlantao` (público) — input: `empreendimento_id`, `creci`. Busca corretor, lista credenciais, devolve options + challenge.
-4. `finishAuthenticationPlantao` (público) — verifica assinatura, atualiza `counter`/`last_used_at`, emite **token de biometria** de uso único (UUID guardado em tabela com TTL 60s) ligado ao corretor+empreendimento+today.
-5. `checkInPlantao` (alteração mínima): aceitar `biometric_token` opcional como alternativa à senha. Quando presente e válido, pula `signInWithPassword`.
-
-## Frontend
-
-### `/setup` e `/corretor/cadastro`
-- Após sucesso do cadastro, em vez de redirecionar imediatamente, mostrar um card final com botão **“Cadastrar biometria neste dispositivo”** (e link “pular por agora”).
-- Botão chama `startRegistration` → `@simplewebauthn/browser` `startRegistration()` → `finishRegistration`. Toast de sucesso/erro. Em seguida segue navegação.
-
-### `/plantao`
-- Acima do campo Senha: botão grande **“Entrar com Biometria”** (visível quando CRECI + empreendimento estão preenchidos).
-- Fluxo: chama `startAuthenticationPlantao` → `startAuthentication()` no browser → `finishAuthenticationPlantao` → recebe `biometric_token` → submete `checkInPlantao` com o token (e localização/SSID/etc) — sem pedir senha.
-- `try/catch`: qualquer erro (cancelamento, sem credencial, falha de hardware) exibe toast suave e mantém o campo Senha visível como fallback.
-
-## UI / Padrão visual
-
-- Botões “Cadastrar Biometria” / “Entrar com Biometria” em estilo navy/orange já usado no projeto (`bg-navy`/`bg-orange`), com ícone `Fingerprint` do `lucide-react`.
-
-## Segurança / Notas
-
-- `rpID`: derivado do host (server-side). Subdomínios funcionam se `rpID` for o domínio raiz (`simuladorcorretorelite.com.br`) — configurável via secret.
-- Challenge sempre salvo no servidor; nunca confiar em valor enviado pelo cliente.
-- `biometric_token` é uso único, TTL 60s, vinculado a (corretor, empreendimento, dia).
-- Senha continua existindo (fallback obrigatório).
-- WebAuthn exige HTTPS — preview/published já são HTTPS.
-
-## Arquivos a criar/editar
-
-- **Novo**: `src/lib/webauthn.functions.ts`
-- **Editar**: `src/lib/plantao.functions.ts` (aceitar `biometric_token`)
-- **Editar**: `src/routes/setup.tsx`, `src/routes/corretor_.cadastro.tsx` (card pós-cadastro)
-- **Editar**: `src/routes/plantao.tsx` (botão Biometria)
-- **Novo**: componente `src/components/biometria-button.tsx` (reuso)
-- **Migração**: tabelas `webauthn_credentials`, `webauthn_challenges`, `biometric_tokens`
+## Fora de escopo (nesta entrega)
+- Wi-Fi homologado como sinal redundante: a infra (`wifi_ssid`, `ip_homologado`) já existe, mas browser não expõe SSID; manteremos apenas geofence neste passo. Posso adicionar checagem por IP homologado num passo seguinte.
+- Cron server-side: a varredura roda enquanto algum coordenador tem `/roleta` aberta. Se quiser garantir varredura 24/7, posso adicionar pg_cron num próximo passo.
 
 Confirma para eu executar?

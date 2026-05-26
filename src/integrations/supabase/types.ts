@@ -402,6 +402,7 @@ export type Database = {
           metodos_presenca: string[]
           modo_propaganda: boolean
           nome: string
+          periodo_ausencia_minutos: number
           pin_intervalo_min: number
           qrcode_token: string | null
           raio_metros: number
@@ -438,6 +439,7 @@ export type Database = {
           metodos_presenca?: string[]
           modo_propaganda?: boolean
           nome: string
+          periodo_ausencia_minutos?: number
           pin_intervalo_min?: number
           qrcode_token?: string | null
           raio_metros?: number
@@ -474,6 +476,7 @@ export type Database = {
           metodos_presenca?: string[]
           modo_propaganda?: boolean
           nome?: string
+          periodo_ausencia_minutos?: number
           pin_intervalo_min?: number
           qrcode_token?: string | null
           raio_metros?: number
@@ -829,6 +832,7 @@ export type Database = {
           created_at: string
           data: string
           empreendimento_id: string
+          fora_desde: string | null
           hora_fim: string
           hora_inicio: string
           id: string
@@ -836,12 +840,15 @@ export type Database = {
           presenca_lat: number | null
           presenca_lng: number | null
           status: Database["public"]["Enums"]["plantao_status"]
+          status_presenca: string
+          ultimo_ping_em: string | null
         }
         Insert: {
           corretor_id: string
           created_at?: string
           data: string
           empreendimento_id: string
+          fora_desde?: string | null
           hora_fim: string
           hora_inicio: string
           id?: string
@@ -849,12 +856,15 @@ export type Database = {
           presenca_lat?: number | null
           presenca_lng?: number | null
           status?: Database["public"]["Enums"]["plantao_status"]
+          status_presenca?: string
+          ultimo_ping_em?: string | null
         }
         Update: {
           corretor_id?: string
           created_at?: string
           data?: string
           empreendimento_id?: string
+          fora_desde?: string | null
           hora_fim?: string
           hora_inicio?: string
           id?: string
@@ -862,6 +872,8 @@ export type Database = {
           presenca_lat?: number | null
           presenca_lng?: number | null
           status?: Database["public"]["Enums"]["plantao_status"]
+          status_presenca?: string
+          ultimo_ping_em?: string | null
         }
         Relationships: [
           {
