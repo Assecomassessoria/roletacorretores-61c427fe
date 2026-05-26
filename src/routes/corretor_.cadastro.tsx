@@ -181,7 +181,7 @@ function CadastroCorretor() {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-orange ring-1 ring-orange/30">
-              <Building2 className="h-3 w-3" /> Auto-cadastro do Corretor
+              <Building2 className="h-3 w-3" /> Autocadastro do Corretor
             </span>
             <h1 className="mt-3 text-2xl font-bold">Cadastro do Corretor</h1>
             <p className="mt-1 text-sm text-muted-foreground">
