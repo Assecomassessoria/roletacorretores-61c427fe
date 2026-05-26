@@ -51,6 +51,7 @@ function CadastroCorretor() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senha2, setSenha2] = useState("");
+  const [equipe, setEquipe] = useState<"alfa" | "beta" | "">("");
   const [enviando, setEnviando] = useState(false);
   const [aceiteTermo, setAceiteTermo] = useState(false);
   const [termoAberto, setTermoAberto] = useState(false);
