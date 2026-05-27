@@ -217,10 +217,19 @@ function SetupDemo() {
           </Field>
 
 
+          <Button
+            type="submit"
+            disabled={busy}
+            className="w-full bg-[var(--navy-deep)] text-white hover:opacity-90"
+          >
+            {busy ? "Cadastrando…" : "Criar conta e entrar"}
+          </Button>
+
           <p className="text-center text-[11px] text-muted-foreground">
             Já tem conta? <Link to="/login" className="text-orange hover:underline">Entrar</Link>
           </p>
         </form>
+
         )}
         <NavActions />
       </div>
