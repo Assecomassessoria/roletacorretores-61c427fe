@@ -180,3 +180,16 @@ export const definirFuncaoCorretor = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/** Retorna o cadastro completo do corretor logado (incluindo CPF). */
+export const getMeuCadastro = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await supabaseAdmin
+      .from("corretores")
+      .select("id,nome,cpf,creci,email,telefone,foto_url,empreendimento_id")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return { corretor: data };
+  });
