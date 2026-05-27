@@ -58,7 +58,7 @@ export function ApresentacaoPage() {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/80 sm:text-lg">
               Enquanto a concorrência briga com sacos de pano e anotações ilegíveis, sua equipe foca no que importa:
-              vender. Autoatendimento, fila justa e governança total no stand.
+              vender. Autoatendimento, Escala Semanal,fila justa, Simulador 4.0 e governança total no stand.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
