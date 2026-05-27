@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { getMeuCadastro } from "@/lib/corretor.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +28,7 @@ type Corretor = {
 
 function MeuCadastroPage() {
   const { user } = useAuth();
+  const carregar = useServerFn(getMeuCadastro);
   const [c, setC] = useState<Corretor | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,16 +39,15 @@ function MeuCadastroPage() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data, error } = await supabase
-        .from("corretores")
-        .select("id,nome,cpf,creci,email,telefone,foto_url,empreendimento_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (error) toast.error(error.message);
-      if (data) {
-        setC(data as Corretor);
-        setEmail(data.email ?? "");
-        setTelefone(data.telefone ?? "");
+      try {
+        const { corretor } = await carregar();
+        if (corretor) {
+          setC(corretor as Corretor);
+          setEmail(corretor.email ?? "");
+          setTelefone(corretor.telefone ?? "");
+        }
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Falha ao carregar");
       }
       setLoading(false);
     })();
