@@ -264,9 +264,6 @@ export function ApresentacaoPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-6">
-        <NavActions />
-      </div>
 
       <SiteFooter />
     </div>
