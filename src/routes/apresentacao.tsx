@@ -232,6 +232,12 @@ export function ApresentacaoPage() {
             <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
           <Link
+            to="/sistema"
+            className="inline-flex items-center gap-2 rounded-full bg-[#5a5a5a] px-7 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-black/20 transition hover:scale-[1.02] hover:bg-[#6b6b6b]"
+          >
+            <LayoutGrid className="h-4 w-4" /> Assinante / Entrar
+          </Link>
+          <Link
             to="/"
             className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-7 py-3 text-sm font-semibold text-cream/90 transition hover:border-orange/60 hover:text-cream"
           >
