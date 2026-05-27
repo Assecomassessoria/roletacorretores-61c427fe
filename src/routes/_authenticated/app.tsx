@@ -28,6 +28,7 @@ const CARDS: CardDef[] = [
   { to: "/meu-cadastro", title: "Meu Cadastro", desc: "Atualize foto, WhatsApp e e-mail de contato.", roles: ["corretor"] },
   { to: "/meu-qrcode", title: "Meu QR Code", desc: "QR Code de identificação para clientes (abre seu WhatsApp).", roles: ["corretor"] },
   { to: "/meu-agendamento", title: "Cadastrar Agendamento", desc: "Cliente com horário marcado: gera QR que identifica você e o cliente no Totem.", roles: ["corretor"] },
+  { to: "/simulacao", title: "Simulação/Análise", desc: "Cálculos automáticos de benefícios da construtora, subsídios, FGTS e parcelamento de entrada.", roles: ["corretor"] },
   { to: "/atendimentos", title: "Atendimentos", desc: "Histórico filtrável por cliente e CNPJ.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/integracoes", title: "Integrações CRM", desc: "Webhooks Zapier, Make, n8n, CRM próprio.", roles: ["incorporadora", "gerente"] },
   { to: "/usuarios", title: "Usuários & Papéis", desc: "Atribua acesso a novos membros.", roles: ["incorporadora", "gerente", "coordenador"] },
