@@ -240,29 +240,6 @@ export function ApresentacaoPage() {
         </div>
       </section>
 
-      {/* NAVEGAÇÃO INFERIOR */}
-      <section className="border-y border-orange/20 bg-navy-deep/60">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-5">
-          {NAV_BOTTOM.map((n) => {
-            const Icon = n.icon;
-            const isGold = n.tone === "gold";
-            return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className={
-                  "inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider transition hover:shadow-lg " +
-                  (isGold
-                    ? "border-gold/60 bg-gold text-gold-foreground hover:bg-gold/90 hover:shadow-gold/30"
-                    : "border-white/15 bg-white/5 text-cream/90 hover:border-orange/60 hover:text-cream hover:bg-white/10")
-                }
-              >
-                <Icon className="h-3.5 w-3.5" /> {n.label}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
 
       <SiteFooter />
