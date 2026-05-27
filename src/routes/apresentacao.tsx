@@ -10,7 +10,8 @@ import filaImg from "@/assets/apresentacao-fila.png";
 
 const NAV_BOTTOM = [
   { label: "Conhecer o Sistema", to: "/sistema", icon: LayoutGrid, tone: "default" },
-  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+  { label: "Planos & Assinar", to: "/planos", icon: Tag, tone: "gold" },
+  { label: "Clientes/Entrar", to: "/sistema", icon: ArrowRight, tone: "default" },
 ];
 
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/apresentacao";
@@ -232,10 +233,10 @@ export function ApresentacaoPage() {
             <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
           <Link
-            to="/"
+            to="/sistema"
             className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-7 py-3 text-sm font-semibold text-cream/90 transition hover:border-orange/60 hover:text-cream"
           >
-            Voltar ao início
+            <ArrowRight className="h-4 w-4" /> Clientes/Entrar
           </Link>
         </div>
       </section>
