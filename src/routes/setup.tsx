@@ -57,6 +57,13 @@ function SetupDemo() {
   const [documento, setDocumento] = useState("");
   const [empresa, setEmpresa] = useState("");
   const [cnpjEmpresa, setCnpjEmpresa] = useState("");
+  const [inscricaoEstadual, setInscricaoEstadual] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [uf, setUf] = useState("");
   const [nomeEmp, setNomeEmp] = useState("");
   const [cnpjEmp, setCnpjEmp] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -87,6 +94,13 @@ function SetupDemo() {
           nome,
           empresa: empresa || null,
           cnpj_empresa: cnpjEmpresa || null,
+          inscricao_estadual: inscricaoEstadual || null,
+          endereco: endereco || null,
+          numero: numero || null,
+          complemento: complemento || null,
+          bairro: bairro || null,
+          cidade: cidade || null,
+          uf: uf ? uf.toUpperCase().slice(0, 2) : null,
           documento: documento || null,
           nome_empreendimento: nomeEmp || null,
           cnpj_empreendimento: cnpjEmp || null,
@@ -154,6 +168,34 @@ function SetupDemo() {
               </Field>
               <Field label="CNPJ">
                 <Input value={cnpjEmpresa} onChange={(e) => setCnpjEmpresa(maskCNPJ(e.target.value))} placeholder="00.000.000/0001-00" inputMode="numeric" />
+              </Field>
+              <Field label="Inscrição Estadual (I.E)">
+                <Input value={inscricaoEstadual} onChange={(e) => setInscricaoEstadual(e.target.value)} placeholder="Ex: 123.456.789.000 ou ISENTO" />
+              </Field>
+              <div />
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_120px]">
+              <Field label="Endereço">
+                <Input value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Av. Paulista" />
+              </Field>
+              <Field label="Nº">
+                <Input value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="1000" />
+              </Field>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <Field label="Complemento">
+                <Input value={complemento} onChange={(e) => setComplemento(e.target.value)} placeholder="Sala 12 / Bloco A" />
+              </Field>
+              <Field label="Bairro">
+                <Input value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Bela Vista" />
+              </Field>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_100px]">
+              <Field label="Cidade">
+                <Input value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="São Paulo" />
+              </Field>
+              <Field label="UF">
+                <Input value={uf} onChange={(e) => setUf(e.target.value.toUpperCase().slice(0, 2))} placeholder="SP" maxLength={2} />
               </Field>
             </div>
           </div>
