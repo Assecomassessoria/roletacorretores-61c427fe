@@ -126,11 +126,18 @@ export const cadastroDemo = createServerFn({ method: "POST" })
       if (existingEmp) {
         empId = existingEmp.id;
       } else {
+        const enderecoCompleto = [
+          [data.endereco, data.numero].filter(Boolean).join(", "),
+          data.complemento,
+          data.bairro,
+          [data.cidade, data.uf].filter(Boolean).join("/"),
+        ].filter((s) => s && String(s).trim().length > 0).join(" - ") || null;
         const { data: novoEmp } = await supabaseAdmin
           .from("empreendimentos")
           .insert({
             nome: data.nome_empreendimento || data.empresa || `Stand de ${data.nome}`,
-            cnpj: data.cnpj_empreendimento ?? null,
+            cnpj: data.cnpj_empreendimento ?? data.cnpj_empresa ?? null,
+            endereco: enderecoCompleto,
             criado_por: user_id,
           })
           .select("id")
