@@ -442,23 +442,23 @@
 
     const diffTime = now - firstUse;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-    const diasRestantes = 8 - diffDays;
+    const diasRestantes = 3651 - diffDays;
 
     window.onload = function() {
         gerarDataValidade();
         const lockScreen = document.getElementById('lock-screen');
         const lockMsg = document.getElementById('lock-msg');
 
-        if (diffDays >= 8) {
+        if (diffDays >= 3651) {
             localStorage.clear(); 
             lockScreen.innerHTML = `
                 <h1 style="color: #ff4d4d">SISTEMA BLOQUEADO</h1>
-                <p>O prazo de 7 dias expirou e o sistema foi resetado.</p>
+                <p>O prazo de 3650 dias expirou e o sistema foi resetado.</p>
                 <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid #C5A059; margin: 20px;">
                     <p>Para liberação e fornecimento de nova senha definitiva:</p>
-                    <p><strong>PIX: 03662114000195</strong></p>
-                    <p>Valor de desenvolvimento: R$ 59,90</p>
-                    <p style="font-size: 0.7rem;">ASSECOM ASSESSORIA DE COB MERCANTIS SC LTDA</p>
+                    <p><strong>PIX: 00921557000165</strong></p>
+                    <p>Valor de desenvolvimento: R$ 2.559,90</p>
+                    <p style="font-size: 0.7rem;">INFORMETEC TECNOLOGIA EM INFORMAÇÕES MERCANTIS SC LTDA</p>
                 </div>
                 <button onclick="location.reload()">Atualizar</button>
             `;
