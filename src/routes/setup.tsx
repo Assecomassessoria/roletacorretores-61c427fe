@@ -57,6 +57,13 @@ function SetupDemo() {
   const [documento, setDocumento] = useState("");
   const [empresa, setEmpresa] = useState("");
   const [cnpjEmpresa, setCnpjEmpresa] = useState("");
+  const [inscricaoEstadual, setInscricaoEstadual] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [uf, setUf] = useState("");
   const [nomeEmp, setNomeEmp] = useState("");
   const [cnpjEmp, setCnpjEmp] = useState("");
   const [telefone, setTelefone] = useState("");
