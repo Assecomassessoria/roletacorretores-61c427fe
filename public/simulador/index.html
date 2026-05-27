@@ -1,1577 +1,662 @@
-<!DOCTYPE html> 
-
-<html lang="pt-br"> 
-
-<head> 
-
-<meta charset="UTF-8"> 
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-
-<title>Simulador Corretor de Elite</title> 
-
-<style> 
-
-:root { 
-
---azul-escuro: #001F3F; 
-
---ouro-fosco: #C5A059; 
-
---branco: #FFFFFF; 
-
---preto: #000000; 
-
---cinza-claro: #F4F4F4; 
-
-} 
-
- 
-
-body { 
-
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-
-background-color: var(--cinza-claro); 
-
-color: var(--preto); 
-
-margin: 0; 
-
-padding: 20px; 
-
-line-height: 1.6; 
-
-} 
-
- 
-
-.container { 
-
-max-width: 800px; 
-
-margin: 0 auto; 
-
-background: var(--branco); 
-
-border: 2px solid var(--azul-escuro); 
-
-border-radius: 12px; 
-
-overflow: hidden; 
-
-box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-
-} 
-
- 
-
-header { 
-
-background-color: var(--azul-escuro); 
-
-color: var(--ouro-fosco); 
-
-padding: 20px; 
-
-text-align: center; 
-
-border-bottom: 4px solid var(--ouro-fosco); 
-
-} 
-
- 
-
-h1, h2 { 
-
-margin: 0; 
-
-text-transform: uppercase; 
-
-letter-spacing: 1px; 
-
-} 
-
- 
-
-h2 { 
-
-font-size: 1.2rem; 
-
-color: var(--azul-escuro); 
-
-border-bottom: 2px solid var(--ouro-fosco); 
-
-padding-bottom: 5px; 
-
-margin-bottom: 15px; 
-
-} 
-
- 
-
-.box { 
-
-padding: 20px; 
-
-border-bottom: 1px solid #ddd; 
-
-} 
-
- 
-
-.box:last-of-type { 
-
-border-bottom: none; 
-
-} 
-
- 
-
-.grid { 
-
-display: grid; 
-
-grid-template-columns: 1fr 1fr; 
-
-gap: 15px; 
-
-} 
-
- 
-
-label { 
-
-display: block; 
-
-margin-top: 10px; 
-
-font-weight: bold; 
-
-color: var(--azul-escuro); 
-
-font-size: 0.9rem; 
-
-} 
-
- 
-
-input, select { 
-
-width: 100%; 
-
-padding: 10px; 
-
-margin-top: 5px; 
-
-border: 1px solid #ccc; 
-
-border-radius: 4px; 
-
-box-sizing: border-box; 
-
-font-size: 1rem; 
-
-} 
-
- 
-
-input:focus { 
-
-outline: none; 
-
-border-color: var(--ouro-fosco); 
-
-box-shadow: 0 0 5px rgba(197, 160, 89, 0.5); 
-
-} 
-
- 
-
-.result { 
-
-background: #f9f9f9; 
-
-padding: 10px; 
-
-margin-top: 5px; 
-
-font-weight: bold; 
-
-border-left: 4px solid var(--ouro-fosco); 
-
-color: var(--azul-escuro); 
-
-font-size: 1.1rem; 
-
-min-height: 1.2em; 
-
-} 
-
- 
-
-.actions { 
-
-display: grid; 
-
-grid-template-columns: 1fr 1fr; 
-
-gap: 10px; 
-
-padding: 20px; 
-
-background: var(--azul-escuro); 
-
-} 
-
- 
-
-button { 
-
-padding: 12px; 
-
-border: none; 
-
-border-radius: 6px; 
-
-cursor: pointer; 
-
-font-weight: bold; 
-
-text-transform: uppercase; 
-
-transition: all 0.3s; 
-
-font-size: 0.8rem; 
-
-} 
-
- 
-
-.btn-pdf { background: var(--ouro-fosco); color: var(--azul-escuro); } 
-
-.btn-print { background: var(--branco); color: var(--azul-escuro); } 
-
-.btn-wa { background: #25D366; color: white; } 
-
-.btn-email { background: #EA4335; color: white; } 
-
-.btn-doc { background: #34B7F1; color: white; grid-column: span 2; } 
-
- 
-
-button:hover { 
-
-opacity: 0.9; 
-
-transform: translateY(-2px); 
-
-} 
-
- 
-
-footer { 
-
-padding: 20px; 
-
-background: #eee; 
-
-font-size: 0.8rem; 
-
-text-align: justify; 
-
-color: #555; 
-
-border-top: 1px solid #ccc; 
-
-} 
-
- 
-
-#lock-screen { 
-
-position: fixed; 
-
-top: 0; left: 0; width: 100%; height: 100%; 
-
-background: var(--azul-escuro); 
-
-color: var(--ouro-fosco); 
-
-display: flex; 
-
-flex-direction: column; 
-
-align-items: center; 
-
-justify-content: center; 
-
-z-index: 1000; 
-
-text-align: center; 
-
-} 
-
- 
-
-#lock-screen input { 
-
-width: 250px; 
-
-margin: 10px; 
-
-text-align: center; 
-
-} 
-
- 
-
-#lock-screen button { 
-
-background: var(--ouro-fosco); 
-
-color: var(--azul-escuro); 
-
-width: 250px; 
-
-} 
-
- 
-
-.hidden { display: none !important; } 
-
- 
-
-@media print { 
-
-body { background: white; padding: 0; } 
-
-.container { border: none; box-shadow: none; width: 100%; max-width: 100%; } 
-
-.actions, #lock-screen, .file-input-wrapper { display: none !important; } 
-
-header { background: white !important; color: black !important; border-bottom: 2px solid black; } 
-
-h2 { color: black !important; border-bottom: 1px solid black; } 
-
-.result { border-left: 4px solid black; background: white; } 
-
-footer { background: white; border-top: 1px solid black; } 
-
-} 
-
- 
-
-.file-input-wrapper { 
-
-margin-top: 10px; 
-
-padding: 10px; 
-
-border: 2px dashed var(--ouro-fosco); 
-
-border-radius: 8px; 
-
-text-align: center; 
-
-} 
-
- 
-
-/* Estilo do Rodapé do Desenvolvedor */ 
-
-.footer-developer { 
-
-text-align: center; 
-
-padding: 15px; 
-
-background-color: var(--cinza-claro); 
-
-color: var(--azul-escuro); 
-
-font-size: 0.75rem; 
-
-border-top: 1px solid var(--ouro-fosco); 
-
-margin-top: 10px; 
-
-} 
-
- 
-
-.footer-developer p { 
-
-margin: 5px 0; 
-
-} 
-
- 
-
-/* Rodapé do Desenvolvedor */ 
-
-.footer-developer { 
-
-text-align: center; 
-
-padding: 20px; 
-
-background-color: #f0f0f0; 
-
-color: var(--azul-escuro); 
-
-font-size: 0.75rem; 
-
-border-top: 2px solid var(--ouro-fosco); 
-
-line-height: 1.5; 
-
-} 
-
- 
-
-.footer-developer a { 
-
-color: var(--azul-escuro); 
-
-text-decoration: none; 
-
-font-weight: bold; 
-
-} 
-
- 
-
-.footer-developer a:hover { 
-
-color: var(--ouro-fosco); 
-
-text-decoration: underline; 
-
-} 
-
- 
-
-/* Ocultar na Impressão/PDF */ 
-
-@media print { 
-
-.footer-developer { 
-
-display: none !important; 
-
-} 
-
-} 
-
- 
-
- 
-
- 
-
- 
-
-
-
- 
-
-
-
-Acesso Restrito
-
- 
-
-
-
-Insira a senha para acessar o simulador
-
- 
-
- 
-
-Entrar 
-
-
-
- 
-
-
-
- 
-
-
-
-Configurar nova senha de usuário (6 dígitos)
-
- 
-
- 
-
-Salvar Nova Senha 
-
-
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-
-
-Simulador Corretor Elite 4.0
-
- 
-
-
-
-Ecossistema da Tecnologia Imobiliária & Alta Performance
-
-"O diferencial do seu simulador não é apenas mostrar o valor da parcela, mas mostrar o cenário real para o cliente. No mercado imobiliário, o cliente não compra tijolo, ele compra segurança financeira "
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
-Dados do Empreendimento
-
- 
-
-
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-
-
-Simulação para Aprovação
-
- 
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-Valor de Avaliação Imobiliária 
-
- 
-
-
-
- 
-
-
-
- 
-
-Valor de Lançamento 
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-Desconto de Lançamento 
-
-
-
-R$ 0,00
-
- 
-
- 
-
-Documentação + ITBI Grátis (4%) 
-
-
-
-R$ 0,00
-
- 
-
- 
-
-Desconto Campanha do Mês 
-
- 
-
- 
-
-Total Benefícios Construtora 
-
-
-
-R$ 0,00
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
-Simulação Caixa E. Federal
-
- 
-
-
-
- 
-
-
-
- 
-
-Simulação Aprovação Caixa 
-
- 
-
-
-
- 
-
-
-
- 
-
-Saldo do FGTS 
-
- 
-
-
-
- 
-
-
-
- 
-
-Subsídio Gov. Federal 
-
- 
-
-
-
- 
-
-
-
- 
-
-Casa Paulista (Se houver) 
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-Total Aprovação + Benefícios 
-
-
-
-R$ 0,00
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-Parcela futura Caixa 
-
- 
-
-
-
- 
-
-
-
- 
-
-% Fase Obras 
-
- 
-
-
-
- 
-
-
-
- 
-
-Valor Aproximado Fase Obras Caixa 
-
-
-
-R$ 0,00
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
-Entrada Construtora
-
- 
-
-Saldo a Parcelar 
-
-
-
-R$ 0,00
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-Ato Cliente (Mínimo) 
-
- 
-
-
-
- 
-
-
-
- 
-
-Total Intermediárias 
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-Parcelas Intermediárias (0-6x) 
-
- 
-
-À Vista 
-
-2x Mensais 
-
-3x Mensais 
-
-4x Mensais 
-
-5x Mensais 
-
-6x Mensais 
-
- 
-
-
-
- 
-
-
-
- 
-
-Valor da Parcela Intermediárias. 
-
-
-
-R$ 0,00
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-Parcelas Entrega Chaves 
-
- 
-
- 
-
-Subtotal Entrada 
-
-
-
-R$ 0,00
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-Nº Parcelas Obras 
-
- 
-
-
-
- 
-
-
-
- 
-
-Valor Parcelas Obras 
-
-
-
-R$ 0,00
-
- 
-
-
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-
-
- 
-
-📂 Documentação para Aprovação Caixa 
-
-
-
- 
-
-
-
- 
-
-Para acelerar sua análise técnica, anexe seus documentos (RG, CPF, Renda) em PDF. 
-
-
-
- 
-
- 
-
-
-
- 
-
- 
-
-📎 Anexar Documentos PDF 
-
- 
-
- 
-
- 
-
-
-
- 
-
-Nenhum arquivo selecionado 
-
-
-
- 
-
- 
-
- 
-
-🚀 ENVIAR ANEXOS VIA WHATSAPP 
-
- 
-
-
-
- 
-
-
-
- 
-
- 
-
-
-
- 
-
-Gerar PDF 
-
-Imprimir 
-
-Enviar Simulação WhatsApp 
-
-Enviar por E-mail 
-
-Enviar Documentação no WhatsApp Cliente 
-
-
-
- 
-
- 
-
-
-
- 
-
-"Os valores apresentados no Simulador Corretor de Elite 4.0 - Ecossistema da Tecnologia Imobiliária, é uma simulação baseada nas taxas e condições vigentes.  
-
-Para a obtenção de valores definitivos e condições exatas, é indispensável o envio da documentação para aprovação junto ao Correspondente Autorizado.  
-
-Atuamos com rigor técnico para que sua aprovação seja sólida e segura, reafirmamos nosso compromisso com a segurança das informações e  
-
-a segurança de dados e a conformidade com a LGPD (Lei Geral de Proteção de Dados)." 
-
-
-
- 
-
-
-
- 
-
- 
-
-@Informetec"; 
-
-let senhaUsuario = localStorage.getItem('senhaUsuario') || null; 
-
- 
-
-let firstUse = localStorage.getItem('firstUseDate'); 
-
-const now = new Date().getTime(); 
-
- 
-
-if (!firstUse) { 
-
-firstUse = now; 
-
-localStorage.setItem('firstUseDate', now); 
-
-} 
-
- 
-
-const diffTime = now - firstUse; 
-
-const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;  
-
-const diasRestantes = 8 - diffDays; 
-
- 
-
-window.onload = function() { 
-
-gerarDataValidade(); 
-
-const lockScreen = document.getElementById('lock-screen'); 
-
-const lockMsg = document.getElementById('lock-msg'); 
-
- 
-
-if (diffDays >= 8) { 
-
-localStorage.clear();  
-
-lockScreen.innerHTML = ` 
-
-
-
-SISTEMA BLOQUEADO
-
- 
-
-
-
-O prazo de 3650 dias expirou e o sistema foi resetado.
-
- 
-
-
-
- 
-
-
-
-Para liberação e fornecimento de nova senha definitiva:
-
- 
-
-
-
-PIX: 00921557000165
-
- 
-
-
-
-Valor de desenvolvimento: R$ 2.559,90
-
- 
-
-
-
-ASSECOM ASSESSORIA DE COB MERCANTIS SC LTDA
-
- 
-
-
-
- 
-
-Atualizar 
-
-`; 
-
-} else { 
-
-lockMsg.innerHTML = `Acesso Provisório: Restam ${diasRestantes} dias`; 
-
-} 
-
-}; 
-
- 
-
-function checkPass() { 
-
-if (diffDays >= 8) { 
-
-localStorage.clear(); 
-
-location.reload(); 
-
-return; 
-
-} 
-
-const input = document.getElementById('pass-input').value; 
-
-if (input === SENHA_MASTER) { 
-
-document.getElementById('new-user-setup').classList.remove('hidden'); 
-
-alert("Senha Master confirmada. Você pode criar uma nova senha de usuário."); 
-
-return; 
-
-} 
-
-if (senhaUsuario && input === senhaUsuario) { 
-
-unlock(); 
-
-return; 
-
-} 
-
-if (input === SENHA_PROVISORIA) { 
-
-unlock(); 
-
-} else { 
-
-alert("Senha incorreta!"); 
-
-} 
-
-} 
-
- 
-
-function enviarAnexosWhatsapp() { 
-
-const cliente = document.getElementById('info-cli').value || "Cliente"; 
-
-const inputArquivos = document.getElementById('pdf-upload'); 
-
-let listaNomes = ""; 
-
-if (inputArquivos.files.length > 0) { 
-
-for (let i = 0; i < inputArquivos.files.length; i++) { 
-
-listaNomes += `\n✅ _${inputArquivos.files[i].name}_`; 
-
-} 
-
-} else { 
-
-alert("Por favor, selecione ao menos um arquivo primeiro."); 
-
-return; 
-
-} 
-
-const mensagem = `*PROTOCOLO DE DOCUMENTAÇÃO*\n\nOlá ${cliente}, estou processando os seguintes documentos para sua aprovação Caixa:${listaNomes}\n\n*Instrução:* Por favor, anexe estes arquivos abaixo para validação técnica.`; 
-
-window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, '_blank'); 
-
-} 
-
- 
-
-function setNewPass() { 
-
-const newPass = document.getElementById('new-pass').value; 
-
-if (newPass.length === 6) { 
-
-localStorage.setItem('senhaUsuario', newPass); 
-
-senhaUsuario = newPass; 
-
-alert("Nova senha de 6 dígitos configurada com sucesso!"); 
-
-unlock(); 
-
-} else { 
-
-alert("A senha deve ter exatamente 6 dígitos."); 
-
-} 
-
-} 
-
- 
-
-function unlock() { 
-
-document.getElementById('lock-screen').classList.add('hidden'); 
-
-document.getElementById('main-content').classList.remove('hidden'); 
-
-} 
-
- 
-
-function gerarDataValidade() { 
-
-const hoje = new Date(); 
-
-const validade = new Date(); 
-
-validade.setDate(hoje.getDate() + 5); 
-
-const opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' }; 
-
-const dataHoje = hoje.toLocaleDateString('pt-BR', opcoes); 
-
-const dataValidade = validade.toLocaleDateString('pt-BR', opcoes); 
-
-const elem = document.getElementById('data-simulacao'); 
-
-if(elem) elem.innerText = `DATA: ${dataHoje} | VALIDADE: ${dataValidade}`; 
-
-} 
-
- 
-
-function formatCRECI(input) { 
-
-let value = input.value.replace(/\D/g, ''); 
-
-if (value.length > 6) value = value.slice(0, 6); 
-
-let formatted = value; 
-
-if (value.length > 3) { formatted = value.slice(0, 3) + '.' + value.slice(3); } 
-
-if (value.length > 0) { input.value = formatted + '-F'; } else { input.value = ''; } 
-
-const pos = input.value.indexOf('-F'); 
-
-if (pos !== -1) { setTimeout(() => input.setSelectionRange(pos, pos), 0); } 
-
-} 
-
- 
-
-function formatCurrency(value) { 
-
-return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value); 
-
-} 
-
- 
-
-function parseCurrency(value) { 
-
-if (!value) return 0; 
-
-return parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.')) || 0; 
-
-} 
-
- 
-
-function formatCurrencyInput(input) { 
-
-let value = input.value.replace(/\D/g, ''); 
-
-value = (value / 100).toFixed(2) + ''; 
-
-value = value.replace(".", ","); 
-
-value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."); 
-
-input.value = "R$ " + value; 
-
-} 
-
- 
-
-function calc() { 
-
-const avaliacao = parseCurrency(document.getElementById("avaliacao").value); 
-
-const lanc = parseCurrency(document.getElementById("lancamento").value); 
-
-const camp = parseCurrency(document.getElementById("campanha").value); 
-
-const descontoLanc = Math.max(0, avaliacao - lanc); 
-
-document.getElementById("descLanc").innerText = formatCurrency(descontoLanc); 
-
-const docs = lanc * 0.04; 
-
-document.getElementById("documentos").innerText = formatCurrency(docs); 
-
-const beneficiosTotal = descontoLanc + docs + camp; 
-
-document.getElementById("beneficios").innerText = formatCurrency(beneficiosTotal); 
-
-const aprov = parseCurrency(document.getElementById("aprovacao").value); 
-
-const fgts = parseCurrency(document.getElementById("fgts").value); 
-
-const subs = parseCurrency(document.getElementById("subsidio").value); 
-
-const casa = parseCurrency(document.getElementById("casa").value); 
-
-const totalAprovacao = aprov + fgts + subs + casa; 
-
-document.getElementById("totalAprov").innerText = formatCurrency(totalAprovacao); 
-
-const percObras = parseFloat(document.getElementById("percObras").value) || 0; 
-
-const parcelaFutura = parseCurrency(document.getElementById("parcelaCaixa").value); 
-
-const futuro = parcelaFutura * (percObras / 100); 
-
-document.getElementById("futuroCaixa").innerText = formatCurrency(futuro); 
-
-const entradaConstrutora = Math.max(0, lanc - totalAprovacao); 
-
-document.getElementById("entrada").innerText = formatCurrency(entradaConstrutora); 
-
-const atoV = parseCurrency(document.getElementById("ato").value); 
-
-const interm = parseCurrency(document.getElementById("intermediarias").value); 
-
-const chv = parseCurrency(document.getElementById("chaves").value); 
-
-const numParcInterm = parseInt(document.getElementById("parc-interm").value); 
-
-const valorParcInterm = interm / numParcInterm; 
-
-document.getElementById("valor-interm-parc").innerText = formatCurrency(valorParcInterm); 
-
-const sub = entradaConstrutora - atoV - interm - chv; 
-
-document.getElementById("subtotal").innerText = formatCurrency(sub); 
-
-const parcelas = parseInt(document.getElementById("parcelasObras").value) || 1; 
-
-const valorParcela = sub / parcelas; 
-
-document.getElementById("valorObras").innerText = formatCurrency(valorParcela); 
-
-} 
-
- 
-
-function updateFileList() { 
-
-const input = document.getElementById('pdf-upload'); 
-
-const list = document.getElementById('file-list'); 
-
-if (input.files.length > 0) { 
-
-list.innerHTML = ""; 
-
-for (let i = 0; i < input.files.length; i++) { 
-
-list.innerHTML += `
-
-✅ ${input.files[i].name}
-
-`; 
-
-} 
-
-} else { 
-
-list.innerHTML = `Nenhum arquivo selecionado`; 
-
-} 
-
-} 
-
- 
-
-function generatePDF() { window.print(); } 
-
- 
-
-function sendWhatsApp(tipo) { 
-
-const cliente = document.getElementById('info-cli').value || "Cliente"; 
-
-let text = ""; 
-
-if (tipo === 'simulacao') { 
-
-text = `Olá ${cliente}, segue sua simulação do Corretor Elite:\n\n` + 
-
-`Valor de Avaliação Imobiliária: ${document.getElementById('avaliacao').value}\n` +  
-
-`Valor Lançamento: ${document.getElementById('lancamento').value}\n` + 
-
-`Valor Desconto de Lançamento: ${document.getElementById('descLanc').innerText}\n` + 
-
-`Documentação + ITBI Grátis: ${document.getElementById('documentos').innerText}\n` + 
-
-`Desconto Campanha mês: ${document.getElementById('campanha').value}\n` + 
-
-`Total Benefícios Construtora: ${document.getElementById('beneficios').innerText}\n\n` + 
-
-`Simulação Aprovação Caixa: ${document.getElementById('aprovacao').value}\n` + 
-
-`Saldo do FGTS: ${document.getElementById('fgts').value}\n` + 
-
-`Subsídio Gov. Federal: ${document.getElementById('subsidio').value}\n` + 
-
-`Casa Paulista: ${document.getElementById('casa').value}\n` + 
-
-`Total Aprovação: ${document.getElementById('totalAprov').innerText}\n\n` + 
-
-`Parcela futura Caixa: ${document.getElementById('parcelaCaixa').value}\n` + 
-
-`% Fase Obras: ${document.getElementById('percObras').value}%\n` + 
-
-`Valor Aprox. Fase Obras: ${document.getElementById('futuroCaixa').innerText}\n\n` + 
-
-`Entrada Total Construtora: ${document.getElementById('entrada').innerText}\n` + 
-
-`Ato: ${document.getElementById('ato').value}\n` + 
-
-`Total Intermediárias: ${document.getElementById('intermediarias').value}\n` + 
-
-`Parcelamento Interm: ${document.getElementById('parc-interm').value}x de ${document.getElementById('valor-interm-parc').innerText}\n` + 
-
-`Chaves: ${document.getElementById('chaves').value}\n` + 
-
-`Saldo Parcelas Obras: ${document.getElementById('subtotal').innerText}\n` + 
-
-`Plano de Obras: ${document.getElementById('parcelasObras').value}x de ${document.getElementById('valorObras').innerText}\n\n` + 
-
-`*_Sujeito a análise de crédito e aprovação bancária._*`; 
-
-} else { 
-
-text = `Olá ${cliente}, por favor, envie seus documentos em PDF (RG/CNH, CERTIDÃO DE NASCIMENTO/CASAMENTO, CPF, C.T.P.S, 3 Últimos Comprovante de Renda, Extrato do FGTS, Comprovante de Residência, Declaração do Imposto de Renda + Recibo de Entrega do IR). Sendo Casado ou compor renda enviar os mesmos documentos solicitados. Renda Informal, sem registro, os últimos 6 meses de movimentação bancária, com limite de cheque especial ou 3 faturas do Cartão de crédito completas, Declaração de Renda constando profissão, data inicial da atividade e renda mensal para darmos continuidade à sua aprovação na Caixa.`; 
-
-} 
-
-window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); 
-
-} 
-
- 
-
-function sendEmail() { 
-
-const cliente = document.getElementById('info-cli').value || "Cliente"; 
-
-window.location.href = `mailto:?subject=Simulação - ${cliente}&body=Segue os detalhes...`; 
-
-} 
-
- 
-
-
-
- 
-
-
-
-© Todos os direitos reservados - Desenvolvedor INFORMETC – Tecnologia em Informações
-
- 
-
-
-
-Livro: CNPJ 00.921.557/0001-65 – https://simuladorcorretorelite.com.br - Ecossistema da Tecnologia Imobilária
-
- 
-
-
-
- 
-
-WhatsApp: (11) 92002-4853 |  
-
-Email: @simuladorcorretorelite.com.br">contatoapp@simuladorcorretorelite.com.br</a>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Corretor de Elite</title>
+    <style>
+        :root {
+            --azul-escuro: #001F3F;
+            --ouro-fosco: #C5A059;
+            --branco: #FFFFFF;
+            --preto: #000000;
+            --cinza-claro: #F4F4F4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cinza-claro);
+            color: var(--preto);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--branco);
+            border: 2px solid var(--azul-escuro);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        header {
+            background-color: var(--azul-escuro);
+            color: var(--ouro-fosco);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--ouro-fosco);
+        }
+
+        h1, h2 {
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--azul-escuro);
+            border-bottom: 2px solid var(--ouro-fosco);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .box {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .box:last-of-type {
+            border-bottom: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--azul-escuro);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--ouro-fosco);
+            box-shadow: 0 0 5px rgba(197, 160, 89, 0.5);
+        }
+
+        .result {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-top: 5px;
+            font-weight: bold;
+            border-left: 4px solid var(--ouro-fosco);
+            color: var(--azul-escuro);
+            font-size: 1.1rem;
+            min-height: 1.2em;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 20px;
+            background: var(--azul-escuro);
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .btn-pdf { background: var(--ouro-fosco); color: var(--azul-escuro); }
+        .btn-print { background: var(--branco); color: var(--azul-escuro); }
+        .btn-wa { background: #25D366; color: white; }
+        .btn-email { background: #EA4335; color: white; }
+        .btn-doc { background: #34B7F1; color: white; grid-column: span 2; }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            padding: 20px;
+            background: #eee;
+            font-size: 0.8rem;
+            text-align: justify;
+            color: #555;
+            border-top: 1px solid #ccc;
+        }
+
+        #lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--azul-escuro);
+            color: var(--ouro-fosco);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #lock-screen input {
+            width: 250px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        #lock-screen button {
+            background: var(--ouro-fosco);
+            color: var(--azul-escuro);
+            width: 250px;
+        }
+
+        .hidden { display: none !important; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { border: none; box-shadow: none; width: 100%; max-width: 100%; }
+            .actions, #lock-screen, .file-input-wrapper { display: none !important; }
+            header { background: white !important; color: black !important; border-bottom: 2px solid black; }
+            h2 { color: black !important; border-bottom: 1px solid black; }
+            .result { border-left: 4px solid black; background: white; }
+            footer { background: white; border-top: 1px solid black; }
+        }
+
+        .file-input-wrapper {
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px dashed var(--ouro-fosco);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Estilo do Rodapé do Desenvolvedor */
+.footer-developer {
+    text-align: center;
+    padding: 15px;
+    background-color: var(--cinza-claro);
+    color: var(--azul-escuro);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--ouro-fosco);
+    margin-top: 10px;
+}
+
+.footer-developer p {
+    margin: 5px 0;
+}
+
+/* Rodapé do Desenvolvedor */
+.footer-developer {
+    text-align: center;
+    padding: 20px;
+    background-color: #f0f0f0;
+    color: var(--azul-escuro);
+    font-size: 0.75rem;
+    border-top: 2px solid var(--ouro-fosco);
+    line-height: 1.5;
+}
+
+.footer-developer a {
+    color: var(--azul-escuro);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.footer-developer a:hover {
+    color: var(--ouro-fosco);
+    text-decoration: underline;
+}
+
+/* Ocultar na Impressão/PDF */
+@media print {
+    .footer-developer {
+        display: none !important;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div id="lock-screen">
+    <h1 style="color: var(--ouro-fosco)">Acesso Restrito</h1>
+    <p id="lock-msg">Insira a senha para acessar o simulador</p>
+    <input type="password" id="pass-input" placeholder="Senha">
+    <button onclick="checkPass()">Entrar</button>
+    <div id="new-user-setup" class="hidden">
+        <hr style="width: 80%; border-color: var(--ouro-fosco)">
+        <p>Configurar nova senha de usuário (6 dígitos)</p>
+        <input type="password" id="new-pass" maxlength="6" placeholder="Nova Senha">
+        <button onclick="setNewPass()">Salvar Nova Senha</button>
+    </div>
+</div>
+
+<div id="main-content" class="container hidden">
+    <header>
+        <h1>Simulador Corretor Elite 4.0</h1>
+        <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: var(--branco)">Venda Segura & Alta Performance</p><p><em>"O diferencial do seu simulador não é apenas mostrar o valor da parcela, mas mostrar o cenário real para o cliente. No mercado imobiliário, o cliente não compra tijolo, ele compra segurança financeira "</em></p>
+    </header>
+
+    <div class="box">
+        <h2>Dados do Empreendimento</h2>
+        <div class="grid">
+            <input type="text" id="info-emp" placeholder="Empreendimento">
+            <input type="text" id="info-cli" placeholder="Cliente">
+            <input type="text" id="info-m2" placeholder="Unidade m²">
+            <input type="text" id="info-andar" placeholder="Andar">
+            <input type="text" id="info-apto" placeholder="Apto">
+            <input type="text" id="info-cons" placeholder="Consultor">
+            <input type="text" id="info-creci" placeholder="CRECI/SP (000.000-F)" style="grid-column: span 2" oninput="formatCRECI(this)">
+        </div>
+    </div>
+
+    <div class="box">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ouro-fosco); margin-bottom: 15px;">
+            <h2>Simulação para Aprovação</h2>
+            <span id="data-simulacao" style="font-size: 0.8rem; color: var(--azul-escuro); font-weight: bold;"></span>
+        </div>
+        
+        <div class="grid">
+            <div>
+                <label>Valor de Avaliação Imobiliária</label>
+                <input id="avaliacao" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>Valor de Lançamento</label>
+                <input id="lancamento" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+        </div>
+        
+        <label>Desconto de Lançamento</label>
+        <div class="result" id="descLanc">R$ 0,00</div>
+        
+        <label>Documentação + ITBI Grátis (4%)</label>
+        <div class="result" id="documentos">R$ 0,00</div>
+        
+        <label>Desconto Campanha do Mês</label>
+        <input id="campanha" type="text" oninput="formatCurrencyInput(this); calc()">
+        
+        <label>Total Benefícios Construtora</label>
+        <div class="result" id="beneficios">R$ 0,00</div>
+    </div>
+
+    <div class="box">
+        <h2>Simulação Caixa E. Federal</h2>
+        <div class="grid">
+            <div>
+                <label>Simulação Aprovação Caixa</label>
+                <input id="aprovacao" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>Saldo do FGTS</label>
+                <input id="fgts" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>Subsídio Gov. Federal</label>
+                <input id="subsidio" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>Casa Paulista (Se houver)</label>
+                <input id="casa" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+        </div>
+        
+        <label>Total Aprovação + Benefícios</label>
+        <div class="result" id="totalAprov">R$ 0,00</div>
+        
+        <div class="grid">
+            <div>
+                <label>Parcela futura Caixa</label>
+                <input id="parcelaCaixa" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>% Fase Obras</label>
+                <input id="percObras" type="number" value="10" oninput="calc()">
+            </div>
+        </div>
+        <label>Valor Aproximado Fase Obras Caixa</label>
+        <div class="result" id="futuroCaixa">R$ 0,00</div>
+    </div>
+
+    <div class="box">
+        <h2>Entrada Construtora</h2>
+        <label>Saldo a Parcelar</label>
+        <div class="result" id="entrada">R$ 0,00</div>
+        
+        <div class="grid">
+            <div>
+                <label>Ato Cliente (Mínimo)</label>
+                <input id="ato" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+            <div>
+                <label>Total Intermediárias</label>
+                <input id="intermediarias" type="text" oninput="formatCurrencyInput(this); calc()">
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <label>Parcelas Intermediárias (0-6x)</label>
+                <select id="parc-interm" onchange="calc()">
+                    <option value="1">À Vista</option>
+                    <option value="2">2x Mensais</option>
+                    <option value="3">3x Mensais</option>
+                    <option value="4">4x Mensais</option>
+                    <option value="5">5x Mensais</option>
+                    <option value="6">6x Mensais</option>
+                </select>
+            </div>
+            <div>
+                <label>Valor da Parcela Intermediárias.</label>
+                <div class="result" id="valor-interm-parc">R$ 0,00</div>
+            </div>
+        </div>
+        
+        <label>Parcelas Entrega Chaves</label>
+        <input id="chaves" type="text" oninput="formatCurrencyInput(this); calc()">
+        
+        <label>Subtotal Entrada</label>
+        <div class="result" id="subtotal">R$ 0,00</div>
+        
+        <div class="grid">
+            <div>
+                <label>Nº Parcelas Obras</label>
+                <input id="parcelasObras" type="number" value="1" oninput="calc()">
+            </div>
+            <div>
+                <label>Valor Parcelas Obras</label>
+                <div class="result" id="valorObras">R$ 0,00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box" style="background: #f9f9f9; border: 1px dashed var(--ouro-fosco); padding: 20px; border-radius: 8px; margin-top: 20px;">
+        <h2 style="color: var(--azul-escuro); font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">📂</span> Documentação para Aprovação Caixa
+        </h2>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
+            Para acelerar sua análise técnica, anexe seus documentos (RG, CPF, Renda) em PDF.
+        </p>
+        
+        <div class="file-input-wrapper">
+            <label for="pdf-upload" style="background: var(--azul-escuro); color: var(--branco); padding: 12px 20px; border-radius: 5px; cursor: pointer; display: inline-block; font-weight: 600; transition: all 0.3s ease;">
+                📎 Anexar Documentos PDF
+            </label>
+            <input type="file" id="pdf-upload" name="documentos[]" accept="application/pdf" multiple style="display: none;" onchange="updateFileList()">
+            
+            <div id="file-list" style="font-size: 0.85rem; margin-top: 12px; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd; min-height: 40px; display: flex; flex-direction: column; gap: 5px;">
+                <span style="color: #666; font-style: italic;">Nenhum arquivo selecionado</span>
+            </div>
+
+            <button type="button" onclick="enviarAnexosWhatsapp()" style="margin-top: 15px; width: 100%; background-color: #25D366; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">🚀</span> ENVIAR ANEXOS VIA WHATSAPP
+            </button>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-pdf" onclick="generatePDF()">Gerar PDF</button>
+        <button class="btn-print" onclick="window.print()">Imprimir</button>
+        <button class="btn-wa" onclick="sendWhatsApp('simulacao')">Enviar Simulação WhatsApp</button>
+        <button class="btn-email" onclick="sendEmail()">Enviar por E-mail</button>
+        <button class="btn-doc" onclick="sendWhatsApp('doc')">Enviar Documentação no WhatsApp Cliente</button>
+    </div>
+
+    <footer>
+        <b><em>"Os valores apresentados no Simulador Corretor de Elite 4.0 - Venda Segura, são uma simulação baseada nas taxas e condições vigentes. 
+        Para a obtenção de valores definitivos e condições exatas, é indispensável o envio da documentação para aprovação junto à Caixa Econômica Federal. 
+        Atuamos com rigor técnico para que sua aprovação seja sólida e segura, reafirmamos nosso compromisso com o rigor técnico, 
+        a segurança de dados e a conformidade com a LGPD (Lei Geral de Proteção de Dados)."</em></b>
+    </footer>
+</div>
+
+<script>
+    const SENHA_PROVISORIA = "CORRETORELITE2026";
+    const SENHA_MASTER = "#Lour47231970@AA662114";
+    let senhaUsuario = localStorage.getItem('senhaUsuario') || null;
+
+    let firstUse = localStorage.getItem('firstUseDate');
+    const now = new Date().getTime();
+
+    if (!firstUse) {
+        firstUse = now;
+        localStorage.setItem('firstUseDate', now);
+    }
+
+    const diffTime = now - firstUse;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+    const diasRestantes = 8 - diffDays;
+
+    window.onload = function() {
+        gerarDataValidade();
+        const lockScreen = document.getElementById('lock-screen');
+        const lockMsg = document.getElementById('lock-msg');
+
+        if (diffDays >= 8) {
+            localStorage.clear(); 
+            lockScreen.innerHTML = `
+                <h1 style="color: #ff4d4d">SISTEMA BLOQUEADO</h1>
+                <p>O prazo de 7 dias expirou e o sistema foi resetado.</p>
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid #C5A059; margin: 20px;">
+                    <p>Para liberação e fornecimento de nova senha definitiva:</p>
+                    <p><strong>PIX: 03662114000195</strong></p>
+                    <p>Valor de desenvolvimento: R$ 59,90</p>
+                    <p style="font-size: 0.7rem;">ASSECOM ASSESSORIA DE COB MERCANTIS SC LTDA</p>
+                </div>
+                <button onclick="location.reload()">Atualizar</button>
+            `;
+        } else {
+            lockMsg.innerHTML = `<span style="color: #fff">Acesso Provisório: <strong>Restam ${diasRestantes} dias</strong></span>`;
+        }
+    };
+
+    function checkPass() {
+        if (diffDays >= 8) {
+            localStorage.clear();
+            location.reload();
+            return;
+        }
+        const input = document.getElementById('pass-input').value;
+        if (input === SENHA_MASTER) {
+            document.getElementById('new-user-setup').classList.remove('hidden');
+            alert("Senha Master confirmada. Você pode criar uma nova senha de usuário.");
+            return;
+        }
+        if (senhaUsuario && input === senhaUsuario) {
+            unlock();
+            return;
+        }
+        if (input === SENHA_PROVISORIA) {
+            unlock();
+        } else {
+            alert("Senha incorreta!");
+        }
+    }
+
+    function enviarAnexosWhatsapp() {
+        const cliente = document.getElementById('info-cli').value || "Cliente";
+        const inputArquivos = document.getElementById('pdf-upload');
+        let listaNomes = "";
+        if (inputArquivos.files.length > 0) {
+            for (let i = 0; i < inputArquivos.files.length; i++) {
+                listaNomes += `\n✅ _${inputArquivos.files[i].name}_`;
+            }
+        } else {
+            alert("Por favor, selecione ao menos um arquivo primeiro.");
+            return;
+        }
+        const mensagem = `*PROTOCOLO DE DOCUMENTAÇÃO*\n\nOlá ${cliente}, estou processando os seguintes documentos para sua aprovação Caixa:${listaNomes}\n\n*Instrução:* Por favor, anexe estes arquivos abaixo para validação técnica.`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, '_blank');
+    }
+
+    function setNewPass() {
+        const newPass = document.getElementById('new-pass').value;
+        if (newPass.length === 6) {
+            localStorage.setItem('senhaUsuario', newPass);
+            senhaUsuario = newPass;
+            alert("Nova senha de 6 dígitos configurada com sucesso!");
+            unlock();
+        } else {
+            alert("A senha deve ter exatamente 6 dígitos.");
+        }
+    }
+
+    function unlock() {
+        document.getElementById('lock-screen').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+    }
+
+    function gerarDataValidade() {
+        const hoje = new Date();
+        const validade = new Date();
+        validade.setDate(hoje.getDate() + 5);
+        const opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const dataHoje = hoje.toLocaleDateString('pt-BR', opcoes);
+        const dataValidade = validade.toLocaleDateString('pt-BR', opcoes);
+        const elem = document.getElementById('data-simulacao');
+        if(elem) elem.innerText = `DATA: ${dataHoje} | VALIDADE: ${dataValidade}`;
+    }
+
+    function formatCRECI(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 6) value = value.slice(0, 6);
+        let formatted = value;
+        if (value.length > 3) { formatted = value.slice(0, 3) + '.' + value.slice(3); }
+        if (value.length > 0) { input.value = formatted + '-F'; } else { input.value = ''; }
+        const pos = input.value.indexOf('-F');
+        if (pos !== -1) { setTimeout(() => input.setSelectionRange(pos, pos), 0); }
+    }
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+
+    function parseCurrency(value) {
+        if (!value) return 0;
+        return parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+    }
+
+    function formatCurrencyInput(input) {
+        let value = input.value.replace(/\D/g, '');
+        value = (value / 100).toFixed(2) + '';
+        value = value.replace(".", ",");
+        value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        input.value = "R$ " + value;
+    }
+
+    function calc() {
+        const avaliacao = parseCurrency(document.getElementById("avaliacao").value);
+        const lanc = parseCurrency(document.getElementById("lancamento").value);
+        const camp = parseCurrency(document.getElementById("campanha").value);
+        const descontoLanc = Math.max(0, avaliacao - lanc);
+        document.getElementById("descLanc").innerText = formatCurrency(descontoLanc);
+        const docs = lanc * 0.04;
+        document.getElementById("documentos").innerText = formatCurrency(docs);
+        const beneficiosTotal = descontoLanc + docs + camp;
+        document.getElementById("beneficios").innerText = formatCurrency(beneficiosTotal);
+        const aprov = parseCurrency(document.getElementById("aprovacao").value);
+        const fgts = parseCurrency(document.getElementById("fgts").value);
+        const subs = parseCurrency(document.getElementById("subsidio").value);
+        const casa = parseCurrency(document.getElementById("casa").value);
+        const totalAprovacao = aprov + fgts + subs + casa;
+        document.getElementById("totalAprov").innerText = formatCurrency(totalAprovacao);
+        const percObras = parseFloat(document.getElementById("percObras").value) || 0;
+        const parcelaFutura = parseCurrency(document.getElementById("parcelaCaixa").value);
+        const futuro = parcelaFutura * (percObras / 100);
+        document.getElementById("futuroCaixa").innerText = formatCurrency(futuro);
+        const entradaConstrutora = Math.max(0, lanc - totalAprovacao);
+        document.getElementById("entrada").innerText = formatCurrency(entradaConstrutora);
+        const atoV = parseCurrency(document.getElementById("ato").value);
+        const interm = parseCurrency(document.getElementById("intermediarias").value);
+        const chv = parseCurrency(document.getElementById("chaves").value);
+        const numParcInterm = parseInt(document.getElementById("parc-interm").value);
+        const valorParcInterm = interm / numParcInterm;
+        document.getElementById("valor-interm-parc").innerText = formatCurrency(valorParcInterm);
+        const sub = entradaConstrutora - atoV - interm - chv;
+        document.getElementById("subtotal").innerText = formatCurrency(sub);
+        const parcelas = parseInt(document.getElementById("parcelasObras").value) || 1;
+        const valorParcela = sub / parcelas;
+        document.getElementById("valorObras").innerText = formatCurrency(valorParcela);
+    }
+
+    function updateFileList() {
+        const input = document.getElementById('pdf-upload');
+        const list = document.getElementById('file-list');
+        if (input.files.length > 0) {
+            list.innerHTML = "";
+            for (let i = 0; i < input.files.length; i++) {
+                list.innerHTML += `<div>✅ ${input.files[i].name}</div>`;
+            }
+        } else {
+            list.innerHTML = `<span style="color: #666; font-style: italic;">Nenhum arquivo selecionado</span>`;
+        }
+    }
+
+    function generatePDF() { window.print(); }
+
+    function sendWhatsApp(tipo) {
+        const cliente = document.getElementById('info-cli').value || "Cliente";
+        let text = "";
+        if (tipo === 'simulacao') {
+            text = `Olá ${cliente}, segue sua simulação do Corretor Elite:\n\n` +
+                   `Valor de Avaliação Imobiliária: ${document.getElementById('avaliacao').value}\n` +      
+                   `Valor Lançamento: ${document.getElementById('lancamento').value}\n` +
+                   `Valor Desconto de Lançamento: ${document.getElementById('descLanc').innerText}\n` +
+                   `Documentação + ITBI Grátis: ${document.getElementById('documentos').innerText}\n` +
+                   `Desconto Campanha mês: ${document.getElementById('campanha').value}\n` +
+                   `Total Benefícios Construtora: ${document.getElementById('beneficios').innerText}\n\n` +
+                   `Simulação Aprovação Caixa: ${document.getElementById('aprovacao').value}\n` +
+                   `Saldo do FGTS: ${document.getElementById('fgts').value}\n` +
+                   `Subsídio Gov. Federal: ${document.getElementById('subsidio').value}\n` +
+                   `Casa Paulista: ${document.getElementById('casa').value}\n` +
+                   `Total Aprovação: ${document.getElementById('totalAprov').innerText}\n\n` +
+                   `Parcela futura Caixa: ${document.getElementById('parcelaCaixa').value}\n` +
+                   `% Fase Obras: ${document.getElementById('percObras').value}%\n` +
+                   `Valor Aprox. Fase Obras: ${document.getElementById('futuroCaixa').innerText}\n\n` +
+                   `Entrada Total Construtora: ${document.getElementById('entrada').innerText}\n` +
+                   `Ato: ${document.getElementById('ato').value}\n` +
+                   `Total Intermediárias: ${document.getElementById('intermediarias').value}\n` +
+                   `Parcelamento Interm: ${document.getElementById('parc-interm').value}x de ${document.getElementById('valor-interm-parc').innerText}\n` +
+                   `Chaves: ${document.getElementById('chaves').value}\n` +
+                   `Saldo Parcelas Obras: ${document.getElementById('subtotal').innerText}\n` +
+                   `Plano de Obras: ${document.getElementById('parcelasObras').value}x de ${document.getElementById('valorObras').innerText}\n\n` +
+                   `*_Sujeito a análise de crédito e aprovação bancária._*`;
+        } else {
+            text = `Olá ${cliente}, por favor, envie seus documentos em PDF (RG/CNH, CERTIDÃO DE NASCIMENTO/CASAMENTO, CPF, C.T.P.S, 3 Últimos Comprovante de Renda, Extrato do FGTS, Comprovante de Residência, Declaração do Imposto de Renda + Recibo de Entrega do IR). Sendo Casado ou compor renda enviar os mesmos documentos solicitados. Renda Informal, sem registro, os últimos 6 meses de movimentação bancária, com limite de cheque especial ou 3 faturas do Cartão de crédito completas, Declaração de Renda constando profissão, data inicial da atividade e renda mensal para darmos continuidade à sua aprovação na Caixa.`;
+        }
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function sendEmail() {
+        const cliente = document.getElementById('info-cli').value || "Cliente";
+        window.location.href = `mailto:?subject=Simulação - ${cliente}&body=Segue os detalhes...`;
+    }
+</script>
+<div class="footer-developer">
+    <p>© Todos os direitos reservados - Desenvolvedor <strong>LOURENCO JUNIOR</strong></p>
+    <p>Livro: <em>Planejamento Estratégico Corretores e Gestores Imobiliários - Método Venda Segura</em></p>
+    <p>
+        WhatsApp: <a href="https://wa.me/5511946770625" target="_blank">(11) 94677-0625</a> | 
+        Email: <a href="mailto:lourencojunior.corretor@creci.org.br">lourencojunior.corretor@creci.org.br</a>
+    </p>
+</div>
+
+</body>
+</html>
