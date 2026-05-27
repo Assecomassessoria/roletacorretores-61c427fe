@@ -165,7 +165,8 @@ function Planos() {
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-white/70">
                 Escolha o plano ideal para o momento atual do seu negócio. Toda a infraestrutura — autoatendimento,
-                roleta, presença, cron semanal, e-mails — entregue sob medida para incorporadoras e stands de venda.
+                roleta, presença, simuldor, cron semanal, e-mails — entregue sob medida para incorporadoras e stands de
+                venda.
               </p>
               <ul className="mt-4 flex flex-wrap gap-3 text-[11px] text-white/80">
                 <li className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10">100% web · sem instalação</li>
