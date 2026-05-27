@@ -233,10 +233,10 @@ export function ApresentacaoPage() {
             <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
           <Link
-            to="/"
+            to="/sistema"
             className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-7 py-3 text-sm font-semibold text-cream/90 transition hover:border-orange/60 hover:text-cream"
           >
-            Voltar ao início
+            <ArrowRight className="h-4 w-4" /> Clientes/Entrar
           </Link>
         </div>
       </section>
