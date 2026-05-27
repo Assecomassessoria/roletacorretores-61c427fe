@@ -111,6 +111,14 @@ export function SiteHeader() {
                     <Tag className="h-3.5 w-3.5" /> Planos & Assinar
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#b8945a]/70 bg-[#b8945a] px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--navy-deep)] hover:brightness-110"
+                  >
+                    <LogIn className="h-3.5 w-3.5" /> Clientes / Entrar
+                  </Link>
+                </li>
               </ul>
             ) : (
               <div className="flex flex-col items-center gap-2 lg:items-end">
