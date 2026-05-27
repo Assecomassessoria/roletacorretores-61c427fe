@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight, LogIn } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
@@ -109,6 +109,14 @@ export function SiteHeader() {
                     className="inline-flex items-center gap-1.5 rounded-full border border-gold/60 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-gold-foreground shadow-md shadow-gold/20 gold-shimmer hover:brightness-110"
                   >
                     <Tag className="h-3.5 w-3.5" /> Planos & Assinar
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#b8945a]/70 bg-[#b8945a] px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--navy-deep)] hover:brightness-110"
+                  >
+                    <LogIn className="h-3.5 w-3.5" /> Clientes / Entrar
                   </Link>
                 </li>
               </ul>
