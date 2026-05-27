@@ -21,9 +21,6 @@ function SimulacaoPage() {
           className="h-[85vh] w-full"
         />
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">
-        (Voltar para o painel do Corretor)
-      </p>
       <NavActions />
     </main>
   );
