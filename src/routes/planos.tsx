@@ -72,7 +72,7 @@ const PLANOS = [
     nome: "Plano Mensal Elite",
     cor: "white" as const,
     badge: "Profissional · Cobrança mensal",
-    preco: "R$ 169,90",
+    preco: "R$ 239,90",
     sub: "/mês",
     features: [
       "Cadastro ilimitado de corretores",
