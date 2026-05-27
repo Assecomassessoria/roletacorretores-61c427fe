@@ -10,7 +10,8 @@ import filaImg from "@/assets/apresentacao-fila.png";
 
 const NAV_BOTTOM = [
   { label: "Conhecer o Sistema", to: "/sistema", icon: LayoutGrid, tone: "default" },
-  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+  { label: "Planos & Assinar", to: "/planos", icon: Tag, tone: "gold" },
+  { label: "Clientes/Entrar", to: "/sistema", icon: ArrowRight, tone: "default" },
 ];
 
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/apresentacao";
