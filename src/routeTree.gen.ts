@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
 import { Route as CorretorCadastroRouteImport } from './routes/corretor_.cadastro'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as AuthenticatedSimulacaoRouteImport } from './routes/_authenticated/simulacao'
 import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedPresencasRouteImport } from './routes/_authenticated/presencas'
@@ -121,6 +122,11 @@ const CorretorCadastroRoute = CorretorCadastroRouteImport.update({
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSimulacaoRoute = AuthenticatedSimulacaoRouteImport.update({
+  id: '/simulacao',
+  path: '/simulacao',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/presencas': typeof AuthenticatedPresencasRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
+  '/simulacao': typeof AuthenticatedSimulacaoRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/presencas': typeof AuthenticatedPresencasRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roleta': typeof AuthenticatedRoletaRoute
+  '/simulacao': typeof AuthenticatedSimulacaoRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/_authenticated/presencas': typeof AuthenticatedPresencasRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/roleta': typeof AuthenticatedRoletaRoute
+  '/_authenticated/simulacao': typeof AuthenticatedSimulacaoRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/corretor_/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
@@ -361,6 +370,7 @@ export interface FileRouteTypes {
     | '/presencas'
     | '/relatorios'
     | '/roleta'
+    | '/simulacao'
     | '/usuarios'
     | '/corretor/cadastro'
     | '/totem/propaganda'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/presencas'
     | '/relatorios'
     | '/roleta'
+    | '/simulacao'
     | '/usuarios'
     | '/corretor/cadastro'
     | '/totem/propaganda'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/_authenticated/presencas'
     | '/_authenticated/relatorios'
     | '/_authenticated/roleta'
+    | '/_authenticated/simulacao'
     | '/_authenticated/usuarios'
     | '/corretor_/cadastro'
     | '/totem/propaganda'
@@ -570,6 +582,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/simulacao': {
+      id: '/_authenticated/simulacao'
+      path: '/simulacao'
+      fullPath: '/simulacao'
+      preLoaderRoute: typeof AuthenticatedSimulacaoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/roleta': {
@@ -718,6 +737,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPresencasRoute: typeof AuthenticatedPresencasRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedRoletaRoute: typeof AuthenticatedRoletaRoute
+  AuthenticatedSimulacaoRoute: typeof AuthenticatedSimulacaoRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
@@ -738,6 +758,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPresencasRoute: AuthenticatedPresencasRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedRoletaRoute: AuthenticatedRoletaRoute,
+  AuthenticatedSimulacaoRoute: AuthenticatedSimulacaoRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
