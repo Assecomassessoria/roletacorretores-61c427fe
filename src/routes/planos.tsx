@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { NavActions } from "@/components/nav-actions";
+
 import { ArrowLeft, Check, Loader2, Zap } from "lucide-react";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useAuth } from "@/lib/auth";
@@ -254,7 +254,7 @@ function Planos() {
           Pagamento processado por Mercado Pago · cancelamento a qualquer momento · suporte por WhatsApp.
         </p>
 
-        <NavActions />
+        
       </main>
 
       <SiteFooter />
