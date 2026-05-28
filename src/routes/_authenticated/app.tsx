@@ -34,9 +34,14 @@ const CARDS: CardDef[] = [
   { to: "/integracoes", title: "Integrações CRM", desc: "Webhooks Zapier, Make, n8n, CRM próprio.", roles: ["incorporadora", "gerente"] },
   { to: "/usuarios", title: "Usuários & Papéis", desc: "Atribua acesso a novos membros.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/mensagens", title: "Central de Comunicados", desc: "Envie pelo sistema, WhatsApp manual, impressão ou PDF.", roles: ["incorporadora", "gerente", "coordenador"] },
-];
-
-function AppDashboard() {
+  const { user, roles, isMaster, loading } = useAuth();
+  const assinatura = useAssinatura();
+  const hasFullAccess =
+    isMaster ||
+    roles.includes("incorporadora") ||
+    roles.includes("gerente") ||
+    roles.includes("coordenador");
+  const visible = CARDS.filter((c) => hasFullAccess || c.roles.some((r) => roles.includes(r as never)));
   const { user, roles, isMaster, loading } = useAuth();
   const assinatura = useAssinatura();
   const visible = CARDS.filter((c) => isMaster || c.roles.some((r) => roles.includes(r as never)));
