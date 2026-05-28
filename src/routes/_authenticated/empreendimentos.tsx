@@ -119,9 +119,17 @@ function EmpreendimentosPage() {
   async function captureCoords() {
     if (!navigator.geolocation) return toast.error("Geolocalização indisponível");
     navigator.geolocation.getCurrentPosition(
-      (pos) => setEditing((e) => ({ ...e, latitude: pos.coords.latitude, longitude: pos.coords.longitude })),
+      (pos) => {
+        const lat = Number(pos.coords.latitude);
+        const lng = Number(pos.coords.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return toast.error("Coordenadas inválidas recebidas do GPS");
+        }
+        setEditing((s) => ({ ...(s ?? {}), latitude: lat, longitude: lng }));
+        toast.success(`Localização capturada: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      },
       (err) => toast.error(err.message),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
 
