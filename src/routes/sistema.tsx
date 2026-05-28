@@ -132,8 +132,7 @@ export function SistemaPage() {
                 </span>
                 <h2
                   className={
-                    "font-display text-xl font-bold " +
-                    (a.label === "Área do Corretor" ? "text-cream" : "text-[#0a1e3f]")
+                    "font-display text-xl font-bold " + (a.label === "Área do Corretor" ? "text-cream" : " text-cream")
                   }
                 >
                   {a.label}
