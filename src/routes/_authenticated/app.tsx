@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, ArrowRight, Megaphone } from "lucide-react";
+import { NavActions } from "@/components/nav-actions";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
@@ -38,7 +39,12 @@ const CARDS: CardDef[] = [
 function AppDashboard() {
   const { user, roles, isMaster, loading } = useAuth();
   const assinatura = useAssinatura();
-  const visible = CARDS.filter((c) => isMaster || c.roles.some((r) => roles.includes(r as never)));
+  const hasFullAccess =
+    isMaster ||
+    roles.includes("incorporadora") ||
+    roles.includes("gerente") ||
+    roles.includes("coordenador");
+  const visible = CARDS.filter((c) => hasFullAccess || c.roles.some((r) => roles.includes(r as never)));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
@@ -83,6 +89,8 @@ function AppDashboard() {
           Seu usuário ainda não tem papéis atribuídos. Solicite acesso à Incorporadora.
         </p>
       )}
+
+      <NavActions />
     </main>
   );
 }
