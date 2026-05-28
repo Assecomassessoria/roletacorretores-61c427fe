@@ -2,16 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { NavActions } from "@/components/nav-actions";
-import {
-  ArrowRight,
-  ScanLine,
-  User,
-  Clock,
-  BellRing,
-  ShieldCheck,
-  Building2,
-  Tag,
-} from "lucide-react";
+import { ArrowRight, ScanLine, User, Clock, BellRing, ShieldCheck, Building2, Tag } from "lucide-react";
 
 const URL = "https://roletacorretor.simuladorcorretorelite.com.br/sistema";
 
@@ -28,8 +19,7 @@ export const Route = createFileRoute("/sistema")({
       { property: "og:title", content: "O Sistema e as Funcionalidades — Elite 4.0" },
       {
         property: "og:description",
-        content:
-          "Estrutura completa do ecossistema: das telas do cliente ao painel da incorporadora.",
+        content: "Estrutura completa do ecossistema: das telas do cliente ao painel da incorporadora.",
       },
       { property: "og:url", content: URL },
     ],
@@ -100,8 +90,7 @@ export function SistemaPage() {
         <div
           className="absolute inset-0 opacity-25"
           style={{
-            background:
-              "radial-gradient(60% 50% at 50% 30%, hsl(var(--orange) / 0.35), transparent 70%)",
+            background: "radial-gradient(60% 50% at 50% 30%, hsl(var(--orange) / 0.35), transparent 70%)",
           }}
         />
         <div className="relative mx-auto max-w-5xl px-6 py-16 text-center">
@@ -112,8 +101,8 @@ export function SistemaPage() {
             O <span className="text-orange">Sistema</span> e suas funcionalidades
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-cream/80">
-            Cada engrenagem do Ecossistema Elite 4.0 — da tela do cliente ao painel da
-            incorporadora. Clique em uma área para explorar.
+            Cada engrenagem do Ecossistema Elite 4.0 — da tela do cliente ao painel da incorporadora. Clique em uma área
+            para explorar.
           </p>
         </div>
       </section>
@@ -144,9 +133,7 @@ export function SistemaPage() {
                 <h2
                   className={
                     "font-display text-xl font-bold " +
-                    (a.label === "Área do Corretor"
-                      ? "text-[#0a1e3f]"
-                      : "text-cream")
+                    (a.label === "Área do Corretor" ? "text-[#0a1e3f]" : "text-blue-900")
                   }
                 >
                   {a.label}
@@ -167,9 +154,7 @@ export function SistemaPage() {
           <h2 className="font-display text-2xl font-bold text-cream sm:text-3xl">
             Pronto para colocar o Ecossistema no seu stand?
           </h2>
-          <p className="max-w-2xl text-sm text-cream/75">
-            Veja os planos, condições e ative a operação completa.
-          </p>
+          <p className="max-w-2xl text-sm text-cream/75">Veja os planos, condições e ative a operação completa.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               to="/planos"
