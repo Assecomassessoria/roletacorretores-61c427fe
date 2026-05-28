@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, ArrowRight, Megaphone } from "lucide-react";
+import { NavActions } from "@/components/nav-actions";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppDashboard,
