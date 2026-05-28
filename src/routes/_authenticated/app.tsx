@@ -89,6 +89,8 @@ function AppDashboard() {
           Seu usuário ainda não tem papéis atribuídos. Solicite acesso à Incorporadora.
         </p>
       )}
+
+      <NavActions />
     </main>
   );
 }
