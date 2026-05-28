@@ -56,9 +56,9 @@ const PLANOS = [
     nome: "Experiência 90 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 199,90",
+    preco: "R$ 209,70",
     sub: "ÚNICO",
-    promo: "66,64/Mês - 90 dias de uso completo",
+    promo: "69,90/Mês - 90 dias de uso completo",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
