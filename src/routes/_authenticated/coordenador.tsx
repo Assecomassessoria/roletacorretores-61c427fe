@@ -190,7 +190,22 @@ function CoordenadorPage() {
     if (!emp?.qrcode_token) { setQrSvg(""); return; }
     QRCode.toString(emp.qrcode_token, { type: "svg", margin: 1, width: 180 })
       .then(setQrSvg).catch(() => setQrSvg(""));
-  }, [emp?.qrcode_token]);
+   }, [emp?.qrcode_token]);
+
+  // Transição automática: após 60min em "manha", troca para "tarde"
+  useEffect(() => {
+    if (emp?.ciclo_roleta !== "manha" || !emp?.id) return;
+    const timer = setTimeout(async () => {
+      const { error } = await supabase
+        .from("empreendimentos")
+        .update({ ciclo_roleta: "tarde" })
+        .eq("id", emp.id);
+      if (error) return toast.error(`Falha ao trocar para Tarde: ${error.message}`);
+      setEmp((s) => (s ? { ...s, ciclo_roleta: "tarde" } : s));
+      toast.success("Ciclo trocado automaticamente: Manhã → Tarde");
+    }, 60 * 60 * 1000);
+    return () => clearTimeout(timer);
+  }, [emp?.ciclo_roleta, emp?.id]);
 
   async function carregarEmps() {
     const { data, error } = await supabase
