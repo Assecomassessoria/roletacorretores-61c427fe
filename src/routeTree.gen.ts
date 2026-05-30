@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TotemRouteImport } from './routes/totem'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SistemaRouteImport } from './routes/sistema'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PlantaoRouteImport } from './routes/plantao'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
@@ -50,6 +52,11 @@ const TotemRoute = TotemRouteImport.update({
   path: '/totem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SistemaRoute = SistemaRouteImport.update({
   id: '/sistema',
   path: '/sistema',
@@ -63,6 +70,11 @@ const SetupRoute = SetupRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlantaoRoute = PlantaoRouteImport.update({
@@ -238,9 +250,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/plantao': typeof PlantaoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -274,9 +288,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/plantao': typeof PlantaoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -312,9 +328,11 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/plantao': typeof PlantaoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/atendimentos': typeof AuthenticatedAtendimentosRoute
@@ -350,9 +368,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/planos'
     | '/plantao'
+    | '/privacidade'
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/termos'
     | '/totem'
     | '/app'
     | '/atendimentos'
@@ -386,9 +406,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/planos'
     | '/plantao'
+    | '/privacidade'
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/termos'
     | '/totem'
     | '/app'
     | '/atendimentos'
@@ -423,9 +445,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/planos'
     | '/plantao'
+    | '/privacidade'
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/termos'
     | '/totem'
     | '/_authenticated/app'
     | '/_authenticated/atendimentos'
@@ -461,9 +485,11 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   PlantaoRoute: typeof PlantaoRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   SistemaRoute: typeof SistemaRoute
+  TermosRoute: typeof TermosRoute
   TotemRoute: typeof TotemRouteWithChildren
   CorretorCadastroRoute: typeof CorretorCadastroRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
@@ -477,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/totem'
       fullPath: '/totem'
       preLoaderRoute: typeof TotemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sistema': {
@@ -498,6 +531,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plantao': {
@@ -786,9 +826,11 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   PlantaoRoute: PlantaoRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   SistemaRoute: SistemaRoute,
+  TermosRoute: TermosRoute,
   TotemRoute: TotemRouteWithChildren,
   CorretorCadastroRoute: CorretorCadastroRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
@@ -797,3 +839,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
