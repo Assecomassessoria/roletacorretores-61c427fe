@@ -83,22 +83,22 @@ export function SiteFooter() {
           <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-orange">Privacidade e Ética</h4>
           <ul className="space-y-1.5 text-xs text-white/80">
             <li>
-              <Link to="/lgpd" className="hover:text-orange">
+              <Link to="/privacidade" className="hover:text-orange">
                 Política de Privacidade
               </Link>
             </li>
             <li>
-              <Link to="/privacidade" className="hover:text-orange">
+              <Link to="/termos" className="hover:text-orange">
                 Termos e Condições
               </Link>
             </li>
             <li>
-              <Link to="/termos" className="hover:text-orange">
+              <Link to="/exclusao" className="hover:text-orange">
                 Exclusão de Dados (LGPD)
               </Link>
             </li>
             <li>
-              <Link to="/exclusao" className="font-semibold text-orange/90 hover:text-orange">
+              <Link to="/dados" className="font-semibold text-orange/90 hover:text-orange">
                 Tratamento de Dados (LGPD/GDPR)
               </Link>
             </li>
