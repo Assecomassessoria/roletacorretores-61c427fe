@@ -20,6 +20,7 @@ import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as GerenciaRouteImport } from './routes/gerencia'
+import { Route as ExclusaoRouteImport } from './routes/exclusao'
 import { Route as CorretorRouteImport } from './routes/corretor'
 import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -100,6 +101,11 @@ const LgpdRoute = LgpdRouteImport.update({
 const GerenciaRoute = GerenciaRouteImport.update({
   id: '/gerencia',
   path: '/gerencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExclusaoRoute = ExclusaoRouteImport.update({
+  id: '/exclusao',
+  path: '/exclusao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorretorRoute = CorretorRouteImport.update({
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
+  '/exclusao': typeof ExclusaoRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
+  '/exclusao': typeof ExclusaoRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -323,6 +331,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/apresentacao': typeof ApresentacaoRoute
   '/corretor': typeof CorretorRoute
+  '/exclusao': typeof ExclusaoRoute
   '/gerencia': typeof GerenciaRoute
   '/lgpd': typeof LgpdRoute
   '/login': typeof LoginRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/'
     | '/apresentacao'
     | '/corretor'
+    | '/exclusao'
     | '/gerencia'
     | '/lgpd'
     | '/login'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/'
     | '/apresentacao'
     | '/corretor'
+    | '/exclusao'
     | '/gerencia'
     | '/lgpd'
     | '/login'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/apresentacao'
     | '/corretor'
+    | '/exclusao'
     | '/gerencia'
     | '/lgpd'
     | '/login'
@@ -480,6 +492,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ApresentacaoRoute: typeof ApresentacaoRoute
   CorretorRoute: typeof CorretorRoute
+  ExclusaoRoute: typeof ExclusaoRoute
   GerenciaRoute: typeof GerenciaRoute
   LgpdRoute: typeof LgpdRoute
   LoginRoute: typeof LoginRoute
@@ -573,6 +586,13 @@ declare module '@tanstack/react-router' {
       path: '/gerencia'
       fullPath: '/gerencia'
       preLoaderRoute: typeof GerenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exclusao': {
+      id: '/exclusao'
+      path: '/exclusao'
+      fullPath: '/exclusao'
+      preLoaderRoute: typeof ExclusaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/corretor': {
@@ -821,6 +841,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ApresentacaoRoute: ApresentacaoRoute,
   CorretorRoute: CorretorRoute,
+  ExclusaoRoute: ExclusaoRoute,
   GerenciaRoute: GerenciaRoute,
   LgpdRoute: LgpdRoute,
   LoginRoute: LoginRoute,
