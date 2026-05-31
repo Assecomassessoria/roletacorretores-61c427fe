@@ -7,7 +7,7 @@ const ECOSSISTEMA = [
   { produto: "Atendimento Mensagens", agente: "Luna Messenger • API Terminal", url: "https://elitemessenger.com.br/" },
   {
     produto: "Academia Elite EAD",
-    agente: "Lowrence Elite",
+    agente: "Lowrence Elite - Treinamentos",
     url: "https://www.academiaead.simuladorcorretorelite.com.br/",
   },
   {
