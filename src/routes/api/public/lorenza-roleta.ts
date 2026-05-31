@@ -65,6 +65,24 @@ function montarMensagem(p: z.infer<typeof PayloadSchema>) {
 export const Route = createFileRoute("/api/public/lorenza-roleta")({
   server: {
     handlers: {
+      // Verificação de webhook (Meta/Facebook handshake)
+      // GET ?hub.mode=subscribe&hub.verify_token=...&hub.challenge=...
+      GET: async ({ request }) => {
+        const url = new URL(request.url);
+        const mode = url.searchParams.get("hub.mode");
+        const token = url.searchParams.get("hub.verify_token");
+        const challenge = url.searchParams.get("hub.challenge");
+        const expected = process.env.FACEBOOK_VERIFY_TOKEN;
+
+        if (mode === "subscribe" && expected && token === expected && challenge) {
+          return new Response(challenge, {
+            status: 200,
+            headers: { "Content-Type": "text/plain" },
+          });
+        }
+        return new Response("Forbidden", { status: 403 });
+      },
+
       POST: async ({ request }) => {
         const secret = process.env.LORENZA_ROLETA_SECRET;
         const waToken = process.env.WHATSAPP_TOKEN;
