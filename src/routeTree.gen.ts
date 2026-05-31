@@ -46,6 +46,7 @@ import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCoordenadorRouteImport } from './routes/_authenticated/coordenador'
 import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
 
@@ -241,6 +242,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicLorenzaRoletaRoute = ApiPublicLorenzaRoletaRouteImport.update({
+  id: '/api/public/lorenza-roleta',
+  path: '/api/public/lorenza-roleta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
   id: '/api/public/lorenza',
   path: '/api/public/lorenza',
@@ -291,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRoutesByTo {
@@ -331,6 +338,7 @@ export interface FileRoutesByTo {
   '/corretor/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRoutesById {
@@ -373,6 +381,7 @@ export interface FileRoutesById {
   '/corretor_/cadastro': typeof CorretorCadastroRoute
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
+  '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 export interface FileRouteTypes {
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/corretor/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
+    | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
     | '/corretor/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
+    | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
   id:
     | '__root__'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/corretor_/cadastro'
     | '/totem/propaganda'
     | '/api/public/lorenza'
+    | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
   fileRoutesById: FileRoutesById
 }
@@ -519,6 +531,7 @@ export interface RootRouteChildren {
   TotemRoute: typeof TotemRouteWithChildren
   CorretorCadastroRoute: typeof CorretorCadastroRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
+  ApiPublicLorenzaRoletaRoute: typeof ApiPublicLorenzaRoletaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
 }
 
@@ -783,6 +796,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/lorenza-roleta': {
+      id: '/api/public/lorenza-roleta'
+      path: '/api/public/lorenza-roleta'
+      fullPath: '/api/public/lorenza-roleta'
+      preLoaderRoute: typeof ApiPublicLorenzaRoletaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/lorenza': {
       id: '/api/public/lorenza'
       path: '/api/public/lorenza'
@@ -876,18 +896,9 @@ const rootRouteChildren: RootRouteChildren = {
   TotemRoute: TotemRouteWithChildren,
   CorretorCadastroRoute: CorretorCadastroRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
+  ApiPublicLorenzaRoletaRoute: ApiPublicLorenzaRoletaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
