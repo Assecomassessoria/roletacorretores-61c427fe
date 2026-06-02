@@ -76,8 +76,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado.",
       },
-      { property: "og:title", content: "Rolete Corretor Elite / Atendimento" },
-      { name: "twitter:title", content: "Rolete Corretor Elite / Atendimento" },
+      { property: "og:title", content: "Roleta Corretor Elite / Atendimento" },
+      { name: "twitter:title", content: "Roleta Corretor Elite / Atendimento" },
       {
         property: "og:description",
         content:
