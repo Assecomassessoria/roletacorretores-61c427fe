@@ -206,7 +206,7 @@ function Planos() {
               >
                 {p.badge}
               </div>
-              <h3 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h3>
+              <h2 className="font-display text-lg font-bold uppercase tracking-wider">{p.nome}</h2>
 
               <div className="mt-4 flex items-baseline gap-1">
                 <span
