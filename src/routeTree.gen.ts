@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TotemRouteImport } from './routes/totem'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SistemaRouteImport } from './routes/sistema'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -58,6 +59,11 @@ const TotemRoute = TotemRouteImport.update({
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SistemaRoute = SistemaRouteImport.update({
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
@@ -315,6 +322,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
@@ -358,6 +366,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/setup': typeof SetupRoute
   '/sistema': typeof SistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/totem': typeof TotemRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRoute
@@ -401,6 +410,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/sitemap.xml'
     | '/termos'
     | '/totem'
     | '/app'
@@ -442,6 +452,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/sitemap.xml'
     | '/termos'
     | '/totem'
     | '/app'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/setup'
     | '/sistema'
+    | '/sitemap.xml'
     | '/termos'
     | '/totem'
     | '/_authenticated/app'
@@ -527,6 +539,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SetupRoute: typeof SetupRoute
   SistemaRoute: typeof SistemaRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
   TotemRoute: typeof TotemRouteWithChildren
   CorretorCadastroRoute: typeof CorretorCadastroRoute
@@ -549,6 +562,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sistema': {
@@ -892,6 +912,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SetupRoute: SetupRoute,
   SistemaRoute: SistemaRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
   TotemRoute: TotemRouteWithChildren,
   CorretorCadastroRoute: CorretorCadastroRoute,
@@ -902,13 +923,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
