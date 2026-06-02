@@ -388,7 +388,7 @@ function MenuView({ empNome, onPick, onScan, onReencontro, onGerencia }: {
         <Badge className="border-orange/40 bg-orange/15 text-orange">
           <Building2 className="mr-1 h-3 w-3" /> {empNome}
         </Badge>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Bem-vindo(a)!</h1>
+        <h1 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">Recepção Digital</h1>
         <p className="mt-2 text-white/70">Toque na opção que descreve sua visita hoje.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
