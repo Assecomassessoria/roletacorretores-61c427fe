@@ -21,9 +21,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A página que você procura não existe ou foi movida.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">A página que você procura não existe ou foi movida.</p>
         <div className="mt-6">
           <Link
             to="/"
@@ -43,15 +41,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Esta página não carregou
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Algo deu errado. Tente novamente ou volte para o início.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">Esta página não carregou</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Algo deu errado. Tente novamente ou volte para o início.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Tentar novamente
@@ -73,14 +70,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rolete Corretor Elite / Atendimento" },
-      { name: "description", content: "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado." },
+      { title: "Roleta Corretor Elite / Atendimento" },
+      {
+        name: "description",
+        content:
+          "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado.",
+      },
       { property: "og:title", content: "Rolete Corretor Elite / Atendimento" },
       { name: "twitter:title", content: "Rolete Corretor Elite / Atendimento" },
-      { property: "og:description", content: "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado." },
-      { name: "twitter:description", content: "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779720184439-cena_5_final_cta.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779720184439-cena_5_final_cta.webp" },
+      {
+        property: "og:description",
+        content:
+          "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Transforme o dia-a-dia do seu stand imobiliário: O corretor chega, confirma presença e assume sua posição. Atendimento automatizado.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779720184439-cena_5_final_cta.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/ARgNwmoU5gbv1NqKBAIdVOZB4qB2/social-images/social-1779720184439-cena_5_final_cta.webp",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "Ap1VhqHeeYN0IiI5Zzlt4-LT2Ve1fzS_fhvj175klwU" },
@@ -96,7 +113,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />
