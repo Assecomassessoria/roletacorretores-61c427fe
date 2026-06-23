@@ -141,9 +141,12 @@ function PlantoesPage() {
                 </Field>
                 <div className="grid grid-cols-3 gap-3">
                   <Field label="Data"><Input type="date" value={editing?.data ?? ""} onChange={(e) => setEditing((s) => ({ ...s, data: e.target.value }))} /></Field>
-                  <Field label="Início"><Input type="time" value={editing?.hora_inicio ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_inicio: e.target.value }))} /></Field>
-                  <Field label="Fim"><Input type="time" value={editing?.hora_fim ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_fim: e.target.value }))} /></Field>
+                  <Field label="Início (Stand)"><Input type="time" value={editing?.hora_inicio ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_inicio: e.target.value }))} /></Field>
+                  <Field label="Fim (Stand)"><Input type="time" value={editing?.hora_fim ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_fim: e.target.value }))} /></Field>
                 </div>
+                <p className="text-[11px] text-muted-foreground">
+                  O horário é preenchido com o horário comercial do Stand selecionado. Ajuste manualmente se necessário.
+                </p>
                 <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
               </form>
             </DialogContent>
