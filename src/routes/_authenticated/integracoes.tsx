@@ -21,8 +21,9 @@ type Integ = {
   nome: string;
   provider: string;
   webhook_url: string;
-  secret: string | null;
-  headers: Record<string, string> | null;
+  // secret e headers nunca são lidos do servidor; só definidos no formulário.
+  secret?: string | null;
+  headers?: Record<string, string> | null;
   ativo: boolean;
   empreendimento_id: string | null;
 };
