@@ -369,15 +369,36 @@ function CorretoresPage() {
                   )}
                 </div>
 
-                <DialogFooter className="gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => { setEditing(null); setSenha(""); setSenha2(""); }}
-                  >
-                    Fechar
-                  </Button>
-                  <Button type="submit">Salvar</Button>
+                <DialogFooter className="gap-2 sm:justify-between">
+                  <div>
+                    {editing?.id && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          if (!confirm(`Excluir o corretor "${editing.nome ?? ""}"? Esta ação não pode ser desfeita.`)) return;
+                          const { error } = await supabase.from("corretores").delete().eq("id", editing.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Corretor excluído");
+                          setEditing(null); setSenha(""); setSenha2("");
+                          load();
+                        }}
+                      >
+                        Excluir
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => { setEditing(null); setSenha(""); setSenha2(""); }}
+                    >
+                      Fechar
+                    </Button>
+                    <Button type="submit">Salvar</Button>
+                  </div>
                 </DialogFooter>
               </form>
             </DialogContent>
