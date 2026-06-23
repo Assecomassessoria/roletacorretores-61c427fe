@@ -55,6 +55,7 @@ function CorretoresPage() {
   const [empBusca, setEmpBusca] = useState("");
   const [fotoUploading, setFotoUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showInactive, setShowInactive] = useState(false);
   const habilitar = useServerFn(habilitarCorretorAcesso);
   const definirFuncao = useServerFn(definirFuncaoCorretor);
   const fetchCorretores = useServerFn(listCorretoresAdmin);
@@ -74,6 +75,24 @@ function CorretoresPage() {
   }
   useEffect(() => { load(); }, []);
 
+  // Atalho Alt+A: alterna a exibição de corretores inativos.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.altKey && (e.key === "a" || e.key === "A")) {
+        e.preventDefault();
+        setShowInactive((v) => {
+          const next = !v;
+          toast.message(next ? "Mostrando corretores inativos" : "Ocultando corretores inativos");
+          return next;
+        });
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const visibleRows = showInactive ? rows : rows.filter((r) => r.ativo);
+
   // Sincroniza o campo de busca com o empreendimento selecionado ao abrir edição
   useEffect(() => {
     if (!editing) { setEmpBusca(""); return; }
@@ -91,8 +110,8 @@ function CorretoresPage() {
       const path = `${editing.empreendimento_id}/${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (error) throw error;
-      const { data } = supabase.storage.from("corretores").getPublicUrl(path);
-      setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
+      // Bucket privado: armazenar o caminho. SignedImg gera URL assinada na hora de exibir.
+      setEditing((s) => ({ ...s, foto_url: path }));
       toast.success("Foto enviada");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha no upload");
@@ -180,7 +199,14 @@ function CorretoresPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Corretores</h1>
-          <p className="text-sm text-muted-foreground">Equipe vinculada por e-mail à conta de acesso.</p>
+          <p className="text-sm text-muted-foreground">
+            Equipe vinculada por e-mail à conta de acesso.
+            <span className="ml-2 text-xs">
+              {showInactive ? "Exibindo inativos · " : "Inativos ocultos · "}
+              <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[10px]">Alt</kbd>
+              +<kbd className="rounded border border-border px-1 py-0.5 font-mono text-[10px]">A</kbd> para alternar
+            </span>
+          </p>
         </div>
         {canEdit && (
           <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setSenha(""); setSenha2(""); } }}>
@@ -421,8 +447,8 @@ function CorretoresPage() {
           </TableHeader>
           <TableBody>
             {loading ? <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground">Carregando…</TableCell></TableRow>
-              : rows.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground">Nenhum corretor.</TableCell></TableRow>
-              : rows.map((r) => (
+              : visibleRows.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground">Nenhum corretor.</TableCell></TableRow>
+              : visibleRows.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="text-xs text-muted-foreground">{r.ordem_roleta}</TableCell>
                   <TableCell className="font-medium">{r.nome} {!r.ativo && <Badge variant="secondary" className="ml-1">inativo</Badge>}</TableCell>

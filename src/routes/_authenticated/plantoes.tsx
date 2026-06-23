@@ -22,7 +22,12 @@ type Plantao = {
   status: string;
   presenca_confirmada_em: string | null;
 };
-type Emp = { id: string; nome: string };
+type Emp = {
+  id: string;
+  nome: string;
+  horario_comercial_inicio: string | null;
+  horario_comercial_fim: string | null;
+};
 type Corretor = { id: string; nome: string; empreendimento_id: string };
 
 export const Route = createFileRoute("/_authenticated/plantoes")({
@@ -53,7 +58,7 @@ function PlantoesPage() {
     setLoading(true);
     const [{ data: ps }, { data: es }, { data: cs }] = await Promise.all([
       supabase.from("plantoes").select("*").gte("data", start).lte("data", end).order("data").order("hora_inicio"),
-      supabase.from("empreendimentos").select("id,nome").eq("ativo", true).order("nome"),
+      supabase.from("empreendimentos").select("id,nome,horario_comercial_inicio,horario_comercial_fim").eq("ativo", true).order("nome"),
       supabase.from("corretores").select("id,nome,empreendimento_id").eq("ativo", true).order("nome"),
     ]);
     setRows((ps as Plantao[]) ?? []);
@@ -112,10 +117,20 @@ function PlantoesPage() {
             <DialogContent>
               <DialogHeader><DialogTitle>Agendar plantão</DialogTitle></DialogHeader>
               <form onSubmit={save} className="space-y-3">
-                <Field label="Empreendimento">
-                  <Select value={editing?.empreendimento_id ?? ""} onValueChange={(v) => setEditing((s) => ({ ...s, empreendimento_id: v, corretor_id: undefined }))}>
+                <Field label="Empreendimento (Stand)">
+                  <Select value={editing?.empreendimento_id ?? ""} onValueChange={(v) => {
+                    const emp = emps.find((e) => e.id === v);
+                    // Aplica o horário comercial do Stand automaticamente
+                    setEditing((s) => ({
+                      ...s,
+                      empreendimento_id: v,
+                      corretor_id: undefined,
+                      hora_inicio: emp?.horario_comercial_inicio?.slice(0, 5) ?? s?.hora_inicio ?? "09:00",
+                      hora_fim: emp?.horario_comercial_fim?.slice(0, 5) ?? s?.hora_fim ?? "18:00",
+                    }));
+                  }}>
                     <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
-                    <SelectContent>{emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
+                    <SelectContent>{emps.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}{e.horario_comercial_inicio && e.horario_comercial_fim ? ` (${e.horario_comercial_inicio.slice(0,5)}–${e.horario_comercial_fim.slice(0,5)})` : ""}</SelectItem>)}</SelectContent>
                   </Select>
                 </Field>
                 <Field label="Corretor">
@@ -126,9 +141,12 @@ function PlantoesPage() {
                 </Field>
                 <div className="grid grid-cols-3 gap-3">
                   <Field label="Data"><Input type="date" value={editing?.data ?? ""} onChange={(e) => setEditing((s) => ({ ...s, data: e.target.value }))} /></Field>
-                  <Field label="Início"><Input type="time" value={editing?.hora_inicio ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_inicio: e.target.value }))} /></Field>
-                  <Field label="Fim"><Input type="time" value={editing?.hora_fim ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_fim: e.target.value }))} /></Field>
+                  <Field label="Início (Stand)"><Input type="time" value={editing?.hora_inicio ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_inicio: e.target.value }))} /></Field>
+                  <Field label="Fim (Stand)"><Input type="time" value={editing?.hora_fim ?? ""} onChange={(e) => setEditing((s) => ({ ...s, hora_fim: e.target.value }))} /></Field>
                 </div>
+                <p className="text-[11px] text-muted-foreground">
+                  O horário é preenchido com o horário comercial do Stand selecionado. Ajuste manualmente se necessário.
+                </p>
                 <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
               </form>
             </DialogContent>

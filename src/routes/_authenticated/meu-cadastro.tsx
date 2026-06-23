@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Upload } from "lucide-react";
+import { SignedImg } from "@/components/signed-img";
 
 export const Route = createFileRoute("/_authenticated/meu-cadastro")({
   component: MeuCadastroPage,
@@ -61,10 +62,10 @@ function MeuCadastroPage() {
       const path = `${c.empreendimento_id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (upErr) throw upErr;
-      const { data } = supabase.storage.from("corretores").getPublicUrl(path);
-      const { error: updErr } = await supabase.from("corretores").update({ foto_url: data.publicUrl }).eq("id", c.id);
+      // Bucket privado: salvamos o caminho (não a public URL, que não funciona em bucket privado).
+      const { error: updErr } = await supabase.from("corretores").update({ foto_url: path }).eq("id", c.id);
       if (updErr) throw updErr;
-      setC({ ...c, foto_url: data.publicUrl });
+      setC({ ...c, foto_url: path });
       toast.success("Foto atualizada");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha no upload");
@@ -115,7 +116,9 @@ function MeuCadastroPage() {
           <Label>Foto</Label>
           <div className="mt-2 flex items-center gap-4">
             <div className="h-20 w-20 overflow-hidden rounded-full border border-border bg-muted">
-              {c.foto_url ? <img src={c.foto_url} alt={c.nome} className="h-full w-full object-cover" /> : null}
+              {c.foto_url ? (
+                <SignedImg bucket="corretores" src={c.foto_url} alt={c.nome} className="h-full w-full object-cover" />
+              ) : null}
             </div>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted">
               <Upload className="h-4 w-4" />
