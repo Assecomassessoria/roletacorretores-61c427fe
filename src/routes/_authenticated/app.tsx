@@ -113,6 +113,59 @@ function CardLink({ to, title, desc }: { to: string; title: string; desc: string
   );
 }
 
+function PlantaoLiveCard({ title, desc }: { title: string; desc: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined" ? `${window.location.origin}/plantao` : "/plantao";
+  async function copy(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link copiado — envie aos corretores");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar o link");
+    }
+  }
+  async function share(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const text = `Plantão ao vivo — valide sua presença: ${url}`;
+    const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
+    if (nav.share) {
+      try { await nav.share({ title: "Plantão ao vivo", text, url }); return; } catch { /* cancelado */ }
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  }
+  return (
+    <Link
+      to="/plantao"
+      className="group relative rounded-lg border border-orange/40 bg-orange/5 p-5 transition hover:border-orange hover:shadow-sm"
+    >
+      <h3 className="text-sm font-semibold text-orange">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={copy}
+          className="inline-flex items-center gap-1 rounded-md border border-orange/40 bg-background px-2 py-1 text-[11px] font-medium text-orange transition hover:bg-orange/10"
+        >
+          {copied ? <Check className="h-3 w-3" /> : <Share2 className="h-3 w-3" />}
+          {copied ? "Copiado" : "Copiar link"}
+        </button>
+        <button
+          type="button"
+          onClick={share}
+          className="inline-flex items-center gap-1 rounded-md border border-orange/40 bg-background px-2 py-1 text-[11px] font-medium text-orange transition hover:bg-orange/10"
+        >
+          <Share2 className="h-3 w-3" /> Enviar via WhatsApp
+        </button>
+      </div>
+    </Link>
+  );
+}
+
 type Aviso = { id: string; titulo: string; corpo: string; created_at: string };
 
 function AvisosAtivos() {
