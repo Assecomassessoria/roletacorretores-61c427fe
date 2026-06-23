@@ -91,8 +91,8 @@ function CorretoresPage() {
       const path = `${editing.empreendimento_id}/${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("corretores").upload(path, file, { upsert: false });
       if (error) throw error;
-      const { data } = supabase.storage.from("corretores").getPublicUrl(path);
-      setEditing((s) => ({ ...s, foto_url: data.publicUrl }));
+      // Bucket privado: armazenar o caminho. SignedImg gera URL assinada na hora de exibir.
+      setEditing((s) => ({ ...s, foto_url: path }));
       toast.success("Foto enviada");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha no upload");
