@@ -327,6 +327,25 @@ function EmpreendimentosPage() {
                       </label>
                       <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG ou WEBP — até 4MB</span>
                     </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Input
+                        placeholder="Ou cole uma URL externa (https://…)"
+                        value={editing?.logo_url && /^https?:\/\//i.test(editing.logo_url) ? editing.logo_url : ""}
+                        onChange={(e) => setLogoExterno(e.target.value)}
+                        className="text-xs"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const u = prompt("URL do logo (https://…)");
+                          if (u != null) setLogoExterno(u);
+                        }}
+                      >
+                        <ExternalLink className="mr-1 h-3.5 w-3.5" /> Incluir link
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-3">
