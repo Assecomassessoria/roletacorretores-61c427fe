@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { clientSignedUrl } from "@/lib/storage-url";
+import { clientSignedUrl, extractStoragePath } from "@/lib/storage-url";
 
 type Props = {
   bucket: string;
@@ -18,6 +18,12 @@ export function SignedImg({ bucket, src, alt = "", className, expiresIn = 3600 }
       setUrl(null);
       return;
     }
+    // Link externo (não pertence ao bucket): exibe direto.
+    const path = extractStoragePath(src, bucket);
+    if (!path && /^https?:\/\//i.test(src)) {
+      setUrl(src);
+      return;
+    }
     clientSignedUrl(bucket, src, expiresIn).then((u) => {
       if (active) setUrl(u);
     });
@@ -29,3 +35,4 @@ export function SignedImg({ bucket, src, alt = "", className, expiresIn = 3600 }
   if (!url) return null;
   return <img src={url} alt={alt} className={className} />;
 }
+
