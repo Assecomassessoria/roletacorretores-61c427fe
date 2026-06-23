@@ -396,7 +396,50 @@ function EmpreendimentosPage() {
                   )}
                 </div>
 
-                <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
+                <DialogFooter className="gap-2 sm:justify-between">
+                  <div className="flex gap-2">
+                    {editing?.id && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          if (!confirm(`Excluir o empreendimento "${editing.nome ?? ""}"? Esta ação não pode ser desfeita e remove plantões, corretores e atendimentos vinculados.`)) return;
+                          const { error } = await supabase.from("empreendimentos").delete().eq("id", editing.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Empreendimento excluído");
+                          setEditing(null);
+                          load();
+                        }}
+                      >
+                        Excluir
+                      </Button>
+                    )}
+                    {editing?.id && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          const novo = !(editing.ativo ?? true);
+                          const acao = novo ? "reativar" : "inativar";
+                          if (!confirm(`Deseja ${acao} "${editing.nome ?? ""}"?`)) return;
+                          const { error } = await supabase.from("empreendimentos").update({ ativo: novo }).eq("id", editing.id);
+                          if (error) return toast.error(error.message);
+                          toast.success(novo ? "Empreendimento reativado" : "Empreendimento inativado");
+                          setEditing((s) => (s ? { ...s, ativo: novo } : s));
+                          load();
+                        }}
+                      >
+                        {editing.ativo === false ? "Reativar" : "Inativar"}
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setEditing(null)}>Fechar</Button>
+                    <Button type="submit">Salvar</Button>
+                  </div>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
