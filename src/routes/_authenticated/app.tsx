@@ -81,9 +81,13 @@ function AppDashboard() {
       <AvisosAtivos />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((c) => (
-          <CardLink key={c.to} to={c.to} title={c.title} desc={c.desc} />
-        ))}
+        {visible.map((c) =>
+          c.to === "/plantao" ? (
+            <PlantaoLiveCard key={c.to} title={c.title} desc={c.desc} />
+          ) : (
+            <CardLink key={c.to} to={c.to} title={c.title} desc={c.desc} />
+          )
+        )}
       </div>
 
       {visible.length === 0 && (
