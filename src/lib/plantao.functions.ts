@@ -360,8 +360,8 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       id: c.id,
       nome: c.nome,
       creci: c.creci,
-      telefone: c.telefone,
       foto_url: (c as { foto_url?: string | null }).foto_url ?? null,
+
       atendimentos_semana: counts[c.id] ?? 0,
       leads_semana: leads[c.id] ?? 0,
       participacao_semana: participacao[c.id]?.size ?? 0,
