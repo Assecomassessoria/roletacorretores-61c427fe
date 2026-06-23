@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, ArrowRight, Megaphone } from "lucide-react";
+import { AlertTriangle, ArrowRight, Megaphone, Share2, Check } from "lucide-react";
+import { toast } from "sonner";
 import { NavActions } from "@/components/nav-actions";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -23,6 +24,7 @@ const CARDS: CardDef[] = [
   { to: "/corretores", title: "Corretores", desc: "Equipe, dados e ordem da roleta.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/plantoes", title: "Plantões & Escala", desc: "Agenda e presença dos corretores.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/presencas", title: "Presenças do dia", desc: "Check-ins validados, método e auditoria.", roles: ["incorporadora", "gerente", "coordenador"] },
+  { to: "/plantao", title: "Ver Plantão ao Vivo", desc: "Link compartilhável: o corretor abre, valida a presença e entra na roleta do dia.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
   { to: "/roleta", title: "Roleta", desc: "Próximo da vez, status do dia.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
   { to: "/minha-escala", title: "Minha Escala", desc: "Veja a escala da semana e gerencie seus dias.", roles: ["corretor"] },
   { to: "/minha-presenca", title: "Minha Presença Hoje", desc: "Data e hora em que você confirmou presença e entrou na roleta.", roles: ["corretor"] },
@@ -79,9 +81,13 @@ function AppDashboard() {
       <AvisosAtivos />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((c) => (
-          <CardLink key={c.to} to={c.to} title={c.title} desc={c.desc} />
-        ))}
+        {visible.map((c) =>
+          c.to === "/plantao" ? (
+            <PlantaoLiveCard key={c.to} title={c.title} desc={c.desc} />
+          ) : (
+            <CardLink key={c.to} to={c.to} title={c.title} desc={c.desc} />
+          )
+        )}
       </div>
 
       {visible.length === 0 && (
@@ -103,6 +109,59 @@ function CardLink({ to, title, desc }: { to: string; title: string; desc: string
     >
       <h3 className="text-sm font-semibold group-hover:text-orange">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
+    </Link>
+  );
+}
+
+function PlantaoLiveCard({ title, desc }: { title: string; desc: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined" ? `${window.location.origin}/plantao` : "/plantao";
+  async function copy(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link copiado — envie aos corretores");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar o link");
+    }
+  }
+  async function share(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const text = `Plantão ao vivo — valide sua presença: ${url}`;
+    const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
+    if (nav.share) {
+      try { await nav.share({ title: "Plantão ao vivo", text, url }); return; } catch { /* cancelado */ }
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  }
+  return (
+    <Link
+      to="/plantao"
+      className="group relative rounded-lg border border-orange/40 bg-orange/5 p-5 transition hover:border-orange hover:shadow-sm"
+    >
+      <h3 className="text-sm font-semibold text-orange">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={copy}
+          className="inline-flex items-center gap-1 rounded-md border border-orange/40 bg-background px-2 py-1 text-[11px] font-medium text-orange transition hover:bg-orange/10"
+        >
+          {copied ? <Check className="h-3 w-3" /> : <Share2 className="h-3 w-3" />}
+          {copied ? "Copiado" : "Copiar link"}
+        </button>
+        <button
+          type="button"
+          onClick={share}
+          className="inline-flex items-center gap-1 rounded-md border border-orange/40 bg-background px-2 py-1 text-[11px] font-medium text-orange transition hover:bg-orange/10"
+        >
+          <Share2 className="h-3 w-3" /> Enviar via WhatsApp
+        </button>
+      </div>
     </Link>
   );
 }
