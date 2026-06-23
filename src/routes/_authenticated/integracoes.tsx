@@ -46,7 +46,8 @@ function IntegracoesPage() {
   async function load() {
     setLoading(true);
     const [a, b] = await Promise.all([
-      supabase.from("integracoes_crm").select("*").order("created_at", { ascending: false }),
+      // secret/headers não são lidos pela API pública por segurança — só podem ser definidos via formulário.
+      supabase.from("integracoes_crm").select("id,nome,provider,webhook_url,ativo,empreendimento_id,created_at,updated_at,criado_por").order("created_at", { ascending: false }),
       supabase.from("empreendimentos").select("id,nome").order("nome"),
     ]);
     if (a.error) toast.error(a.error.message);
