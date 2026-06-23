@@ -83,7 +83,7 @@ export const criarUsuarioComPapel = createServerFn({ method: "POST" })
 // Auto-signup público para demonstração (Plano Experiência).
 // SEGURANÇA: nunca permitir auto-atribuição de papéis administrativos
 // (incorporadora/gerente/coordenador) via endpoint público — apenas `corretor`.
-const DemoRoleEnum = z.enum(["corretor", "coordenador", "gerente", "incorporadora"]);
+const DemoRoleEnum = z.enum(["corretor"]);
 const DemoInput = z.object({
   nome: z.string().trim().min(2).max(120),
   empresa: z.string().trim().max(160).optional().nullable(),
@@ -109,7 +109,9 @@ const DemoInput = z.object({
 export const cadastroDemo = createServerFn({ method: "POST" })
   .inputValidator((d) => DemoInput.parse(d))
   .handler(async ({ data }) => {
-    const safeRole = data.role ?? "corretor";
+    // SEGURANÇA: endpoint público nunca aceita papel administrativo do cliente.
+    const safeRole = "corretor" as const;
+
     const user_id = await upsertUserByEmail(data.email, data.senha, data.nome, data.telefone);
     await supabaseAdmin.from("profiles").upsert(
       { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
