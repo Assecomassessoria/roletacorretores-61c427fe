@@ -149,9 +149,16 @@ function EmpreendimentosPage() {
       contentType: file.type,
     });
     if (error) return toast.error(error.message);
-    const { data } = supabase.storage.from("empreendimento-brand").getPublicUrl(path);
-    setEditing((s) => ({ ...s, logo_url: data.publicUrl }));
+    // Bucket privado: guardamos o caminho e exibimos via SignedImg (URL assinada).
+    setEditing((s) => ({ ...s, logo_url: path }));
     toast.success("Logo enviado");
+  }
+
+  function setLogoExterno(url: string) {
+    const trimmed = url.trim();
+    if (!trimmed) return setEditing((s) => ({ ...s, logo_url: null }));
+    if (!/^https?:\/\//i.test(trimmed)) return toast.error("Use uma URL começando com http:// ou https://");
+    setEditing((s) => ({ ...s, logo_url: trimmed }));
   }
 
   function onDropLogo(e: React.DragEvent) {
@@ -320,6 +327,25 @@ function EmpreendimentosPage() {
                       </label>
                       <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG ou WEBP — até 4MB</span>
                     </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Input
+                        placeholder="Ou cole uma URL externa (https://…)"
+                        value={editing?.logo_url && /^https?:\/\//i.test(editing.logo_url) ? editing.logo_url : ""}
+                        onChange={(e) => setLogoExterno(e.target.value)}
+                        className="text-xs"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const u = prompt("URL do logo (https://…)");
+                          if (u != null) setLogoExterno(u);
+                        }}
+                      >
+                        <ExternalLink className="mr-1 h-3.5 w-3.5" /> Incluir link
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-3">
@@ -370,7 +396,50 @@ function EmpreendimentosPage() {
                   )}
                 </div>
 
-                <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
+                <DialogFooter className="gap-2 sm:justify-between">
+                  <div className="flex gap-2">
+                    {editing?.id && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          if (!confirm(`Excluir o empreendimento "${editing.nome ?? ""}"? Esta ação não pode ser desfeita e remove plantões, corretores e atendimentos vinculados.`)) return;
+                          const { error } = await supabase.from("empreendimentos").delete().eq("id", editing.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Empreendimento excluído");
+                          setEditing(null);
+                          load();
+                        }}
+                      >
+                        Excluir
+                      </Button>
+                    )}
+                    {editing?.id && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={async () => {
+                          if (!editing?.id) return;
+                          const novo = !(editing.ativo ?? true);
+                          const acao = novo ? "reativar" : "inativar";
+                          if (!confirm(`Deseja ${acao} "${editing.nome ?? ""}"?`)) return;
+                          const { error } = await supabase.from("empreendimentos").update({ ativo: novo }).eq("id", editing.id);
+                          if (error) return toast.error(error.message);
+                          toast.success(novo ? "Empreendimento reativado" : "Empreendimento inativado");
+                          setEditing((s) => (s ? { ...s, ativo: novo } : s));
+                          load();
+                        }}
+                      >
+                        {editing.ativo === false ? "Reativar" : "Inativar"}
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setEditing(null)}>Fechar</Button>
+                    <Button type="submit">Salvar</Button>
+                  </div>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
