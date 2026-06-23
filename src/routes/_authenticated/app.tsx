@@ -23,6 +23,7 @@ const CARDS: CardDef[] = [
   { to: "/corretores", title: "Corretores", desc: "Equipe, dados e ordem da roleta.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/plantoes", title: "Plantões & Escala", desc: "Agenda e presença dos corretores.", roles: ["incorporadora", "gerente", "coordenador"] },
   { to: "/presencas", title: "Presenças do dia", desc: "Check-ins validados, método e auditoria.", roles: ["incorporadora", "gerente", "coordenador"] },
+  { to: "/plantao", title: "Ver Plantão ao Vivo", desc: "Link compartilhável: o corretor abre, valida a presença e entra na roleta do dia.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
   { to: "/roleta", title: "Roleta", desc: "Próximo da vez, status do dia.", roles: ["incorporadora", "gerente", "coordenador", "corretor"] },
   { to: "/minha-escala", title: "Minha Escala", desc: "Veja a escala da semana e gerencie seus dias.", roles: ["corretor"] },
   { to: "/minha-presenca", title: "Minha Presença Hoje", desc: "Data e hora em que você confirmou presença e entrou na roleta.", roles: ["corretor"] },
