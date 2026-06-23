@@ -47,7 +47,8 @@ type RoletaItem = {
   id: string;
   nome: string;
   creci: string | null;
-  telefone: string | null;
+  telefone?: string | null;
+
   foto_url: string | null;
   atendimentos_semana: number;
   ordem_roleta: number;
