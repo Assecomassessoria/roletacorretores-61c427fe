@@ -149,9 +149,16 @@ function EmpreendimentosPage() {
       contentType: file.type,
     });
     if (error) return toast.error(error.message);
-    const { data } = supabase.storage.from("empreendimento-brand").getPublicUrl(path);
-    setEditing((s) => ({ ...s, logo_url: data.publicUrl }));
+    // Bucket privado: guardamos o caminho e exibimos via SignedImg (URL assinada).
+    setEditing((s) => ({ ...s, logo_url: path }));
     toast.success("Logo enviado");
+  }
+
+  function setLogoExterno(url: string) {
+    const trimmed = url.trim();
+    if (!trimmed) return setEditing((s) => ({ ...s, logo_url: null }));
+    if (!/^https?:\/\//i.test(trimmed)) return toast.error("Use uma URL começando com http:// ou https://");
+    setEditing((s) => ({ ...s, logo_url: trimmed }));
   }
 
   function onDropLogo(e: React.DragEvent) {
