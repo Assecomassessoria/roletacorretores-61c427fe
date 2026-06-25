@@ -356,6 +356,16 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       ? (emp as any).criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
 
+    // Sorteio aleatório determinístico por dia (estável durante o dia, muda a cada data)
+    function hashRandom(seed: string): number {
+      let h = 2166136261;
+      for (let i = 0; i < seed.length; i++) {
+        h ^= seed.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0) / 4294967295;
+    }
+
     const filaBase = presentes.map((c) => ({
       id: c.id,
       nome: c.nome,
@@ -367,12 +377,13 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       participacao_semana: participacao[c.id]?.size ?? 0,
       chegada_em: chegada[c.id] ?? Number.MAX_SAFE_INTEGER,
       ordem_roleta: c.ordem_roleta ?? 0,
+      sorteio_random: hashRandom(`${today}:${c.id}`),
     }));
 
     function valor(item: typeof filaBase[number], cr: string): number {
       switch (cr) {
         case "ordem_chegada": return item.chegada_em;
-        case "ordem_sorteio": return item.ordem_roleta;
+        case "ordem_sorteio": return item.sorteio_random;
         case "participacao_semana": return item.participacao_semana;
         case "menor_atendimentos": return item.atendimentos_semana;
         case "menor_leads_semana": return item.leads_semana;
@@ -385,8 +396,9 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         const va = valor(a, cr), vb = valor(b, cr);
         if (va !== vb) return va - vb;
       }
-      return a.ordem_roleta - b.ordem_roleta;
+      return a.sorteio_random - b.sorteio_random;
     });
+
 
     const fila = await Promise.all(filaBase.map(async (c) => ({ ...c, foto_url: await signFoto(c.foto_url) })));
 
