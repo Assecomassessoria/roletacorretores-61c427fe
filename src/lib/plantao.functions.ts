@@ -356,16 +356,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       ? (emp as any).criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
 
-    // Sorteio aleatório determinístico por dia (estável durante o dia, muda a cada data)
-    function hashRandom(seed: string): number {
-      let h = 2166136261;
-      for (let i = 0; i < seed.length; i++) {
-        h ^= seed.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h >>> 0) / 4294967295;
-    }
-
+    // Sorteio verdadeiramente aleatório a cada chamada
     const filaBase = presentes.map((c) => ({
       id: c.id,
       nome: c.nome,
@@ -377,7 +368,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       participacao_semana: participacao[c.id]?.size ?? 0,
       chegada_em: chegada[c.id] ?? Number.MAX_SAFE_INTEGER,
       ordem_roleta: c.ordem_roleta ?? 0,
-      sorteio_random: hashRandom(`${today}:${c.id}`),
+      sorteio_random: Math.random(),
     }));
 
     function valor(item: typeof filaBase[number], cr: string): number {
