@@ -141,18 +141,45 @@ function RoletaPage() {
     return { status: "aguardando" as const, label: "Aguardando", min: 0 };
   }
 
+  // Bump a nonce a cada loadAll (via plantoes.length/counts) para reembaralhar quando o critério for aleatório
+  const [shuffleNonce, setShuffleNonce] = useState(0);
+  useEffect(() => { setShuffleNonce((n) => n + 1); }, [plantoes, counts]);
+
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
     const presentes = corretores.filter((c) => {
       const p = plantoes.find((x) => x.corretor_id === c.id);
       return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
     });
-    return presentes.sort((a, b) => {
-      const ca = counts[a.id] ?? 0, cb = counts[b.id] ?? 0;
-      if (ca !== cb) return ca - cb;
-      return a.ordem_roleta - b.ordem_roleta;
+    const criterios: string[] = (emp?.criterios_sorteio && emp.criterios_sorteio.length)
+      ? emp.criterios_sorteio
+      : ["menor_atendimentos", "ordem_sorteio"];
+    const rand: Record<string, number> = {};
+    presentes.forEach((c) => { rand[c.id] = Math.random(); });
+    const chegada: Record<string, number> = {};
+    presentes.forEach((c) => {
+      const p = plantoes.find((x) => x.corretor_id === c.id);
+      chegada[c.id] = p?.presenca_confirmada_em ? new Date(p.presenca_confirmada_em).getTime() : Number.MAX_SAFE_INTEGER;
     });
-  }, [corretores, plantoes, counts]);
+    const valor = (c: Corretor, cr: string): number => {
+      switch (cr) {
+        case "ordem_chegada": return chegada[c.id] ?? Number.MAX_SAFE_INTEGER;
+        case "ordem_sorteio": return rand[c.id] ?? 0;
+        case "menor_atendimentos": return counts[c.id] ?? 0;
+        case "participacao_semana": return 0;
+        case "menor_leads_semana": return 0;
+        default: return 0;
+      }
+    };
+    return [...presentes].sort((a, b) => {
+      for (const cr of criterios) {
+        const va = valor(a, cr), vb = valor(b, cr);
+        if (va !== vb) return va - vb;
+      }
+      return (rand[a.id] ?? 0) - (rand[b.id] ?? 0);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce]);
 
   const proximo = fila[0];
 
