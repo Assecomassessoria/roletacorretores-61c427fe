@@ -47,7 +47,7 @@ type Emp = {
 
 export const CRITERIOS_SORTEIO = [
   { code: "ordem_chegada", label: "Ordem de Chegada", hint: "Quem confirmou presença primeiro tem prioridade." },
-  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Usa a ordem fixa configurada para cada corretor (ordem_roleta)." },
+  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Sorteio aleatório entre os corretores presentes (estável durante o dia, redefinido a cada novo dia)." },
   { code: "participacao_semana", label: "Participação na Semana", hint: "Quem teve menos plantões na semana entra primeiro." },
   { code: "menor_atendimentos", label: "Menor nº de Atendimentos", hint: "Quem atendeu menos clientes na semana entra primeiro." },
   { code: "menor_leads_semana", label: "Menor nº de Leads na Semana", hint: "Quem recebeu menos leads/triagens na semana entra primeiro." },
