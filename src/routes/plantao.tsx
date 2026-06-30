@@ -58,6 +58,8 @@ type RoletaDia = {
   data: string;
   total_presentes: number;
   proximo_id: string | null;
+  criterios_sorteio?: string[];
+  oficial?: boolean;
   fila: RoletaItem[];
 };
 
