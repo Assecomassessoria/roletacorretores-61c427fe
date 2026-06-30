@@ -23,7 +23,7 @@ export const listarMeusEmpreendimentos = createServerFn({ method: "POST" })
 
     let q = supabaseAdmin
       .from("empreendimentos")
-      .select("id, nome, latitude, longitude, raio_metros, periodo_ausencia_minutos, criterios_sorteio")
+      .select("id, nome, latitude, longitude, raio_metros, periodo_ausencia_minutos, criterios_sorteio, fila_oficial_data, fila_oficial_ids")
       .eq("ativo", true)
       .order("nome");
     if (!master) {
