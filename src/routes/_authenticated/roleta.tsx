@@ -368,7 +368,22 @@ function RoletaPage() {
         </section>
 
         <section className="rounded-lg border border-border bg-card p-5">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Fila de hoje</h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Fila de hoje {frozenOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
+            </h2>
+            {isAdmin && (
+              frozenOrder ? (
+                <Button size="sm" variant="outline" onClick={liberarRoletaOficial}>
+                  <RotateCcw className="mr-1 h-3.5 w-3.5" /> Liberar / Refazer
+                </Button>
+              ) : (
+                <Button size="sm" onClick={baterRoletaOficial} className="bg-emerald-600 hover:bg-emerald-600/90 text-white">
+                  <UserCheck className="mr-1 h-3.5 w-3.5" /> Bater Roleta Oficial
+                </Button>
+              )
+            )}
+          </div>
           {fila.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem presenças confirmadas.</p>
           ) : (
