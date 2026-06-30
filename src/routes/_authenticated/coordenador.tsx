@@ -155,6 +155,29 @@ function CoordenadorPage() {
   const [endereco, setEndereco] = useState({ rua: "", numero: "", cidade: "", cep: "" });
   const [geocodando, setGeocodando] = useState(false);
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
+  const baterRoletaFn = useServerFn(baterRoletaOficialFn);
+  const liberarRoletaFn = useServerFn(liberarRoletaOficialFn);
+
+  async function baterRoletaOficial() {
+    if (!emp) return;
+    try {
+      const r = await baterRoletaFn({ data: { empreendimento_id: emp.id } });
+      toast.success(`Roleta oficial fixada (${r.total} corretores) — ordem permanece estável até liberar.`);
+      await carregarEmp();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao bater roleta");
+    }
+  }
+  async function liberarRoletaOficial() {
+    if (!emp) return;
+    try {
+      await liberarRoletaFn({ data: { empreendimento_id: emp.id } });
+      toast.success("Roleta liberada — voltará a aplicar critérios e sorteio.");
+      await carregarEmp();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao liberar");
+    }
+  }
 
   async function geocodificarEndereco() {
     const { rua, numero, cidade, cep } = endereco;
