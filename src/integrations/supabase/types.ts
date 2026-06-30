@@ -389,6 +389,8 @@ export type Database = {
           endereco: string | null
           equipe_alfa_nome: string
           equipe_beta_nome: string
+          fila_oficial_data: string | null
+          fila_oficial_ids: string[] | null
           horario_comercial_fim: string | null
           horario_comercial_inicio: string | null
           horario_matutino_fim: string | null
@@ -427,6 +429,8 @@ export type Database = {
           endereco?: string | null
           equipe_alfa_nome?: string
           equipe_beta_nome?: string
+          fila_oficial_data?: string | null
+          fila_oficial_ids?: string[] | null
           horario_comercial_fim?: string | null
           horario_comercial_inicio?: string | null
           horario_matutino_fim?: string | null
@@ -465,6 +469,8 @@ export type Database = {
           endereco?: string | null
           equipe_alfa_nome?: string
           equipe_beta_nome?: string
+          fila_oficial_data?: string | null
+          fila_oficial_ids?: string[] | null
           horario_comercial_fim?: string | null
           horario_comercial_inicio?: string | null
           horario_matutino_fim?: string | null

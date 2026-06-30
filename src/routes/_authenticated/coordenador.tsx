@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { getEmpreendimentoAdmin } from "@/lib/empreendimentos-admin.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,8 @@ type Emp = {
   modo_propaganda: boolean;
   periodo_ausencia_minutos: number;
   criterios_sorteio: string[];
+  fila_oficial_data?: string | null;
+  fila_oficial_ids?: string[] | null;
 };
 
 export const CRITERIOS_SORTEIO = [
@@ -152,6 +155,29 @@ function CoordenadorPage() {
   const [endereco, setEndereco] = useState({ rua: "", numero: "", cidade: "", cep: "" });
   const [geocodando, setGeocodando] = useState(false);
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
+  const baterRoletaFn = useServerFn(baterRoletaOficialFn);
+  const liberarRoletaFn = useServerFn(liberarRoletaOficialFn);
+
+  async function baterRoletaOficial() {
+    if (!emp) return;
+    try {
+      const r = await baterRoletaFn({ data: { empreendimento_id: emp.id } });
+      toast.success(`Roleta oficial fixada (${r.total} corretores) — ordem permanece estável até liberar.`);
+      await carregarEmp();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao bater roleta");
+    }
+  }
+  async function liberarRoletaOficial() {
+    if (!emp) return;
+    try {
+      await liberarRoletaFn({ data: { empreendimento_id: emp.id } });
+      toast.success("Roleta liberada — voltará a aplicar critérios e sorteio.");
+      await carregarEmp();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao liberar");
+    }
+  }
 
   async function geocodificarEndereco() {
     const { rua, numero, cidade, cep } = endereco;
@@ -439,9 +465,24 @@ function CoordenadorPage() {
               {emp.roleta_automatica ? "Roleta Automática ✓" : "Roleta Automática"}
             </Button>
           )}
-          <Button variant="secondary" onClick={() => navigate({ to: "/roleta" })}>
-            <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
-          </Button>
+          {emp && (() => {
+            const hoje = new Date().toISOString().slice(0, 10);
+            const oficialHoje = emp.fila_oficial_data === hoje && (emp.fila_oficial_ids?.length ?? 0) > 0;
+            return oficialHoje ? (
+              <Button variant="outline" onClick={liberarRoletaOficial} title="Libera a ordem fixada e volta a aplicar os critérios">
+                <RefreshCw className="mr-1 h-4 w-4" /> Liberar Roleta ({emp.fila_oficial_ids?.length})
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={baterRoletaOficial}
+                className="bg-emerald-600 hover:bg-emerald-600/90 text-white"
+                title="Fixa a ordem atual no servidor — não muda mais com atualizações até liberar"
+              >
+                <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
+              </Button>
+            );
+          })()}
           <Button onClick={salvar} disabled={!dirty || saving}>
             <Save className="mr-1 h-4 w-4" /> {saving ? "Salvando…" : "Salvar Alterações"}
           </Button>

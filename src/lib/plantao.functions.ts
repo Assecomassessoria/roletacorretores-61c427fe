@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   creci: z.string().trim().min(2).max(40),
@@ -311,7 +312,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
     const wkStart = wk.toISOString().slice(0, 10);
 
     const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([
-      supabaseAdmin.from("empreendimentos").select("id, nome, criterios_sorteio").eq("id", data.empreendimento_id).maybeSingle(),
+      supabaseAdmin.from("empreendimentos").select("id, nome, criterios_sorteio, fila_oficial_data, fila_oficial_ids").eq("id", data.empreendimento_id).maybeSingle(),
       supabaseAdmin.from("corretores").select("id, nome, creci, ordem_roleta, ativo, foto_url").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
       supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, status, data").eq("empreendimento_id", data.empreendimento_id),
       supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
@@ -382,25 +383,102 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       }
     }
 
-    filaBase.sort((a, b) => {
-      for (const cr of criterios) {
-        const va = valor(a, cr), vb = valor(b, cr);
-        if (va !== vb) return va - vb;
-      }
-      return a.sorteio_random - b.sorteio_random;
-    });
+    // Se há snapshot oficial para hoje, respeitar a ordem fixada
+    const oficialHoje = (emp as any).fila_oficial_data === today && Array.isArray((emp as any).fila_oficial_ids) && (emp as any).fila_oficial_ids.length;
+    if (oficialHoje) {
+      const idx = new Map<string, number>(
+        ((emp as any).fila_oficial_ids as string[]).map((id, i) => [id, i] as const),
+      );
+      filaBase.sort((a, b) => {
+        const ia = idx.has(a.id) ? (idx.get(a.id) as number) : Number.MAX_SAFE_INTEGER;
+        const ib = idx.has(b.id) ? (idx.get(b.id) as number) : Number.MAX_SAFE_INTEGER;
+        if (ia !== ib) return ia - ib;
+        return a.sorteio_random - b.sorteio_random;
+      });
+    } else {
+      filaBase.sort((a, b) => {
+        for (const cr of criterios) {
+          const va = valor(a, cr), vb = valor(b, cr);
+          if (va !== vb) return va - vb;
+        }
+        return a.sorteio_random - b.sorteio_random;
+      });
+    }
 
 
     const fila = await Promise.all(filaBase.map(async (c) => ({ ...c, foto_url: await signFoto(c.foto_url) })));
 
     return {
-      empreendimento: emp,
+      empreendimento: { id: (emp as any).id, nome: (emp as any).nome },
       data: today,
       total_presentes: fila.length,
       proximo_id: fila[0]?.id ?? null,
       criterios_sorteio: criterios,
+      oficial: !!oficialHoje,
       fila,
     };
+  });
+
+// Bater roleta oficial — congela a ordem atual (presentes hoje) para o dia.
+const BaterInput = z.object({ empreendimento_id: z.string().uuid() });
+export const baterRoletaOficial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => BaterInput.parse(d))
+  .handler(async ({ data }) => {
+    const today = todayISO();
+    // Recalcula a fila atual usando a própria função pública (sem snapshot)
+    // Para evitar dependência circular, replicamos o mínimo: pegamos presentes hoje e ordenamos pelos critérios.
+    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
+      supabaseAdmin.from("empreendimentos").select("id, criterios_sorteio").eq("id", data.empreendimento_id).maybeSingle(),
+      supabaseAdmin.from("corretores").select("id, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
+      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, data").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
+      supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${today}T00:00:00Z`),
+    ]);
+    if (!emp) throw new Error("Empreendimento não encontrado");
+    const counts: Record<string, number> = {};
+    (ats ?? []).forEach((a: { corretor_id: string }) => { counts[a.corretor_id] = (counts[a.corretor_id] ?? 0) + 1; });
+    const chegada: Record<string, number> = {};
+    (ps ?? []).forEach((p: any) => { if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime(); });
+    const presentes = (cs ?? []).filter((c: any) => (ps ?? []).some((p: any) => p.corretor_id === c.id && p.presenca_confirmada_em));
+    const criterios: string[] = ((emp as any).criterios_sorteio ?? []).length ? (emp as any).criterios_sorteio : ["menor_atendimentos", "ordem_sorteio"];
+    const items = presentes.map((c: any) => ({
+      id: c.id,
+      ordem_roleta: c.ordem_roleta ?? 0,
+      atendimentos: counts[c.id] ?? 0,
+      chegada: chegada[c.id] ?? Number.MAX_SAFE_INTEGER,
+      rand: Math.random(),
+    }));
+    const v = (it: typeof items[number], cr: string) => {
+      switch (cr) {
+        case "ordem_chegada": return it.chegada;
+        case "ordem_sorteio": return it.rand;
+        case "menor_atendimentos": return it.atendimentos;
+        default: return 0;
+      }
+    };
+    items.sort((a, b) => {
+      for (const cr of criterios) { const va = v(a, cr), vb = v(b, cr); if (va !== vb) return va - vb; }
+      return a.rand - b.rand;
+    });
+    const ids = items.map((i) => i.id);
+    const { error } = await supabaseAdmin
+      .from("empreendimentos")
+      .update({ fila_oficial_data: today, fila_oficial_ids: ids })
+      .eq("id", data.empreendimento_id);
+    if (error) throw new Error(error.message);
+    return { ok: true, data: today, ids, total: ids.length };
+  });
+
+export const liberarRoletaOficial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => BaterInput.parse(d))
+  .handler(async ({ data }) => {
+    const { error } = await supabaseAdmin
+      .from("empreendimentos")
+      .update({ fila_oficial_data: null, fila_oficial_ids: null })
+      .eq("id", data.empreendimento_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // Lookup público: dado um CRECI **ou e-mail**, devolve a lista de
