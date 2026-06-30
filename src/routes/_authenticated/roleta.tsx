@@ -141,9 +141,22 @@ function RoletaPage() {
     return { status: "aguardando" as const, label: "Aguardando", min: 0 };
   }
 
-  // Bump a nonce a cada loadAll (via plantoes.length/counts) para reembaralhar quando o critério for aleatório
+  // Ordem oficial congelada (persistente por empreendimento+dia)
+  const frozenKey = empId ? `roleta_oficial_${empId}_${todayISO()}` : "";
+  const [frozenOrder, setFrozenOrder] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!frozenKey) { setFrozenOrder(null); return; }
+    try {
+      const raw = localStorage.getItem(frozenKey);
+      setFrozenOrder(raw ? (JSON.parse(raw) as string[]) : null);
+    } catch { setFrozenOrder(null); }
+  }, [frozenKey]);
+
+  // Reembaralha apenas quando NÃO há ordem oficial congelada
   const [shuffleNonce, setShuffleNonce] = useState(0);
-  useEffect(() => { setShuffleNonce((n) => n + 1); }, [plantoes, counts]);
+  useEffect(() => {
+    if (!frozenOrder) setShuffleNonce((n) => n + 1);
+  }, [plantoes, counts, frozenOrder]);
 
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
@@ -151,6 +164,17 @@ function RoletaPage() {
       const p = plantoes.find((x) => x.corretor_id === c.id);
       return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
     });
+
+    // Se houver ordem oficial congelada, respeita-a (novos presentes vão para o fim)
+    if (frozenOrder && frozenOrder.length) {
+      const idx = new Map(frozenOrder.map((id, i) => [id, i] as const));
+      return [...presentes].sort((a, b) => {
+        const ia = idx.has(a.id) ? idx.get(a.id)! : Number.MAX_SAFE_INTEGER;
+        const ib = idx.has(b.id) ? idx.get(b.id)! : Number.MAX_SAFE_INTEGER;
+        return ia - ib;
+      });
+    }
+
     const criterios: string[] = (emp?.criterios_sorteio && emp.criterios_sorteio.length)
       ? emp.criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
