@@ -465,9 +465,24 @@ function CoordenadorPage() {
               {emp.roleta_automatica ? "Roleta Automática ✓" : "Roleta Automática"}
             </Button>
           )}
-          <Button variant="secondary" onClick={() => navigate({ to: "/roleta" })}>
-            <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
-          </Button>
+          {emp && (() => {
+            const hoje = new Date().toISOString().slice(0, 10);
+            const oficialHoje = emp.fila_oficial_data === hoje && (emp.fila_oficial_ids?.length ?? 0) > 0;
+            return oficialHoje ? (
+              <Button variant="outline" onClick={liberarRoletaOficial} title="Libera a ordem fixada e volta a aplicar os critérios">
+                <RefreshCw className="mr-1 h-4 w-4" /> Liberar Roleta ({emp.fila_oficial_ids?.length})
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={baterRoletaOficial}
+                className="bg-emerald-600 hover:bg-emerald-600/90 text-white"
+                title="Fixa a ordem atual no servidor — não muda mais com atualizações até liberar"
+              >
+                <RefreshCw className="mr-1 h-4 w-4" /> Bater Roleta Oficial
+              </Button>
+            );
+          })()}
           <Button onClick={salvar} disabled={!dirty || saving}>
             <Save className="mr-1 h-4 w-4" /> {saving ? "Salvando…" : "Salvar Alterações"}
           </Button>
