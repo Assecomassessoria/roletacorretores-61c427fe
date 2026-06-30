@@ -1237,6 +1237,7 @@ export type Database = {
       }
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_master_email: { Args: { _email: string }; Returns: boolean }
+      limpar_roleta_oficial_diaria: { Args: never; Returns: undefined }
       reset_escala_semanal: { Args: never; Returns: undefined }
       storage_path_emp: { Args: { _name: string }; Returns: string }
       triagem_status_publico: {
