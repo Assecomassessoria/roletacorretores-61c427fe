@@ -30,8 +30,49 @@ function distMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
+function saoPauloParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return {
+    year: Number(get("year")),
+    month: Number(get("month")),
+    day: Number(get("day")),
+    hour: Number(get("hour")),
+  };
+}
+
+function formatDateUTC(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function saoPauloDateISO(date = new Date()) {
+  const p = saoPauloParts(date);
+  return `${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+}
+
+function roletaOperationalDateISO(date = new Date()) {
+  const p = saoPauloParts(date);
+  const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
+  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  return formatDateUTC(d);
+}
+
+function weekStartISO(dateISO: string) {
+  const [year, month, day] = dateISO.split("-").map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+  return formatDateUTC(d);
+}
+
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return saoPauloDateISO();
 }
 
 const PUBLIC_RE = /\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/;
@@ -306,10 +347,8 @@ const RoletaInput = z.object({ empreendimento_id: z.string().uuid() });
 export const roletaDoDiaPublico = createServerFn({ method: "POST" })
   .inputValidator((d) => RoletaInput.parse(d))
   .handler(async ({ data }) => {
-    const today = todayISO();
-    const wk = new Date();
-    wk.setDate(wk.getDate() - wk.getDay());
-    const wkStart = wk.toISOString().slice(0, 10);
+    const today = roletaOperationalDateISO();
+    const wkStart = weekStartISO(today);
 
     const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([
       supabaseAdmin.from("empreendimentos").select("id, nome, criterios_sorteio, fila_oficial_data, fila_oficial_ids").eq("id", data.empreendimento_id).maybeSingle(),
@@ -357,7 +396,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       ? (emp as any).criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
 
-    // Sorteio verdadeiramente aleatório a cada chamada
+    // Sorteio aleatório apenas enquanto a roleta oficial ainda não foi batida.
     const filaBase = presentes.map((c) => ({
       id: c.id,
       nome: c.nome,
@@ -383,7 +422,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       }
     }
 
-    // Se há snapshot oficial para hoje, respeitar a ordem fixada
+    // Se há snapshot oficial para o dia operacional, respeitar a ordem fixada até a limpeza das 03:00.
     const oficialHoje = (emp as any).fila_oficial_data === today && Array.isArray((emp as any).fila_oficial_ids) && (emp as any).fila_oficial_ids.length;
     if (oficialHoje) {
       const idx = new Map<string, number>(
@@ -393,7 +432,8 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
         const ia = idx.has(a.id) ? (idx.get(a.id) as number) : Number.MAX_SAFE_INTEGER;
         const ib = idx.has(b.id) ? (idx.get(b.id) as number) : Number.MAX_SAFE_INTEGER;
         if (ia !== ib) return ia - ib;
-        return a.sorteio_random - b.sorteio_random;
+        if (a.chegada_em !== b.chegada_em) return a.chegada_em - b.chegada_em;
+        return a.nome.localeCompare(b.nome, "pt-BR");
       });
     } else {
       filaBase.sort((a, b) => {
@@ -425,26 +465,39 @@ export const baterRoletaOficial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => BaterInput.parse(d))
   .handler(async ({ data }) => {
-    const today = todayISO();
-    // Recalcula a fila atual usando a própria função pública (sem snapshot)
-    // Para evitar dependência circular, replicamos o mínimo: pegamos presentes hoje e ordenamos pelos critérios.
-    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }] = await Promise.all([
+    const today = roletaOperationalDateISO();
+    const wkStart = weekStartISO(today);
+    // Recalcula a fila atual usando os mesmos critérios públicos, sem reusar snapshot anterior.
+    const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([
       supabaseAdmin.from("empreendimentos").select("id, criterios_sorteio").eq("id", data.empreendimento_id).maybeSingle(),
       supabaseAdmin.from("corretores").select("id, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
-      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, data").eq("empreendimento_id", data.empreendimento_id).eq("data", today),
-      supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${today}T00:00:00Z`),
+      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, data").eq("empreendimento_id", data.empreendimento_id),
+      supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
+      supabaseAdmin.from("triagens").select("atendimento_id, created_at, atendimentos:atendimento_id(corretor_id, empreendimento_id)").eq("empreendimento_id", data.empreendimento_id).gte("created_at", `${wkStart}T00:00:00Z`),
     ]);
     if (!emp) throw new Error("Empreendimento não encontrado");
+    const psHoje = (ps ?? []).filter((p: { data: string }) => p.data === today);
     const counts: Record<string, number> = {};
     (ats ?? []).forEach((a: { corretor_id: string }) => { counts[a.corretor_id] = (counts[a.corretor_id] ?? 0) + 1; });
+    const leads: Record<string, number> = {};
+    (tris ?? []).forEach((t: any) => {
+      const cid = t.atendimentos?.corretor_id;
+      if (cid) leads[cid] = (leads[cid] ?? 0) + 1;
+    });
+    const participacao: Record<string, Set<string>> = {};
+    (ps ?? []).forEach((p: { corretor_id: string; data: string }) => {
+      if (p.data >= wkStart && p.data <= today) (participacao[p.corretor_id] ??= new Set()).add(p.data);
+    });
     const chegada: Record<string, number> = {};
-    (ps ?? []).forEach((p: any) => { if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime(); });
-    const presentes = (cs ?? []).filter((c: any) => (ps ?? []).some((p: any) => p.corretor_id === c.id && p.presenca_confirmada_em));
+    psHoje.forEach((p: any) => { if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime(); });
+    const presentes = (cs ?? []).filter((c: any) => psHoje.some((p: any) => p.corretor_id === c.id && p.presenca_confirmada_em));
     const criterios: string[] = ((emp as any).criterios_sorteio ?? []).length ? (emp as any).criterios_sorteio : ["menor_atendimentos", "ordem_sorteio"];
     const items = presentes.map((c: any) => ({
       id: c.id,
       ordem_roleta: c.ordem_roleta ?? 0,
       atendimentos: counts[c.id] ?? 0,
+      leads: leads[c.id] ?? 0,
+      participacao: participacao[c.id]?.size ?? 0,
       chegada: chegada[c.id] ?? Number.MAX_SAFE_INTEGER,
       rand: Math.random(),
     }));
@@ -452,7 +505,9 @@ export const baterRoletaOficial = createServerFn({ method: "POST" })
       switch (cr) {
         case "ordem_chegada": return it.chegada;
         case "ordem_sorteio": return it.rand;
+        case "participacao_semana": return it.participacao;
         case "menor_atendimentos": return it.atendimentos;
+        case "menor_leads_semana": return it.leads;
         default: return 0;
       }
     };
