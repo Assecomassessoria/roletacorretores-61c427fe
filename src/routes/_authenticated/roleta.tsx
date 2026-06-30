@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pingPresenca, varrerAusentes, reativarPresenca } from "@/lib/presenca.functions";
 import { listarMeusEmpreendimentos } from "@/lib/meus-empreendimentos.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MapPin, UserCheck, ArrowRight, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 
-type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null };
+type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null };
 type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean };
 type Plantao = { id: string; corretor_id: string; empreendimento_id: string; data: string; hora_inicio: string; hora_fim: string; status: string; presenca_confirmada_em: string | null; fora_desde: string | null; ultimo_ping_em: string | null; status_presenca: "presente" | "ausente" };
 
@@ -24,9 +25,30 @@ export const Route = createFileRoute("/_authenticated/roleta")({
   head: () => ({ meta: [{ title: "Roleta — Roleta Corretor" }] }),
 });
 
-function todayISO() { return new Date().toISOString().slice(0, 10); }
+function saoPauloParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return { year: Number(get("year")), month: Number(get("month")), day: Number(get("day")), hour: Number(get("hour")) };
+}
+function formatDateUTC(date: Date) { return date.toISOString().slice(0, 10); }
+function operationalDateISO() {
+  const p = saoPauloParts();
+  const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
+  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  return formatDateUTC(d);
+}
 function weekStart() {
-  const d = new Date(); d.setDate(d.getDate() - d.getDay()); return d.toISOString().slice(0, 10);
+  const [year, month, day] = operationalDateISO().split("-").map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+  return formatDateUTC(d);
 }
 
 // Haversine distance in meters
@@ -61,6 +83,8 @@ function RoletaPage() {
   const varrerFn = useServerFn(varrerAusentes);
   const reativarFn = useServerFn(reativarPresenca);
   const listarEmpsFn = useServerFn(listarMeusEmpreendimentos);
+  const baterRoletaServerFn = useServerFn(baterRoletaOficialFn);
+  const liberarRoletaServerFn = useServerFn(liberarRoletaOficialFn);
 
   async function loadEmps() {
     try {
@@ -76,7 +100,7 @@ function RoletaPage() {
     const wkStart = weekStart();
     const [{ data: cs }, { data: ps }, { data: ats }] = await Promise.all([
       supabase.from("corretores").select("id,nome,creci,telefone,empreendimento_id,ordem_roleta,user_id,ativo,foto_url").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
-      supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", todayISO()),
+      supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", operationalDateISO()),
       supabase.from("atendimentos").select("corretor_id,iniciado_em").eq("empreendimento_id", empId).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
     setCorretores((cs as Corretor[]) ?? []);
@@ -141,22 +165,16 @@ function RoletaPage() {
     return { status: "aguardando" as const, label: "Aguardando", min: 0 };
   }
 
-  // Ordem oficial congelada (persistente por empreendimento+dia)
-  const frozenKey = empId ? `roleta_oficial_${empId}_${todayISO()}` : "";
-  const [frozenOrder, setFrozenOrder] = useState<string[] | null>(null);
-  useEffect(() => {
-    if (!frozenKey) { setFrozenOrder(null); return; }
-    try {
-      const raw = localStorage.getItem(frozenKey);
-      setFrozenOrder(raw ? (JSON.parse(raw) as string[]) : null);
-    } catch { setFrozenOrder(null); }
-  }, [frozenKey]);
+  // Ordem oficial congelada no servidor por empreendimento + dia operacional (limpa automaticamente às 03:00).
+  const officialOrder = emp?.fila_oficial_data === operationalDateISO() && (emp.fila_oficial_ids?.length ?? 0) > 0
+    ? emp.fila_oficial_ids ?? null
+    : null;
 
   // Reembaralha apenas quando NÃO há ordem oficial congelada
   const [shuffleNonce, setShuffleNonce] = useState(0);
   useEffect(() => {
-    if (!frozenOrder) setShuffleNonce((n) => n + 1);
-  }, [plantoes, counts, frozenOrder]);
+    if (!officialOrder) setShuffleNonce((n) => n + 1);
+  }, [plantoes, counts, officialOrder]);
 
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
@@ -165,13 +183,14 @@ function RoletaPage() {
       return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
     });
 
-    // Se houver ordem oficial congelada, respeita-a (novos presentes vão para o fim)
-    if (frozenOrder && frozenOrder.length) {
-      const idx = new Map(frozenOrder.map((id, i) => [id, i] as const));
+    // Se houver ordem oficial congelada no servidor, respeita-a (novos presentes vão para o fim).
+    if (officialOrder && officialOrder.length) {
+      const idx = new Map(officialOrder.map((id, i) => [id, i] as const));
       return [...presentes].sort((a, b) => {
         const ia = idx.has(a.id) ? idx.get(a.id)! : Number.MAX_SAFE_INTEGER;
         const ib = idx.has(b.id) ? idx.get(b.id)! : Number.MAX_SAFE_INTEGER;
-        return ia - ib;
+        if (ia !== ib) return ia - ib;
+        return a.nome.localeCompare(b.nome, "pt-BR");
       });
     }
 
@@ -203,23 +222,32 @@ function RoletaPage() {
       return (rand[a.id] ?? 0) - (rand[b.id] ?? 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce, frozenOrder]);
+  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce, officialOrder]);
 
   const proximo = fila[0];
 
-  function baterRoletaOficial() {
-    if (!frozenKey) return;
+  async function baterRoletaOficial() {
+    if (!empId) return;
     if (fila.length === 0) return toast.error("Sem corretores presentes para sortear");
-    const ids = fila.map((c) => c.id);
-    localStorage.setItem(frozenKey, JSON.stringify(ids));
-    setFrozenOrder(ids);
-    toast.success("Roleta oficial fixada — ordem permanecerá estável.");
+    try {
+      const r = await baterRoletaServerFn({ data: { empreendimento_id: empId } });
+      toast.success(`Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
+      await loadEmps();
+      await loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao bater roleta");
+    }
   }
-  function liberarRoletaOficial() {
-    if (!frozenKey) return;
-    localStorage.removeItem(frozenKey);
-    setFrozenOrder(null);
-    toast.success("Roleta liberada — será reembaralhada.");
+  async function liberarRoletaOficial() {
+    if (!empId) return;
+    try {
+      await liberarRoletaServerFn({ data: { empreendimento_id: empId } });
+      toast.success("Roleta liberada — será reembaralhada antes do próximo sorteio oficial.");
+      await loadEmps();
+      await loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao liberar roleta");
+    }
   }
 
   async function reativar(plantaoId: string) {
@@ -370,10 +398,10 @@ function RoletaPage() {
         <section className="rounded-lg border border-border bg-card p-5">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Fila de hoje {frozenOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
+              Fila de hoje {officialOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
             </h2>
             {isAdmin && (
-              frozenOrder ? (
+              officialOrder ? (
                 <Button size="sm" variant="outline" onClick={liberarRoletaOficial}>
                   <RotateCcw className="mr-1 h-3.5 w-3.5" /> Liberar / Refazer
                 </Button>
