@@ -203,9 +203,24 @@ function RoletaPage() {
       return (rand[a.id] ?? 0) - (rand[b.id] ?? 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce]);
+  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce, frozenOrder]);
 
   const proximo = fila[0];
+
+  function baterRoletaOficial() {
+    if (!frozenKey) return;
+    if (fila.length === 0) return toast.error("Sem corretores presentes para sortear");
+    const ids = fila.map((c) => c.id);
+    localStorage.setItem(frozenKey, JSON.stringify(ids));
+    setFrozenOrder(ids);
+    toast.success("Roleta oficial fixada — ordem permanecerá estável.");
+  }
+  function liberarRoletaOficial() {
+    if (!frozenKey) return;
+    localStorage.removeItem(frozenKey);
+    setFrozenOrder(null);
+    toast.success("Roleta liberada — será reembaralhada.");
+  }
 
   async function reativar(plantaoId: string) {
     try {
