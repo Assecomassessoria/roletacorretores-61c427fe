@@ -50,7 +50,7 @@ type Emp = {
 
 export const CRITERIOS_SORTEIO = [
   { code: "ordem_chegada", label: "Ordem de Chegada", hint: "Quem confirmou presença primeiro tem prioridade." },
-  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Sorteio aleatório entre os corretores presentes (estável durante o dia, redefinido a cada novo dia)." },
+  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Sorteio aleatório entre os corretores presentes; depois de bater a roleta oficial, a ordem fica fixa até liberar ou até 03:00." },
   { code: "participacao_semana", label: "Participação na Semana", hint: "Quem teve menos plantões na semana entra primeiro." },
   { code: "menor_atendimentos", label: "Menor nº de Atendimentos", hint: "Quem atendeu menos clientes na semana entra primeiro." },
   { code: "menor_leads_semana", label: "Menor nº de Leads na Semana", hint: "Quem recebeu menos leads/triagens na semana entra primeiro." },
@@ -95,6 +95,26 @@ function gerarToken() {
   let s = "";
   for (let i = 0; i < 6; i++) s += alfabeto[Math.floor(Math.random() * alfabeto.length)];
   return `STAND-${s}`;
+}
+
+function saoPauloParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return { year: Number(get("year")), month: Number(get("month")), day: Number(get("day")), hour: Number(get("hour")) };
+}
+
+function operationalDateISO(date = new Date()) {
+  const p = saoPauloParts(date);
+  const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
+  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
 }
 
 function imprimirListaCorretores(emp: Emp, lista: Corretor[], escopo: string, autoPrint = false) {
@@ -162,7 +182,7 @@ function CoordenadorPage() {
     if (!emp) return;
     try {
       const r = await baterRoletaFn({ data: { empreendimento_id: emp.id } });
-      toast.success(`Roleta oficial fixada (${r.total} corretores) — ordem permanece estável até liberar.`);
+      toast.success(`Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
       await carregarEmp();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao bater roleta");
@@ -172,7 +192,7 @@ function CoordenadorPage() {
     if (!emp) return;
     try {
       await liberarRoletaFn({ data: { empreendimento_id: emp.id } });
-      toast.success("Roleta liberada — voltará a aplicar critérios e sorteio.");
+      toast.success("Roleta liberada — voltará a aplicar critérios antes do próximo sorteio oficial.");
       await carregarEmp();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao liberar");
@@ -466,7 +486,7 @@ function CoordenadorPage() {
             </Button>
           )}
           {emp && (() => {
-            const hoje = new Date().toISOString().slice(0, 10);
+            const hoje = operationalDateISO();
             const oficialHoje = emp.fila_oficial_data === hoje && (emp.fila_oficial_ids?.length ?? 0) > 0;
             return oficialHoje ? (
               <Button variant="outline" onClick={liberarRoletaOficial} title="Libera a ordem fixada e volta a aplicar os critérios">
