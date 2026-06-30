@@ -38,10 +38,6 @@ function saoPauloParts(date = new Date()) {
   return { year: Number(get("year")), month: Number(get("month")), day: Number(get("day")), hour: Number(get("hour")) };
 }
 function formatDateUTC(date: Date) { return date.toISOString().slice(0, 10); }
-function todayISO() {
-  const p = saoPauloParts();
-  return `${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
-}
 function operationalDateISO() {
   const p = saoPauloParts();
   const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
@@ -104,7 +100,7 @@ function RoletaPage() {
     const wkStart = weekStart();
     const [{ data: cs }, { data: ps }, { data: ats }] = await Promise.all([
       supabase.from("corretores").select("id,nome,creci,telefone,empreendimento_id,ordem_roleta,user_id,ativo,foto_url").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
-      supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", todayISO()),
+      supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", operationalDateISO()),
       supabase.from("atendimentos").select("corretor_id,iniciado_em").eq("empreendimento_id", empId).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
     setCorretores((cs as Corretor[]) ?? []);
