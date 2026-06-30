@@ -44,6 +44,8 @@ type Emp = {
   modo_propaganda: boolean;
   periodo_ausencia_minutos: number;
   criterios_sorteio: string[];
+  fila_oficial_data?: string | null;
+  fila_oficial_ids?: string[] | null;
 };
 
 export const CRITERIOS_SORTEIO = [
