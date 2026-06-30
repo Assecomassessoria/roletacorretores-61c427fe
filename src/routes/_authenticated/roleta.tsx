@@ -141,9 +141,22 @@ function RoletaPage() {
     return { status: "aguardando" as const, label: "Aguardando", min: 0 };
   }
 
-  // Bump a nonce a cada loadAll (via plantoes.length/counts) para reembaralhar quando o critério for aleatório
+  // Ordem oficial congelada (persistente por empreendimento+dia)
+  const frozenKey = empId ? `roleta_oficial_${empId}_${todayISO()}` : "";
+  const [frozenOrder, setFrozenOrder] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!frozenKey) { setFrozenOrder(null); return; }
+    try {
+      const raw = localStorage.getItem(frozenKey);
+      setFrozenOrder(raw ? (JSON.parse(raw) as string[]) : null);
+    } catch { setFrozenOrder(null); }
+  }, [frozenKey]);
+
+  // Reembaralha apenas quando NÃO há ordem oficial congelada
   const [shuffleNonce, setShuffleNonce] = useState(0);
-  useEffect(() => { setShuffleNonce((n) => n + 1); }, [plantoes, counts]);
+  useEffect(() => {
+    if (!frozenOrder) setShuffleNonce((n) => n + 1);
+  }, [plantoes, counts, frozenOrder]);
 
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
@@ -151,6 +164,17 @@ function RoletaPage() {
       const p = plantoes.find((x) => x.corretor_id === c.id);
       return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
     });
+
+    // Se houver ordem oficial congelada, respeita-a (novos presentes vão para o fim)
+    if (frozenOrder && frozenOrder.length) {
+      const idx = new Map(frozenOrder.map((id, i) => [id, i] as const));
+      return [...presentes].sort((a, b) => {
+        const ia = idx.has(a.id) ? idx.get(a.id)! : Number.MAX_SAFE_INTEGER;
+        const ib = idx.has(b.id) ? idx.get(b.id)! : Number.MAX_SAFE_INTEGER;
+        return ia - ib;
+      });
+    }
+
     const criterios: string[] = (emp?.criterios_sorteio && emp.criterios_sorteio.length)
       ? emp.criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
@@ -179,9 +203,24 @@ function RoletaPage() {
       return (rand[a.id] ?? 0) - (rand[b.id] ?? 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce]);
+  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce, frozenOrder]);
 
   const proximo = fila[0];
+
+  function baterRoletaOficial() {
+    if (!frozenKey) return;
+    if (fila.length === 0) return toast.error("Sem corretores presentes para sortear");
+    const ids = fila.map((c) => c.id);
+    localStorage.setItem(frozenKey, JSON.stringify(ids));
+    setFrozenOrder(ids);
+    toast.success("Roleta oficial fixada — ordem permanecerá estável.");
+  }
+  function liberarRoletaOficial() {
+    if (!frozenKey) return;
+    localStorage.removeItem(frozenKey);
+    setFrozenOrder(null);
+    toast.success("Roleta liberada — será reembaralhada.");
+  }
 
   async function reativar(plantaoId: string) {
     try {
@@ -329,7 +368,22 @@ function RoletaPage() {
         </section>
 
         <section className="rounded-lg border border-border bg-card p-5">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Fila de hoje</h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Fila de hoje {frozenOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
+            </h2>
+            {isAdmin && (
+              frozenOrder ? (
+                <Button size="sm" variant="outline" onClick={liberarRoletaOficial}>
+                  <RotateCcw className="mr-1 h-3.5 w-3.5" /> Liberar / Refazer
+                </Button>
+              ) : (
+                <Button size="sm" onClick={baterRoletaOficial} className="bg-emerald-600 hover:bg-emerald-600/90 text-white">
+                  <UserCheck className="mr-1 h-3.5 w-3.5" /> Bater Roleta Oficial
+                </Button>
+              )
+            )}
+          </div>
           {fila.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem presenças confirmadas.</p>
           ) : (
