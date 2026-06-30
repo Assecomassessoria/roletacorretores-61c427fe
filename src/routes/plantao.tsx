@@ -657,7 +657,7 @@ function PlantaoPage() {
             {roleta && roleta.fila.length > 0 && (() => {
               const CRIT_LABELS: Record<string, string> = {
                 ordem_chegada: "ordem de chegada (presença confirmada)",
-                ordem_sorteio: "ordem de sorteio (ordem_roleta)",
+                ordem_sorteio: "sorteio aleatório entre os presentes",
                 participacao_semana: "menor participação na semana",
                 menor_atendimentos: "menor nº de atendimentos na semana",
                 menor_leads_semana: "menor nº de leads na semana",
@@ -667,7 +667,7 @@ function PlantaoPage() {
               return (
                 <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
                   <strong className="text-foreground">Auditoria do sorteio:</strong> conforme definição administrativa do stand —{" "}
-                  {descricao}. Próximo da vez:{" "}
+                  {descricao}. {roleta.oficial ? "Roleta oficial fixada — não muda até liberar ou até 03:00. " : "Antes da roleta oficial, a ordem pode ser reembaralhada a cada atualização. "}Próximo da vez:{" "}
                   <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
                   {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
                 </footer>
