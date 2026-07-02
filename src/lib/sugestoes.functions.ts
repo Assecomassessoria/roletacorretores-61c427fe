@@ -1,4 +1,5 @@
-import { createServerFn, getRequestHeader } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/start-server-core";
 import { z } from "zod";
 
 const SugestaoSchema = z.object({
