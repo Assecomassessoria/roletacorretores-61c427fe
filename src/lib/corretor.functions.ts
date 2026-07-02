@@ -113,7 +113,10 @@ export const habilitarCorretorAcesso = createServerFn({ method: "POST" })
       .from("user_roles")
       .upsert({ user_id, role: "corretor" }, { onConflict: "user_id,role" });
 
-    return { ok: true, user_id, senha };
+    // SEGURANÇA: não retornamos a senha na resposta HTTP (evita logs/proxies).
+    // A senha de 1º acesso deve ser comunicada ao corretor por canal seguro
+    // (e-mail transacional / entrega direta pelo admin).
+    return { ok: true, user_id };
   });
 
 // ============================================================
