@@ -50,6 +50,8 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
 
 const TotemRoute = TotemRouteImport.update({
@@ -265,6 +267,16 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAvisosRenovacaoRoute =
   ApiPublicHooksAvisosRenovacaoRouteImport.update({
     id: '/api/public/hooks/avisos-renovacao',
@@ -313,6 +325,8 @@ export interface FileRoutesByFullPath {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -356,6 +370,8 @@ export interface FileRoutesByTo {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -401,6 +417,8 @@ export interface FileRoutesById {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -446,6 +464,8 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -489,6 +509,8 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -533,6 +555,8 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -559,6 +583,8 @@ export interface RootRouteChildren {
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicLorenzaRoletaRoute: typeof ApiPublicLorenzaRoletaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -851,6 +877,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/avisos-renovacao': {
       id: '/api/public/hooks/avisos-renovacao'
       path: '/api/public/hooks/avisos-renovacao'
@@ -940,6 +980,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicLorenzaRoletaRoute: ApiPublicLorenzaRoletaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
