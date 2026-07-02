@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { getRequestHeader } from "@tanstack/start-server-core";
 import { z } from "zod";
-import type { Database } from "@/integrations/supabase/types";
 
 const SugestaoSchema = z.object({
   nome: z.string().trim().min(1, "Nome obrigatório").max(120),
@@ -17,15 +16,34 @@ const SugestaoSchema = z.object({
   origem: z.string().trim().max(60).optional(),
 });
 
+// Rate limit em memória (por IP) — mitigação contra flood/mass PII.
+// Vale por instância do worker; suficiente para reduzir abuso trivial.
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 3;
+const rateBuckets = new Map<string, number[]>();
+
+function checkRate(ip: string) {
+  const now = Date.now();
+  const arr = (rateBuckets.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (arr.length >= RATE_MAX) return false;
+  arr.push(now);
+  rateBuckets.set(ip, arr);
+  return true;
+}
+
 export const enviarSugestao = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SugestaoSchema.parse(input))
   .handler(async ({ data }) => {
-    const SUPABASE_URL = process.env.SUPABASE_URL!;
-    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
-    const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth: { persistSession: false },
-    });
-    const { error } = await supabase.from("sugestoes").insert({
+    const ip =
+      (getRequestHeader("cf-connecting-ip") as string | undefined) ||
+      (getRequestHeader("x-forwarded-for") as string | undefined)?.split(",")[0]?.trim() ||
+      "unknown";
+    if (!checkRate(ip)) {
+      throw new Error("Muitas mensagens enviadas. Tente novamente em alguns instantes.");
+    }
+    // Import de client admin dentro do handler (evita bundle no cliente).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("sugestoes").insert({
       nome: data.nome,
       whatsapp: data.whatsapp,
       email: data.email ?? null,
