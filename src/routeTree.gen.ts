@@ -49,6 +49,7 @@ import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
 
 const TotemRoute = TotemRouteImport.update({
@@ -258,6 +259,12 @@ const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
   path: '/api/public/lorenza',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAvisosRenovacaoRoute =
   ApiPublicHooksAvisosRenovacaoRouteImport.update({
     id: '/api/public/hooks/avisos-renovacao',
@@ -306,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -348,6 +356,7 @@ export interface FileRoutesByTo {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -392,6 +401,7 @@ export interface FileRoutesById {
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -436,6 +446,7 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -478,6 +489,7 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -521,6 +533,7 @@ export interface FileRouteTypes {
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
     | '/api/public/hooks/avisos-renovacao'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -546,6 +559,7 @@ export interface RootRouteChildren {
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicLorenzaRoletaRoute: typeof ApiPublicLorenzaRoletaRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -830,6 +844,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLorenzaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/avisos-renovacao': {
       id: '/api/public/hooks/avisos-renovacao'
       path: '/api/public/hooks/avisos-renovacao'
@@ -919,17 +940,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicLorenzaRoletaRoute: ApiPublicLorenzaRoletaRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
