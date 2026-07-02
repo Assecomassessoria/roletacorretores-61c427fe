@@ -15,8 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MapPin, UserCheck, ArrowRight, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 
-type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null };
-type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean };
+type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null; equipe_alfa_nome?: string | null; equipe_beta_nome?: string | null };
+type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean; equipe: string | null };
 type Plantao = { id: string; corretor_id: string; empreendimento_id: string; data: string; hora_inicio: string; hora_fim: string; status: string; presenca_confirmada_em: string | null; fora_desde: string | null; ultimo_ping_em: string | null; status_presenca: "presente" | "ausente" };
 
 
@@ -99,7 +99,7 @@ function RoletaPage() {
     if (!empId) return;
     const wkStart = weekStart();
     const [{ data: cs }, { data: ps }, { data: ats }] = await Promise.all([
-      supabase.from("corretores").select("id,nome,creci,telefone,empreendimento_id,ordem_roleta,user_id,ativo,foto_url").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
+      supabase.from("corretores").select("id,nome,creci,telefone,empreendimento_id,ordem_roleta,user_id,ativo,foto_url,equipe").eq("empreendimento_id", empId).eq("ativo", true).order("ordem_roleta"),
       supabase.from("plantoes").select("*").eq("empreendimento_id", empId).eq("data", operationalDateISO()),
       supabase.from("atendimentos").select("corretor_id,iniciado_em").eq("empreendimento_id", empId).gte("iniciado_em", `${wkStart}T00:00:00Z`),
     ]);
@@ -429,6 +429,44 @@ function RoletaPage() {
           )}
         </section>
       </div>
+
+      {(() => {
+        const nomeHouse = emp?.equipe_alfa_nome || "House";
+        const nomeImob = emp?.equipe_beta_nome || "Imob";
+        const stats = { alfa: 0, beta: 0 };
+        corretores.forEach((c) => {
+          const n = counts[c.id] ?? 0;
+          if (c.equipe === "alfa") stats.alfa += n;
+          else if (c.equipe === "beta") stats.beta += n;
+        });
+        const linhas = [
+          { key: "alfa" as const, nome: nomeHouse, total: stats.alfa },
+          { key: "beta" as const, nome: nomeImob, total: stats.beta },
+        ].sort((a, b) => a.total - b.total);
+        const proximaEquipe = linhas[0];
+        return (
+          <section className="mt-6 rounded-lg border border-border bg-card p-5">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Ordem House/Imob
+            </h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Próxima equipe a atender: <strong className="text-foreground">{proximaEquipe.nome}</strong> (menor número de atendimentos na semana)
+            </p>
+            <ol className="space-y-2">
+              {linhas.map((l, i) => (
+                <li key={l.key} className="flex items-center justify-between rounded border border-border/50 px-3 py-2">
+                  <div>
+                    <span className="mr-2 text-xs text-muted-foreground">#{i + 1}</span>
+                    <span className="font-medium">{l.nome}</span>
+                  </div>
+                  <Badge variant="outline">{l.total} Atend.</Badge>
+                </li>
+              ))}
+            </ol>
+          </section>
+        );
+      })()}
+
 
       <section className="mt-6 rounded-lg border border-border bg-card p-5">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
