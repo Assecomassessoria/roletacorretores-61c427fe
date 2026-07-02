@@ -170,7 +170,8 @@ function CorretoresPage() {
             cpf: (editing.cpf ?? "").replace(/\D/g, "") || null,
           },
         });
-        toast.success(`Acesso criado. Senha de 1º acesso: ${res.senha}`);
+        void res;
+        toast.success("Acesso habilitado. A senha de 1º acesso será enviada ao corretor por canal seguro.");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Falha ao habilitar acesso";
         toast.error(`Cadastro salvo, mas houve erro ao habilitar acesso: ${msg}`);
