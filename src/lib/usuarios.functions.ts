@@ -52,6 +52,27 @@ async function upsertUserByEmail(email: string, senha: string, nome: string, tel
   return existing.id;
 }
 
+/**
+ * Cria um usuário. Se o e-mail já existir, LANÇA erro em vez de resetar
+ * a senha — usado apenas em fluxos públicos (ex.: cadastroDemo) para
+ * evitar takeover de conta por qualquer visitante que conheça um e-mail.
+ */
+async function createUserOrFail(email: string, senha: string, nome: string, telefone?: string | null) {
+  const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password: senha,
+    email_confirm: true,
+    user_metadata: { nome, telefone: telefone ?? null },
+  });
+  if (!error && created.user) return created.user.id;
+  // Se o e-mail já existe (ou qualquer outra falha), nunca sobrescrevemos a senha.
+  const msg = (error?.message ?? "").toLowerCase();
+  if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("duplicate")) {
+    throw new Error("E-mail já cadastrado. Faça login ou use outro e-mail.");
+  }
+  throw new Error(error?.message ?? "Falha ao criar usuário");
+}
+
 export const criarUsuarioComPapel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => CriarUsuarioInput.parse(d))
