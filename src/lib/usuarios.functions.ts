@@ -130,10 +130,11 @@ const DemoInput = z.object({
 export const cadastroDemo = createServerFn({ method: "POST" })
   .inputValidator((d) => DemoInput.parse(d))
   .handler(async ({ data }) => {
-    // SEGURANÇA: endpoint público nunca aceita papel administrativo do cliente.
+    // SEGURANÇA: endpoint público — se o e-mail já existir NÃO redefine senha
+    // (evita takeover). O usuário deve fazer login ou usar outro e-mail.
     const safeRole = "corretor" as const;
 
-    const user_id = await upsertUserByEmail(data.email, data.senha, data.nome, data.telefone);
+    const user_id = await createUserOrFail(data.email, data.senha, data.nome, data.telefone);
     await supabaseAdmin.from("profiles").upsert(
       { id: user_id, nome: data.nome, email: data.email, telefone: data.telefone ?? null },
       { onConflict: "id" },
