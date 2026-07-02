@@ -430,6 +430,44 @@ function RoletaPage() {
         </section>
       </div>
 
+      {(() => {
+        const nomeHouse = emp?.equipe_alfa_nome || "House";
+        const nomeImob = emp?.equipe_beta_nome || "Imob";
+        const stats = { alfa: 0, beta: 0 };
+        corretores.forEach((c) => {
+          const n = counts[c.id] ?? 0;
+          if (c.equipe === "alfa") stats.alfa += n;
+          else if (c.equipe === "beta") stats.beta += n;
+        });
+        const linhas = [
+          { key: "alfa" as const, nome: nomeHouse, total: stats.alfa },
+          { key: "beta" as const, nome: nomeImob, total: stats.beta },
+        ].sort((a, b) => a.total - b.total);
+        const proximaEquipe = linhas[0];
+        return (
+          <section className="mt-6 rounded-lg border border-border bg-card p-5">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Ordem House/Imob
+            </h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Próxima equipe a atender: <strong className="text-foreground">{proximaEquipe.nome}</strong> (menor número de atendimentos na semana)
+            </p>
+            <ol className="space-y-2">
+              {linhas.map((l, i) => (
+                <li key={l.key} className="flex items-center justify-between rounded border border-border/50 px-3 py-2">
+                  <div>
+                    <span className="mr-2 text-xs text-muted-foreground">#{i + 1}</span>
+                    <span className="font-medium">{l.nome}</span>
+                  </div>
+                  <Badge variant="outline">{l.total} Atend.</Badge>
+                </li>
+              ))}
+            </ol>
+          </section>
+        );
+      })()}
+
+
       <section className="mt-6 rounded-lg border border-border bg-card p-5">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Plantões de hoje {emp ? <span className="ml-2 normal-case text-[11px] text-muted-foreground">· período de ausência: {emp.periodo_ausencia_minutos}min</span> : null}
