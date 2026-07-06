@@ -1,23 +1,46 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight, LogIn } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight, LogIn, ChevronDown, Radio } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" };
+type NavGroup =
+  | { kind: "link"; label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" }
+  | { kind: "menu"; label: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold"; items: Nav[] };
 
-const NAV_TOP: Nav[] = [
-  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
-  { label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
-  { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
-  { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
-];
-
-const NAV_BOTTOM: Nav[] = [
-  { label: "🛎️ RECEPÇÃO & TRIAGEM", to: "/atendimentos", icon: BellRing, tone: "orange" },
-  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
-  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
-  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+const NAV_GROUPS: NavGroup[] = [
+  { kind: "link", label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
+  { kind: "link", label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
+  { kind: "link", label: "RECEPÇÃO & TRIAGEM", to: "/atendimentos", icon: BellRing, tone: "orange" },
+  {
+    kind: "menu",
+    label: "CORRETOR / PLANTÃO",
+    icon: User,
+    tone: "orange",
+    items: [
+      { label: "Área do Corretor", to: "/corretor", icon: User },
+      { label: "Plantão ao Vivo", to: "/plantao", icon: Radio },
+      { label: "Plantão / Presença", to: "/plantao", icon: Clock },
+    ],
+  },
+  {
+    kind: "menu",
+    label: "GERÊNCIA / INCORPORADORA",
+    icon: ShieldCheck,
+    tone: "default",
+    items: [
+      { label: "Gerência / Coordenação", to: "/gerencia", icon: ShieldCheck },
+      { label: "Incorporadora (Setup)", to: "/setup", icon: Building2 },
+    ],
+  },
+  { kind: "link", label: "ASSINATURA / PREÇOS", to: "/planos", icon: Tag, tone: "gold" },
 ];
 
 
