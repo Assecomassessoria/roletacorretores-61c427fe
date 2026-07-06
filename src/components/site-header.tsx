@@ -1,23 +1,46 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight, LogIn } from "lucide-react";
+import { BookMarked, LayoutDashboard, LogOut, Tag, RefreshCw, Monitor, User, Clock, ShieldCheck, Building2, BellRing, ScanLine, LayoutGrid, ArrowRight, LogIn, ChevronDown, Radio } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useAssinatura } from "@/lib/use-assinatura";
 import { useNavigate } from "@tanstack/react-router";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Nav = { label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" };
+type NavGroup =
+  | { kind: "link"; label: string; to: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold" }
+  | { kind: "menu"; label: string; icon: typeof Monitor; tone?: "default" | "orange" | "gold"; items: Nav[] };
 
-const NAV_TOP: Nav[] = [
-  { label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
-  { label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
-  { label: "ÁREA DO CORRETOR", to: "/corretor", icon: User, tone: "orange" },
-  { label: "PLANTÃO / PRESENÇA", to: "/plantao", icon: Clock, tone: "orange" },
-];
-
-const NAV_BOTTOM: Nav[] = [
-  { label: "🛎️ RECEPÇÃO & TRIAGEM", to: "/atendimentos", icon: BellRing, tone: "orange" },
-  { label: "GERÊNCIA / COORDENAÇÃO", to: "/gerencia", icon: ShieldCheck, tone: "default" },
-  { label: "INCORPORADORA (SETUP)", to: "/setup", icon: Building2, tone: "default" },
-  { label: "+ Assinatura / Preços", to: "/planos", icon: Tag, tone: "gold" },
+const NAV_GROUPS: NavGroup[] = [
+  { kind: "link", label: "APRESENTAÇÃO", to: "/apresentacao", icon: Monitor, tone: "gold" },
+  { kind: "link", label: "TOTEM DO CLIENTE", to: "/totem", icon: ScanLine, tone: "orange" },
+  { kind: "link", label: "RECEPÇÃO & TRIAGEM", to: "/atendimentos", icon: BellRing, tone: "orange" },
+  {
+    kind: "menu",
+    label: "CORRETOR / PLANTÃO",
+    icon: User,
+    tone: "orange",
+    items: [
+      { label: "Área do Corretor", to: "/corretor", icon: User },
+      { label: "Plantão ao Vivo", to: "/plantao", icon: Radio },
+      { label: "Plantão / Presença", to: "/plantao", icon: Clock },
+    ],
+  },
+  {
+    kind: "menu",
+    label: "GERÊNCIA / INCORPORADORA",
+    icon: ShieldCheck,
+    tone: "default",
+    items: [
+      { label: "Gerência / Coordenação", to: "/gerencia", icon: ShieldCheck },
+      { label: "Incorporadora (Setup)", to: "/setup", icon: Building2 },
+    ],
+  },
+  { kind: "link", label: "ASSINATURA / PREÇOS", to: "/planos", icon: Tag, tone: "gold" },
 ];
 
 
@@ -121,33 +144,51 @@ export function SiteHeader() {
                 </li>
               </ul>
             ) : (
-              <div className="flex flex-col items-center gap-2 lg:items-end">
-                {[NAV_TOP, NAV_BOTTOM].map((row, idx) => (
-                  <ul key={idx} className="flex flex-wrap items-center justify-center gap-2">
-                    {row.map((n) => {
-                      const Icon = n.icon;
-                      return (
-                        <li key={n.to}>
-                          <Link
-                            to={n.to}
-                            className={
-                              "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition " +
-                              (n.tone === "orange"
-                                ? "border-orange/60 bg-orange text-orange-foreground hover:bg-orange/90"
-                                : n.tone === "gold"
-                                  ? "border-gold/60 text-gold-foreground shadow-md shadow-gold/20 gold-shimmer hover:brightness-110"
-                                  : "border-white/20 bg-white/5 text-cream/90 hover:border-orange/60 hover:text-cream hover:bg-white/10")
-                            }
-                          >
-                            <Icon className="h-3.5 w-3.5" /> {n.label}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ))}
-              </div>
+              <ul className="flex flex-wrap items-center justify-center gap-2">
+                {NAV_GROUPS.map((g) => {
+                  const Icon = g.icon;
+                  const baseClasses =
+                    "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition " +
+                    (g.tone === "orange"
+                      ? "border-orange/60 bg-orange text-orange-foreground hover:bg-orange/90"
+                      : g.tone === "gold"
+                        ? "border-gold/60 text-gold-foreground shadow-md shadow-gold/20 gold-shimmer hover:brightness-110"
+                        : "border-white/20 bg-white/5 text-cream/90 hover:border-orange/60 hover:text-cream hover:bg-white/10");
 
+                  if (g.kind === "link") {
+                    return (
+                      <li key={g.label}>
+                        <Link to={g.to} className={baseClasses}>
+                          <Icon className="h-3.5 w-3.5" /> {g.label}
+                        </Link>
+                      </li>
+                    );
+                  }
+
+                  return (
+                    <li key={g.label}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className={baseClasses + " outline-none"}>
+                          <Icon className="h-3.5 w-3.5" /> {g.label}
+                          <ChevronDown className="h-3.5 w-3.5 opacity-80" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-56">
+                          {g.items.map((it) => {
+                            const ItIcon = it.icon;
+                            return (
+                              <DropdownMenuItem key={it.label} asChild>
+                                <Link to={it.to} className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+                                  <ItIcon className="h-3.5 w-3.5" /> {it.label}
+                                </Link>
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </nav>
         </div>
