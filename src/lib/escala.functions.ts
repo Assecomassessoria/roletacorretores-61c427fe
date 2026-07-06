@@ -10,12 +10,13 @@ function isoDate(d: Date) {
 }
 
 function semanaUteis(base = new Date()): string[] {
+  // Retorna os 7 dias da semana corrente (segunda a domingo).
   const d = new Date(base);
   const dow = d.getDay();
   const diffSeg = dow === 0 ? -6 : 1 - dow;
   const seg = new Date(d);
   seg.setDate(d.getDate() + diffSeg);
-  return Array.from({ length: 5 }, (_, i) => {
+  return Array.from({ length: 7 }, (_, i) => {
     const x = new Date(seg);
     x.setDate(seg.getDate() + i);
     return isoDate(x);
