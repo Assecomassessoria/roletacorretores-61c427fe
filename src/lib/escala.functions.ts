@@ -10,15 +10,15 @@ function isoDate(d: Date) {
 }
 
 function semanaUteis(base = new Date()): string[] {
-  // Retorna os 7 dias da semana corrente (segunda a domingo).
+  // Retorna os 7 dias da semana corrente (domingo a sábado).
+  // Virada semanal: sábado 23:59:59 → domingo 00:00 libera nova escala.
   const d = new Date(base);
-  const dow = d.getDay();
-  const diffSeg = dow === 0 ? -6 : 1 - dow;
-  const seg = new Date(d);
-  seg.setDate(d.getDate() + diffSeg);
+  const dow = d.getDay(); // 0=domingo … 6=sábado
+  const dom = new Date(d);
+  dom.setDate(d.getDate() - dow);
   return Array.from({ length: 7 }, (_, i) => {
-    const x = new Date(seg);
-    x.setDate(seg.getDate() + i);
+    const x = new Date(dom);
+    x.setDate(dom.getDate() + i);
     return isoDate(x);
   });
 }
