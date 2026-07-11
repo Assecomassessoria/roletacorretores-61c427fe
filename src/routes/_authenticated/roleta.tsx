@@ -486,9 +486,10 @@ function RoletaPage() {
                 "";
               async function salvarHorario(campo: "hora_inicio" | "hora_fim", valor: string) {
                 const v = valor.length === 5 ? `${valor}:00` : valor;
-                const { error } = await supabase.from("plantoes").update({ [campo]: v }).eq("id", p.id);
+                const patch = campo === "hora_inicio" ? { hora_inicio: v } : { hora_fim: v };
+                const { error } = await supabase.from("plantoes").update(patch).eq("id", p.id);
                 if (error) return toast.error(error.message);
-                setPlantoes((rows) => rows.map((r) => (r.id === p.id ? { ...r, [campo]: v } : r)));
+                setPlantoes((rows) => rows.map((r) => (r.id === p.id ? { ...r, ...patch } : r)));
                 toast.success("Horário atualizado");
               }
               return (
