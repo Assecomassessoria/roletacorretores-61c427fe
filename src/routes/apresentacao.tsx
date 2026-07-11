@@ -69,7 +69,7 @@ export function ApresentacaoPage() {
               </Link>
               <Link
                 to="/plantao"
-                className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-6 py-3 text-sm font-semibold text-cream/90 transition hover:border-orange/60 hover:text-cream"
+                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-wider text-navy shadow-lg shadow-gold/30 transition hover:scale-[1.02] hover:bg-gold/90"
               >
                 Ver plantão ao vivo
               </Link>

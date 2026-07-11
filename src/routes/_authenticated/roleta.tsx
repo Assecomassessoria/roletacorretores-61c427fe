@@ -484,9 +484,39 @@ function RoletaPage() {
                 info.status === "ausente" ? "bg-red-600 hover:bg-red-600 text-white" :
                 info.status === "saindo" ? "bg-amber-500 hover:bg-amber-500 text-white" :
                 "";
+              async function salvarHorario(campo: "hora_inicio" | "hora_fim", valor: string) {
+                const v = valor.length === 5 ? `${valor}:00` : valor;
+                const patch = campo === "hora_inicio" ? { hora_inicio: v } : { hora_fim: v };
+                const { error } = await supabase.from("plantoes").update(patch).eq("id", p.id);
+                if (error) return toast.error(error.message);
+                setPlantoes((rows) => rows.map((r) => (r.id === p.id ? { ...r, ...patch } : r)));
+                toast.success("Horário atualizado");
+              }
               return (
-                <li key={p.id} className="flex items-center justify-between text-sm">
-                  <span>{c?.nome ?? "—"} <span className="text-muted-foreground">· {p.hora_inicio.slice(0,5)}–{p.hora_fim.slice(0,5)}</span></span>
+                <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-2">
+                    <span>{c?.nome ?? "—"}</span>
+                    <span className="text-muted-foreground">·</span>
+                    {isAdmin ? (
+                      <span className="flex items-center gap-1">
+                        <Input
+                          type="time"
+                          defaultValue={p.hora_inicio.slice(0, 5)}
+                          onBlur={(e) => e.target.value && e.target.value !== p.hora_inicio.slice(0, 5) && salvarHorario("hora_inicio", e.target.value)}
+                          className="h-7 w-[92px] px-2 py-0 text-xs"
+                        />
+                        <span className="text-muted-foreground">–</span>
+                        <Input
+                          type="time"
+                          defaultValue={p.hora_fim.slice(0, 5)}
+                          onBlur={(e) => e.target.value && e.target.value !== p.hora_fim.slice(0, 5) && salvarHorario("hora_fim", e.target.value)}
+                          className="h-7 w-[92px] px-2 py-0 text-xs"
+                        />
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">{p.hora_inicio.slice(0, 5)}–{p.hora_fim.slice(0, 5)}</span>
+                    )}
+                  </span>
                   <div className="flex items-center gap-2">
                     {p.presenca_confirmada_em
                       ? <Badge className={badgeClass}>{info.label}</Badge>
