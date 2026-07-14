@@ -9,16 +9,33 @@ function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+function saoPauloParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  }).formatToParts(date);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const wdMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    year: Number(get("year")),
+    month: Number(get("month")),
+    day: Number(get("day")),
+    dow: wdMap[get("weekday")] ?? 0,
+  };
+}
+
 function semanaUteis(base = new Date()): string[] {
-  // Retorna os 7 dias da semana corrente (domingo a sábado).
-  // Virada semanal: sábado 23:59:59 → domingo 00:00 libera nova escala.
-  const d = new Date(base);
-  const dow = d.getDay(); // 0=domingo … 6=sábado
-  const dom = new Date(d);
-  dom.setDate(d.getDate() - dow);
+  // Retorna os 7 dias da semana corrente (domingo a sábado) no fuso America/Sao_Paulo.
+  // Virada semanal: sábado 23:59:59 (SP) → domingo 00:00 (SP) libera nova escala.
+  const p = saoPauloParts(base);
+  const dom = new Date(Date.UTC(p.year, p.month - 1, p.day));
+  dom.setUTCDate(dom.getUTCDate() - p.dow);
   return Array.from({ length: 7 }, (_, i) => {
     const x = new Date(dom);
-    x.setDate(dom.getDate() + i);
+    x.setUTCDate(dom.getUTCDate() + i);
     return isoDate(x);
   });
 }
