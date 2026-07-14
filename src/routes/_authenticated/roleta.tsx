@@ -176,6 +176,27 @@ function RoletaPage() {
     if (!officialOrder) setShuffleNonce((n) => n + 1);
   }, [plantoes, counts, officialOrder]);
 
+  // Auto-fixa a fila do dia: assim que houver presentes e ainda não houver
+  // roleta oficial congelada, o admin persiste a ordem atual para o dia,
+  // evitando que F5/scroll reembaralhe. Só admins podem congelar.
+  const [autoFixando, setAutoFixando] = useState(false);
+  useEffect(() => {
+    if (!empId || !emp || !isAdmin || officialOrder || autoFixando) return;
+    const hoje = operationalDateISO();
+    if (emp.fila_oficial_data === hoje) return;
+    const presentes = corretores.filter((c) => {
+      const p = plantoes.find((x) => x.corretor_id === c.id);
+      return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
+    });
+    if (presentes.length === 0) return;
+    setAutoFixando(true);
+    baterRoletaServerFn({ data: { empreendimento_id: empId } })
+      .then(() => loadEmps())
+      .catch(() => { /* silencioso */ })
+      .finally(() => setAutoFixando(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [empId, emp?.fila_oficial_data, isAdmin, corretores, plantoes, officialOrder]);
+
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
     const presentes = corretores.filter((c) => {
