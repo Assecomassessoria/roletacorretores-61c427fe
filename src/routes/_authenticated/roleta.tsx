@@ -180,22 +180,6 @@ function RoletaPage() {
   // roleta oficial congelada, o admin persiste a ordem atual para o dia,
   // evitando que F5/scroll reembaralhe. Só admins podem congelar.
   const [autoFixando, setAutoFixando] = useState(false);
-  useEffect(() => {
-    if (!empId || !emp || !isAdmin || officialOrder || autoFixando) return;
-    const hoje = operationalDateISO();
-    if (emp.fila_oficial_data === hoje) return;
-    const presentes = corretores.filter((c) => {
-      const p = plantoes.find((x) => x.corretor_id === c.id);
-      return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
-    });
-    if (presentes.length === 0) return;
-    setAutoFixando(true);
-    baterRoletaServerFn({ data: { empreendimento_id: empId } })
-      .then(() => loadEmps())
-      .catch(() => { /* silencioso */ })
-      .finally(() => setAutoFixando(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [empId, emp?.fila_oficial_data, isAdmin, corretores, plantoes, officialOrder]);
 
   const fila = useMemo(() => {
     // só entram presentes (verde); ausentes/saindo são exibidos separadamente
@@ -247,12 +231,26 @@ function RoletaPage() {
 
   const proximo = fila[0];
 
+  useEffect(() => {
+    if (!empId || !emp || !isAdmin || officialOrder || autoFixando || fila.length === 0) return;
+    const hoje = operationalDateISO();
+    if (emp.fila_oficial_data === hoje) return;
+    setAutoFixando(true);
+    baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } })
+      .then(() => loadEmps())
+      .catch(() => { /* silencioso */ })
+      .finally(() => setAutoFixando(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [empId, emp?.fila_oficial_data, isAdmin, officialOrder, fila.map((c) => c.id).join("|")]);
+
   async function baterRoletaOficial() {
     if (!empId) return;
     if (fila.length === 0) return toast.error("Sem corretores presentes para sortear");
     try {
-      const r = await baterRoletaServerFn({ data: { empreendimento_id: empId } });
-      toast.success(`Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
+      const r = await baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } });
+      toast.success(r.reused
+        ? `Roleta oficial já estava fixa (${r.total} corretores) — não muda até liberar ou até 03:00.`
+        : `Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
       await loadEmps();
       await loadAll();
     } catch (e) {

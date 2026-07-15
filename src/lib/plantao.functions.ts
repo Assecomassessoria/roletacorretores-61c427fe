@@ -460,22 +460,37 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
   });
 
 // Bater roleta oficial — congela a ordem atual (presentes hoje) para o dia.
-const BaterInput = z.object({ empreendimento_id: z.string().uuid() });
+const BaterInput = z.object({
+  empreendimento_id: z.string().uuid(),
+  ids: z.array(z.string().uuid()).optional(),
+});
 export const baterRoletaOficial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => BaterInput.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const today = roletaOperationalDateISO();
     const wkStart = weekStartISO(today);
-    // Recalcula a fila atual usando os mesmos critérios públicos, sem reusar snapshot anterior.
+    const podeGerenciar = await Promise.all([
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "incorporadora", _empreendimento_id: data.empreendimento_id }),
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "gerente", _empreendimento_id: data.empreendimento_id }),
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "coordenador", _empreendimento_id: data.empreendimento_id }),
+    ]);
+    if (!podeGerenciar.some((r) => r.data === true)) throw new Error("Sem permissão para bater a roleta.");
+
+    // Se a roleta do dia já foi batida, nunca recalcula nem sobrescreve:
+    // F5, scroll, heartbeat ou outro clique reaproveitam a mesma ordem.
     const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([
-      supabaseAdmin.from("empreendimentos").select("id, criterios_sorteio").eq("id", data.empreendimento_id).maybeSingle(),
+      supabaseAdmin.from("empreendimentos").select("id, criterios_sorteio, fila_oficial_data, fila_oficial_ids").eq("id", data.empreendimento_id).maybeSingle(),
       supabaseAdmin.from("corretores").select("id, ordem_roleta, ativo").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
-      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, data").eq("empreendimento_id", data.empreendimento_id),
+      supabaseAdmin.from("plantoes").select("corretor_id, presenca_confirmada_em, data, status_presenca").eq("empreendimento_id", data.empreendimento_id),
       supabaseAdmin.from("atendimentos").select("corretor_id").eq("empreendimento_id", data.empreendimento_id).gte("iniciado_em", `${wkStart}T00:00:00Z`),
       supabaseAdmin.from("triagens").select("atendimento_id, created_at, atendimentos:atendimento_id(corretor_id, empreendimento_id)").eq("empreendimento_id", data.empreendimento_id).gte("created_at", `${wkStart}T00:00:00Z`),
     ]);
     if (!emp) throw new Error("Empreendimento não encontrado");
+    const idsJaFixados = Array.isArray((emp as any).fila_oficial_ids) ? (emp as any).fila_oficial_ids as string[] : [];
+    if ((emp as any).fila_oficial_data === today && idsJaFixados.length > 0) {
+      return { ok: true, data: today, ids: idsJaFixados, total: idsJaFixados.length, reused: true };
+    }
     const psHoje = (ps ?? []).filter((p: { data: string }) => p.data === today);
     const counts: Record<string, number> = {};
     (ats ?? []).forEach((a: { corretor_id: string }) => { counts[a.corretor_id] = (counts[a.corretor_id] ?? 0) + 1; });
@@ -490,7 +505,9 @@ export const baterRoletaOficial = createServerFn({ method: "POST" })
     });
     const chegada: Record<string, number> = {};
     psHoje.forEach((p: any) => { if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime(); });
-    const presentes = (cs ?? []).filter((c: any) => psHoje.some((p: any) => p.corretor_id === c.id && p.presenca_confirmada_em));
+    const presentes = (cs ?? []).filter((c: any) => psHoje.some((p: any) => p.corretor_id === c.id && p.presenca_confirmada_em && p.status_presenca !== "ausente"));
+    const idsPresentes = new Set(presentes.map((c: any) => c.id));
+    const idsInformados = Array.from(new Set(data.ids ?? [])).filter((id) => idsPresentes.has(id));
     const criterios: string[] = ((emp as any).criterios_sorteio ?? []).length ? (emp as any).criterios_sorteio : ["menor_atendimentos", "ordem_sorteio"];
     const items = presentes.map((c: any) => ({
       id: c.id,
@@ -511,11 +528,16 @@ export const baterRoletaOficial = createServerFn({ method: "POST" })
         default: return 0;
       }
     };
-    items.sort((a, b) => {
-      for (const cr of criterios) { const va = v(a, cr), vb = v(b, cr); if (va !== vb) return va - vb; }
-      return a.rand - b.rand;
-    });
-    const ids = items.map((i) => i.id);
+    const ids = idsInformados.length > 0
+      ? [...idsInformados, ...items.map((i) => i.id).filter((id) => !idsInformados.includes(id))]
+      : (() => {
+          items.sort((a, b) => {
+            for (const cr of criterios) { const va = v(a, cr), vb = v(b, cr); if (va !== vb) return va - vb; }
+            return a.rand - b.rand;
+          });
+          return items.map((i) => i.id);
+        })();
+    if (ids.length === 0) throw new Error("Sem corretores presentes para sortear");
     const { error } = await supabaseAdmin
       .from("empreendimentos")
       .update({ fila_oficial_data: today, fila_oficial_ids: ids })
