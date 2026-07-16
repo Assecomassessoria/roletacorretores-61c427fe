@@ -388,16 +388,22 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       if (p.presenca_confirmada_em) chegada[p.corretor_id] = new Date(p.presenca_confirmada_em).getTime();
     });
 
-    const presentes = (cs ?? []).filter((c) =>
-      psHoje.some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
-    );
+    const oficialHoje = (emp as any).fila_oficial_data === today && Array.isArray((emp as any).fila_oficial_ids) && (emp as any).fila_oficial_ids.length > 0;
+    const officialIds = oficialHoje ? ((emp as any).fila_oficial_ids as string[]) : [];
+    const corretoresBase = oficialHoje
+      ? officialIds
+          .map((id) => (cs ?? []).find((c) => c.id === id))
+          .filter((c): c is NonNullable<typeof c> => c != null)
+      : (cs ?? []).filter((c) =>
+          psHoje.some((p) => p.corretor_id === c.id && p.presenca_confirmada_em),
+        );
 
     const criterios: string[] = ((emp as any).criterios_sorteio ?? []).length
       ? (emp as any).criterios_sorteio
       : ["menor_atendimentos", "ordem_sorteio"];
 
     // Sorteio aleatório apenas enquanto a roleta oficial ainda não foi batida.
-    const filaBase = presentes.map((c) => ({
+    const filaBase = corretoresBase.map((c) => ({
       id: c.id,
       nome: c.nome,
       creci: c.creci,
@@ -423,7 +429,6 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
     }
 
     // Se há snapshot oficial para o dia operacional, respeitar a ordem fixada até a limpeza das 03:00.
-    const oficialHoje = (emp as any).fila_oficial_data === today && Array.isArray((emp as any).fila_oficial_ids) && (emp as any).fila_oficial_ids.length;
     if (oficialHoje) {
       const idx = new Map<string, number>(
         ((emp as any).fila_oficial_ids as string[]).map((id, i) => [id, i] as const),
@@ -538,11 +543,24 @@ export const baterRoletaOficial = createServerFn({ method: "POST" })
           return items.map((i) => i.id);
         })();
     if (ids.length === 0) throw new Error("Sem corretores presentes para sortear");
-    const { error } = await supabaseAdmin
+    const { data: gravado, error } = await supabaseAdmin
       .from("empreendimentos")
       .update({ fila_oficial_data: today, fila_oficial_ids: ids })
-      .eq("id", data.empreendimento_id);
+      .eq("id", data.empreendimento_id)
+      .or(`fila_oficial_data.is.null,fila_oficial_data.neq.${today},fila_oficial_ids.is.null`)
+      .select("fila_oficial_ids")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (!gravado) {
+      const { data: atual } = await supabaseAdmin
+        .from("empreendimentos")
+        .select("fila_oficial_ids")
+        .eq("id", data.empreendimento_id)
+        .eq("fila_oficial_data", today)
+        .maybeSingle();
+      const idsAtuais = Array.isArray((atual as any)?.fila_oficial_ids) ? ((atual as any).fila_oficial_ids as string[]) : ids;
+      return { ok: true, data: today, ids: idsAtuais, total: idsAtuais.length, reused: true };
+    }
     return { ok: true, data: today, ids, total: ids.length };
   });
 

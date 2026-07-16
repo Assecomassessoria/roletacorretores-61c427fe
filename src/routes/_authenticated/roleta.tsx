@@ -78,6 +78,7 @@ function RoletaPage() {
   const [atendOpen, setAtendOpen] = useState<Corretor | null>(null);
   const [atendForm, setAtendForm] = useState({ cliente_nome: "", cliente_telefone: "", cliente_email: "", observacoes: "" });
   const [busy, setBusy] = useState(false);
+  const [localOfficial, setLocalOfficial] = useState<{ empreendimento_id: string; data: string; ids: string[] } | null>(null);
 
   const pingFn = useServerFn(pingPresenca);
   const varrerFn = useServerFn(varrerAusentes);
@@ -115,6 +116,9 @@ function RoletaPage() {
 
   const emp = emps.find((e) => e.id === empId);
   const minhaCorretor = corretores.find((c) => c.user_id === user?.id);
+  const hojeOperacional = operationalDateISO();
+
+  useEffect(() => { setLocalOfficial(null); }, [empId]);
 
   // Heartbeat de presença (corretor com check-in) + varredura de ausentes (admin) a cada 60s
   useEffect(() => {
@@ -166,9 +170,13 @@ function RoletaPage() {
   }
 
   // Ordem oficial congelada no servidor por empreendimento + dia operacional (limpa automaticamente às 03:00).
-  const officialOrder = emp?.fila_oficial_data === operationalDateISO() && (emp.fila_oficial_ids?.length ?? 0) > 0
+  const persistedOfficialOrder = emp?.fila_oficial_data === hojeOperacional && (emp.fila_oficial_ids?.length ?? 0) > 0
     ? emp.fila_oficial_ids ?? null
     : null;
+  const optimisticOfficialOrder = localOfficial?.empreendimento_id === empId && localOfficial.data === hojeOperacional && localOfficial.ids.length > 0
+    ? localOfficial.ids
+    : null;
+  const officialOrder = persistedOfficialOrder ?? optimisticOfficialOrder;
 
   // Reembaralha apenas quando NÃO há ordem oficial congelada
   const [shuffleNonce, setShuffleNonce] = useState(0);
@@ -188,15 +196,11 @@ function RoletaPage() {
       return p?.presenca_confirmada_em && p.status_presenca !== "ausente";
     });
 
-    // Se houver ordem oficial congelada no servidor, respeita-a (novos presentes vão para o fim).
+    // Se houver ordem oficial congelada, respeita exatamente o sorteio gravado.
+    // Não remove ausentes nem adiciona novos presentes, para a ordem não mudar com F5/scroll/puxar no celular.
     if (officialOrder && officialOrder.length) {
-      const idx = new Map(officialOrder.map((id, i) => [id, i] as const));
-      return [...presentes].sort((a, b) => {
-        const ia = idx.has(a.id) ? idx.get(a.id)! : Number.MAX_SAFE_INTEGER;
-        const ib = idx.has(b.id) ? idx.get(b.id)! : Number.MAX_SAFE_INTEGER;
-        if (ia !== ib) return ia - ib;
-        return a.nome.localeCompare(b.nome, "pt-BR");
-      });
+      const byId = new Map(corretores.map((c) => [c.id, c] as const));
+      return officialOrder.map((id) => byId.get(id)).filter((c): c is Corretor => Boolean(c));
     }
 
     const criterios: string[] = (emp?.criterios_sorteio && emp.criterios_sorteio.length)
@@ -233,11 +237,14 @@ function RoletaPage() {
 
   useEffect(() => {
     if (!empId || !emp || !isAdmin || officialOrder || autoFixando || fila.length === 0) return;
-    const hoje = operationalDateISO();
+    const hoje = hojeOperacional;
     if (emp.fila_oficial_data === hoje) return;
     setAutoFixando(true);
     baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } })
-      .then(() => loadEmps())
+      .then((r) => {
+        setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
+        return loadEmps();
+      })
       .catch(() => { /* silencioso */ })
       .finally(() => setAutoFixando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -248,6 +255,7 @@ function RoletaPage() {
     if (fila.length === 0) return toast.error("Sem corretores presentes para sortear");
     try {
       const r = await baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } });
+      setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
       toast.success(r.reused
         ? `Roleta oficial já estava fixa (${r.total} corretores) — não muda até liberar ou até 03:00.`
         : `Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
@@ -261,6 +269,7 @@ function RoletaPage() {
     if (!empId) return;
     try {
       await liberarRoletaServerFn({ data: { empreendimento_id: empId } });
+      setLocalOfficial(null);
       toast.success("Roleta liberada — será reembaralhada antes do próximo sorteio oficial.");
       await loadEmps();
       await loadAll();
