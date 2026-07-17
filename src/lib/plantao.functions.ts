@@ -60,7 +60,7 @@ function saoPauloDateISO(date = new Date()) {
 function roletaOperationalDateISO(date = new Date()) {
   const p = saoPauloParts(date);
   const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
-  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  if (p.hour < 6) d.setUTCDate(d.getUTCDate() - 1);
   return formatDateUTC(d);
 }
 
@@ -428,7 +428,7 @@ export const roletaDoDiaPublico = createServerFn({ method: "POST" })
       }
     }
 
-    // Se há snapshot oficial para o dia operacional, respeitar a ordem fixada até a limpeza das 03:00.
+    // Se há snapshot oficial para o dia operacional, respeitar a ordem fixada até a limpeza das 06:00.
     if (oficialHoje) {
       const idx = new Map<string, number>(
         ((emp as any).fila_oficial_ids as string[]).map((id, i) => [id, i] as const),

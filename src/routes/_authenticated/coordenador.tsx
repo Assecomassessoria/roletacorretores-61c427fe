@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { getEmpreendimentoAdmin } from "@/lib/empreendimentos-admin.functions";
-import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn } from "@/lib/plantao.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, roletaDoDiaPublico } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,7 +50,7 @@ type Emp = {
 
 export const CRITERIOS_SORTEIO = [
   { code: "ordem_chegada", label: "Ordem de Chegada", hint: "Quem confirmou presença primeiro tem prioridade." },
-  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Sorteio aleatório entre os corretores presentes; depois de bater a roleta oficial, a ordem fica fixa até liberar ou até 03:00." },
+  { code: "ordem_sorteio", label: "Ordem de Sorteio", hint: "Sorteio aleatório entre os corretores presentes; depois de bater a roleta oficial, a ordem fica fixa até liberar ou até 06:00." },
   { code: "participacao_semana", label: "Participação na Semana", hint: "Quem teve menos plantões na semana entra primeiro." },
   { code: "menor_atendimentos", label: "Menor nº de Atendimentos", hint: "Quem atendeu menos clientes na semana entra primeiro." },
   { code: "menor_leads_semana", label: "Menor nº de Leads na Semana", hint: "Quem recebeu menos leads/triagens na semana entra primeiro." },
@@ -113,7 +113,7 @@ function saoPauloParts(date = new Date()) {
 function operationalDateISO(date = new Date()) {
   const p = saoPauloParts(date);
   const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
-  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  if (p.hour < 6) d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 
@@ -175,14 +175,20 @@ function CoordenadorPage() {
   const [endereco, setEndereco] = useState({ rua: "", numero: "", cidade: "", cep: "" });
   const [geocodando, setGeocodando] = useState(false);
   const getEmpAdmin = useServerFn(getEmpreendimentoAdmin);
+  const carregarRoletaFn = useServerFn(roletaDoDiaPublico);
   const baterRoletaFn = useServerFn(baterRoletaOficialFn);
   const liberarRoletaFn = useServerFn(liberarRoletaOficialFn);
 
   async function baterRoletaOficial() {
     if (!emp) return;
     try {
-      const r = await baterRoletaFn({ data: { empreendimento_id: emp.id } });
-      toast.success(`Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
+      const roletaAtual = await carregarRoletaFn({ data: { empreendimento_id: emp.id } });
+      const ids = (roletaAtual.fila ?? []).map((c) => c.id);
+      if (ids.length === 0) return toast.error("Sem corretores presentes para sortear");
+      const r = await baterRoletaFn({ data: { empreendimento_id: emp.id, ids } });
+      toast.success(r.reused
+        ? `Roleta oficial já estava fixa (${r.total} corretores) — não muda até liberar ou até 06:00.`
+        : `Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 06:00.`);
       await carregarEmp();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao bater roleta");
