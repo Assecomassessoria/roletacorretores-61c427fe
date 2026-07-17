@@ -669,7 +669,7 @@ function PlantaoPage() {
               return (
                 <footer className="mt-4 rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
                   <strong className="text-foreground">Auditoria do sorteio:</strong> conforme definição administrativa do stand —{" "}
-                  {descricao}. {roleta.oficial ? "Roleta oficial fixada — não muda até liberar ou até 03:00. " : "Antes da roleta oficial, a ordem pode ser reembaralhada a cada atualização. "}Próximo da vez:{" "}
+                  {descricao}. {roleta.oficial ? "Roleta oficial fixada — não muda até liberar ou até 06:00. " : "Antes da roleta oficial, a ordem pode ser reembaralhada a cada atualização. "}Próximo da vez:{" "}
                   <strong className="text-foreground">{roleta.fila[0]?.nome}</strong>. Total elegível:{" "}
                   {roleta.total_presentes}. Snapshot gerado em {new Date().toLocaleString("pt-BR")}.
                 </footer>

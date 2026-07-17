@@ -41,7 +41,7 @@ function formatDateUTC(date: Date) { return date.toISOString().slice(0, 10); }
 function operationalDateISO() {
   const p = saoPauloParts();
   const d = new Date(Date.UTC(p.year, p.month - 1, p.day));
-  if (p.hour < 3) d.setUTCDate(d.getUTCDate() - 1);
+  if (p.hour < 6) d.setUTCDate(d.getUTCDate() - 1);
   return formatDateUTC(d);
 }
 function weekStart() {
@@ -169,7 +169,7 @@ function RoletaPage() {
     return { status: "aguardando" as const, label: "Aguardando", min: 0 };
   }
 
-  // Ordem oficial congelada no servidor por empreendimento + dia operacional (limpa automaticamente às 03:00).
+  // Ordem oficial congelada no servidor por empreendimento + dia operacional (limpa automaticamente às 06:00).
   const persistedOfficialOrder = emp?.fila_oficial_data === hojeOperacional && (emp.fila_oficial_ids?.length ?? 0) > 0
     ? emp.fila_oficial_ids ?? null
     : null;
@@ -257,8 +257,8 @@ function RoletaPage() {
       const r = await baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } });
       setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
       toast.success(r.reused
-        ? `Roleta oficial já estava fixa (${r.total} corretores) — não muda até liberar ou até 03:00.`
-        : `Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 03:00.`);
+        ? `Roleta oficial já estava fixa (${r.total} corretores) — não muda até liberar ou até 06:00.`
+        : `Roleta oficial fixada (${r.total} corretores) — não muda até liberar ou até 06:00.`);
       await loadEmps();
       await loadAll();
     } catch (e) {
