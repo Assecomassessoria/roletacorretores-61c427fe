@@ -94,9 +94,10 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
       supabaseAdmin.from("feriados").select("data").eq("empreendimento_id", data.empreendimento_id).in("data", dias),
       supabaseAdmin
         .from("escala_semanal")
-        .select("id, data, equipe, corretor_id, periodos")
+        .select("id, data, equipe, corretor_id, periodos, created_at")
         .eq("empreendimento_id", data.empreendimento_id)
-        .in("data", dias),
+        .in("data", dias)
+        .order("created_at", { ascending: true }),
       supabaseAdmin.from("corretores").select("id, nome, creci, equipe").eq("empreendimento_id", data.empreendimento_id).eq("ativo", true),
       supabaseAdmin
         .from("empreendimentos")
