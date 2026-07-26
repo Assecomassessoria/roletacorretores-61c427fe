@@ -198,6 +198,16 @@ function MinhaEscalaPage() {
                           ))}
                         </ul>
                       )}
+                      {it.corretores.length > 0 && (() => {
+                        const ocupados = new Set(it.corretores.flatMap((c) => c.periodos ?? []));
+                        const livres = (["manha", "tarde"] as const).filter((p) => !ocupados.has(p));
+                        if (!livres.length) return null;
+                        return (
+                          <p className="mt-1 text-[11px] text-muted-foreground">
+                            Vaga aberta: {livres.map((p) => (p === "manha" ? "Manhã" : "Tarde")).join(" e ")}
+                          </p>
+                        );
+                      })()}
                     </div>
                     {podeAgir && (
                       <div className="flex flex-wrap gap-1">
