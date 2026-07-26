@@ -273,7 +273,7 @@ export const inscreverEscala = createServerFn({ method: "POST" })
     if (slotVago) {
       const { error: upErr } = await supabaseAdmin
         .from("escala_semanal")
-        .update({ corretor_id: corretor.id, periodos: data.periodos } as any)
+        .update({ corretor_id: corretor.id, periodos: data.periodos, created_at: new Date().toISOString() } as any)
         .eq("id", (slotVago as any).id);
       if (upErr) throw new Error(upErr.message);
     } else {
