@@ -167,6 +167,7 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
                     creci: c.creci,
                     equipe: c.equipe ?? null,
                     periodos: s.periodos,
+                    inscrito_hora: s.inscrito_hora,
                   }
                 : null;
             })
@@ -177,6 +178,7 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
               creci: string | null;
               equipe: string | null;
               periodos: string[];
+              inscrito_hora: string | null;
             }>;
           const dt = new Date(`${d}T12:00:00`);
           // Compat: primeiro corretor exposto como `corretor` para consumidores antigos.
