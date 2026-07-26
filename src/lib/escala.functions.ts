@@ -109,10 +109,21 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
     const feriadoSet = new Set((fer ?? []).map((f) => f.data as string));
     const cMap = new Map((cs ?? []).map((c) => [c.id, c]));
 
+    const fmtHora = (iso: string | null) => {
+      if (!iso) return null;
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return null;
+      return new Intl.DateTimeFormat("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(d);
+    };
+
     // Vários corretores podem ocupar o mesmo (equipe, dia). Agrupamos por chave.
     const slotsBy = new Map<
       string,
-      Array<{ slot_id: string; corretor_id: string | null; periodos: string[] }>
+      Array<{ slot_id: string; corretor_id: string | null; periodos: string[]; created_at: string | null; inscrito_hora: string | null }>
     >();
     (slots ?? []).forEach((s: any) => {
       const k = `${s.equipe}|${s.data}`;
@@ -121,9 +132,15 @@ export const listarEscalaSemanal = createServerFn({ method: "POST" })
         slot_id: s.id,
         corretor_id: s.corretor_id,
         periodos: (s.periodos ?? ["manha", "tarde"]) as string[],
+        created_at: s.created_at ?? null,
+        inscrito_hora: fmtHora(s.created_at ?? null),
       });
       slotsBy.set(k, arr);
     });
+    // Mantém a sequência cronológica de inscrição dentro de cada dia/equipe.
+    slotsBy.forEach((arr) =>
+      arr.sort((a, b) => (a.created_at ?? "").localeCompare(b.created_at ?? "")),
+    );
 
     const equipes = ["alfa", "beta"] as const;
     const nomesEquipes: Record<string, string> = {
