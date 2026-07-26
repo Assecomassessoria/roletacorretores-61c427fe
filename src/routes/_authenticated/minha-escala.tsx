@@ -32,6 +32,16 @@ type Item = {
 
 type EscalaEquipe = { equipe: "alfa" | "beta"; equipe_nome: string; itens: Item[] };
 
+function rotuloPeriodo(periodos: string[] | undefined) {
+  const p = periodos ?? [];
+  const manha = p.includes("manha");
+  const tarde = p.includes("tarde");
+  if (manha && tarde) return "Integral";
+  if (manha) return "Manhã";
+  if (tarde) return "Tarde";
+  return "—";
+}
+
 
 
 function MinhaEscalaPage() {
