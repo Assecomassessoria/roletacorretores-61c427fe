@@ -180,6 +180,9 @@ function MinhaEscalaPage() {
                                 {c.creci ? ` · ${c.creci}` : ""}
                                 {c.id === meuCorretorId ? " (você)" : ""}
                               </span>
+                              <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+                                {rotuloPeriodo(c.periodos)}
+                              </span>
                               {c.id === meuCorretorId && (
                                 <Button
                                   size="sm"
