@@ -21,6 +21,7 @@ type CorretorSlot = {
   creci: string | null;
   equipe?: string | null;
   periodos: string[];
+  inscrito_hora?: string | null;
 };
 
 type Item = {
