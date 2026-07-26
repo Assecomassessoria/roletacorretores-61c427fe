@@ -32,6 +32,16 @@ type Item = {
 
 type EscalaEquipe = { equipe: "alfa" | "beta"; equipe_nome: string; itens: Item[] };
 
+function rotuloPeriodo(periodos: string[] | undefined) {
+  const p = periodos ?? [];
+  const manha = p.includes("manha");
+  const tarde = p.includes("tarde");
+  if (manha && tarde) return "Integral";
+  if (manha) return "Manhã";
+  if (tarde) return "Tarde";
+  return "—";
+}
+
 
 
 function MinhaEscalaPage() {
@@ -170,6 +180,9 @@ function MinhaEscalaPage() {
                                 {c.creci ? ` · ${c.creci}` : ""}
                                 {c.id === meuCorretorId ? " (você)" : ""}
                               </span>
+                              <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+                                {rotuloPeriodo(c.periodos)}
+                              </span>
                               {c.id === meuCorretorId && (
                                 <Button
                                   size="sm"
@@ -185,6 +198,16 @@ function MinhaEscalaPage() {
                           ))}
                         </ul>
                       )}
+                      {it.corretores.length > 0 && (() => {
+                        const ocupados = new Set(it.corretores.flatMap((c) => c.periodos ?? []));
+                        const livres = (["manha", "tarde"] as const).filter((p) => !ocupados.has(p));
+                        if (!livres.length) return null;
+                        return (
+                          <p className="mt-1 text-[11px] text-muted-foreground">
+                            Vaga aberta: {livres.map((p) => (p === "manha" ? "Manhã" : "Tarde")).join(" e ")}
+                          </p>
+                        );
+                      })()}
                     </div>
                     {podeAgir && (
                       <div className="flex flex-wrap gap-1">
