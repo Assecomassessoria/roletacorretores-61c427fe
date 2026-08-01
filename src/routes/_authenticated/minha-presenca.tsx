@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { pingPresenca } from "@/lib/presenca.functions";
 import { ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/minha-presenca")({
@@ -56,6 +58,31 @@ function MinhaPresencaPage() {
       setLoading(false);
     })();
   }, [user]);
+
+  // Heartbeat de geolocalização enquanto a página estiver aberta
+  const pingFn = useServerFn(pingPresenca);
+  const plantaoAtivo = plantoes.find((p) => p.presenca_confirmada_em);
+  useEffect(() => {
+    if (!plantaoAtivo || !navigator.geolocation) return;
+    let cancelado = false;
+    const tick = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          if (cancelado) return;
+          try {
+            await pingFn({ data: { plantao_id: plantaoAtivo.id, lat: pos.coords.latitude, lng: pos.coords.longitude } });
+          } catch { /* silencioso */ }
+        },
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 },
+      );
+    };
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => { cancelado = true; clearInterval(id); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plantaoAtivo?.id]);
+
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">

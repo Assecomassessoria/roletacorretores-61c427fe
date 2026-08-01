@@ -113,6 +113,25 @@ export const varrerAusentes = createServerFn({ method: "POST" })
     const minutos = (emp as any)?.periodo_ausencia_minutos ?? 60;
     const limite = new Date(Date.now() - minutos * 60_000).toISOString();
 
+    // 1) Sinal perdido: o corretor tinha rastreamento ativo e parou de enviar ping.
+    //    Consideramos que ele saiu do stand no horário do último ping.
+    const { data: semSinal } = await supabaseAdmin
+      .from("plantoes")
+      .select("id, ultimo_ping_em")
+      .eq("empreendimento_id", data.empreendimento_id)
+      .eq("data", today)
+      .eq("status_presenca", "presente")
+      .is("fora_desde", null)
+      .not("ultimo_ping_em", "is", null)
+      .lte("ultimo_ping_em", limite);
+
+    for (const row of semSinal ?? []) {
+      await supabaseAdmin
+        .from("plantoes")
+        .update({ fora_desde: (row as any).ultimo_ping_em } as any)
+        .eq("id", row.id);
+    }
+
     const { data: alvos } = await supabaseAdmin
       .from("plantoes")
       .select("id")
@@ -124,10 +143,11 @@ export const varrerAusentes = createServerFn({ method: "POST" })
 
     if (!alvos || alvos.length === 0) return { ok: true, marcados: 0 };
 
+
     const ids = alvos.map((a) => a.id);
     const { error } = await supabaseAdmin
       .from("plantoes")
-      .update({ status_presenca: "ausente", status: "ausente" } as any)
+      .update({ status_presenca: "ausente" } as any)
       .in("id", ids);
     if (error) throw new Error(error.message);
 
