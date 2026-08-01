@@ -37,7 +37,7 @@ const PLANOS = [
     nome: "Plano 30 Teste Elite",
     cor: "white" as const,
     badge: "Trial qualificado · Pagamento único na adesão",
-    preco: "R$ 104,90",
+    preco: "R$ 199,90",
     sub: "/30 dias",
     promo: "Renovação assistida no 25º dia via Lorenza Messenger",
     features: [
@@ -56,9 +56,9 @@ const PLANOS = [
     nome: "Experiência 90 dias",
     cor: "navy" as const,
     badge: "Cadastro de demonstração / experiência",
-    preco: "R$ 209,70",
+    preco: "R$ 509,90",
     sub: "ÚNICO",
-    promo: "69,90/Mês - 90 dias de uso completo",
+    promo: "169,90/Mês - 90 dias de uso completo",
     features: [
       "Acesso à gestão operacional completa",
       "Validação de presença para corretores",
@@ -72,7 +72,7 @@ const PLANOS = [
     nome: "Plano Mensal Elite",
     cor: "white" as const,
     badge: "Profissional · Cobrança mensal",
-    preco: "R$ 239,90",
+    preco: "R$ 259,90",
     sub: "/mês",
     features: [
       "Cadastro ilimitado de corretores",
@@ -90,8 +90,8 @@ const PLANOS = [
     nome: "Plano Anual Executivo",
     cor: "gold" as const,
     badge: "Recomendado · Maior economia",
-    preco: "R$ 189,90",
-    sub: "/Anual/R$ 2.278,80",
+    preco: "R$ 229,90",
+    sub: "/Anual/R$ 2.528,90",
     features: [
       "Todos os benefícios do mensal",
       "Atendimento de inauguração inclusivo",
