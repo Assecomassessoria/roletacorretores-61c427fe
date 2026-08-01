@@ -252,6 +252,31 @@ export const checkInPlantao = createServerFn({ method: "POST" })
     }
 
     const today = todayISO();
+
+    // Horário do plantão: início = momento real da validação (America/Sao_Paulo);
+    // fim conforme o período inscrito na escala do dia.
+    // Integral 09:00–18:00 · Manhã 09:00–13:30 · Tarde 13:30–18:00
+    const agoraHM = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date());
+
+    const { data: escalaHoje } = await supabaseAdmin
+      .from("escala_semanal")
+      .select("periodos")
+      .eq("empreendimento_id", corretor.empreendimento_id)
+      .eq("corretor_id", corretor.id)
+      .eq("data", today)
+      .maybeSingle();
+
+    const periodos = ((escalaHoje as any)?.periodos ?? ["manha", "tarde"]) as string[];
+    const temManha = periodos.includes("manha");
+    const temTarde = periodos.includes("tarde");
+    const horaFim = temManha && !temTarde ? "13:30:00" : "18:00:00";
+    const horaInicio = `${agoraHM}:00`;
+
     let plantaoId: string | null = null;
     const { data: existing } = await supabaseAdmin
       .from("plantoes")
@@ -269,8 +294,8 @@ export const checkInPlantao = createServerFn({ method: "POST" })
           corretor_id: corretor.id,
           empreendimento_id: corretor.empreendimento_id,
           data: today,
-          hora_inicio: "08:00",
-          hora_fim: "18:00",
+          hora_inicio: horaInicio,
+          hora_fim: horaFim,
           status: "em_andamento",
         })
         .select("id")
@@ -286,9 +311,12 @@ export const checkInPlantao = createServerFn({ method: "POST" })
         presenca_lat: data.latitude ?? null,
         presenca_lng: data.longitude ?? null,
         status: "em_andamento",
+        // Só grava o horário de validação na primeira confirmação do dia.
+        ...(existing?.presenca_confirmada_em ? {} : { hora_inicio: horaInicio, hora_fim: horaFim }),
       })
       .eq("id", plantaoId!);
     if (upErr) throw new Error(upErr.message);
+
 
     await supabaseAdmin.from("audit_log").insert({
       user_id: authUserId,
