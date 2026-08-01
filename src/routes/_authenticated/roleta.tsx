@@ -79,6 +79,13 @@ function RoletaPage() {
   const [atendForm, setAtendForm] = useState({ cliente_nome: "", cliente_telefone: "", cliente_email: "", observacoes: "" });
   const [busy, setBusy] = useState(false);
   const [localOfficial, setLocalOfficial] = useState<{ empreendimento_id: string; data: string; ids: string[] } | null>(null);
+  const [agora, setAgora] = useState(() => Date.now());
+
+  // Relógio para o cronômetro de ausência
+  useEffect(() => {
+    const id = setInterval(() => setAgora(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const pingFn = useServerFn(pingPresenca);
   const varrerFn = useServerFn(varrerAusentes);
