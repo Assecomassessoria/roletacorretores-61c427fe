@@ -183,6 +183,70 @@ export type Database = {
         }
         Relationships: []
       }
+      ausencias: {
+        Row: {
+          corretor_id: string
+          created_at: string
+          data: string
+          duracao_minutos: number | null
+          empreendimento_id: string
+          fim: string | null
+          id: string
+          inicio: string
+          origem: string
+          plantao_id: string
+          updated_at: string
+        }
+        Insert: {
+          corretor_id: string
+          created_at?: string
+          data: string
+          duracao_minutos?: number | null
+          empreendimento_id: string
+          fim?: string | null
+          id?: string
+          inicio: string
+          origem?: string
+          plantao_id: string
+          updated_at?: string
+        }
+        Update: {
+          corretor_id?: string
+          created_at?: string
+          data?: string
+          duracao_minutos?: number | null
+          empreendimento_id?: string
+          fim?: string | null
+          id?: string
+          inicio?: string
+          origem?: string
+          plantao_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ausencias_corretor_id_fkey"
+            columns: ["corretor_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ausencias_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ausencias_plantao_id_fkey"
+            columns: ["plantao_id"]
+            isOneToOne: false
+            referencedRelation: "plantoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avisos_renovacao: {
         Row: {
           assinatura_id: string
