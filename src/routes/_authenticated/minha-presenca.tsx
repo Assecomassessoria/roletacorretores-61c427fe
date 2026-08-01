@@ -59,6 +59,31 @@ function MinhaPresencaPage() {
     })();
   }, [user]);
 
+  // Heartbeat de geolocalização enquanto a página estiver aberta
+  const pingFn = useServerFn(pingPresenca);
+  const plantaoAtivo = plantoes.find((p) => p.presenca_confirmada_em);
+  useEffect(() => {
+    if (!plantaoAtivo || !navigator.geolocation) return;
+    let cancelado = false;
+    const tick = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          if (cancelado) return;
+          try {
+            await pingFn({ data: { plantao_id: plantaoAtivo.id, lat: pos.coords.latitude, lng: pos.coords.longitude } });
+          } catch { /* silencioso */ }
+        },
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 },
+      );
+    };
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => { cancelado = true; clearInterval(id); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plantaoAtivo?.id]);
+
+
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
       <Link to="/app" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
