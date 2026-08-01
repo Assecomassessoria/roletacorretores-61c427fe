@@ -164,17 +164,41 @@ function RoletaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [empId, minhaCorretor?.id, plantoes.length]);
 
+  function fmtHora(iso: string) {
+    return new Intl.DateTimeFormat("pt-BR", {
+      hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo",
+    }).format(new Date(iso));
+  }
+  function fmtDur(min: number) {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${m}min`;
+  }
+
   function presencaInfo(corretorId: string) {
     const p = plantoes.find((x) => x.corretor_id === corretorId);
-    if (!p) return { status: "sem" as const, label: "sem plantão", min: 0 };
-    if (p.status_presenca === "ausente") return { status: "ausente" as const, label: "Ausente", min: 0 };
-    if (p.fora_desde) {
-      const min = Math.floor((Date.now() - new Date(p.fora_desde).getTime()) / 60000);
-      return { status: "saindo" as const, label: `Saiu há ${min}m`, min };
+    if (!p) return { status: "sem" as const, label: "sem plantão", min: 0, desde: null as string | null };
+    const min = p.fora_desde ? Math.max(0, Math.floor((agora - new Date(p.fora_desde).getTime()) / 60000)) : 0;
+    if (p.status_presenca === "ausente") {
+      return {
+        status: "ausente" as const,
+        label: p.fora_desde ? `Ausente desde ${fmtHora(p.fora_desde)} · ${fmtDur(min)}` : "Ausente",
+        min,
+        desde: p.fora_desde,
+      };
     }
-    if (p.presenca_confirmada_em) return { status: "presente" as const, label: "Presente", min: 0 };
-    return { status: "aguardando" as const, label: "Aguardando", min: 0 };
+    if (p.fora_desde) {
+      return {
+        status: "saindo" as const,
+        label: `Saiu às ${fmtHora(p.fora_desde)} · ${fmtDur(min)}`,
+        min,
+        desde: p.fora_desde,
+      };
+    }
+    if (p.presenca_confirmada_em) return { status: "presente" as const, label: "Presente", min: 0, desde: null };
+    return { status: "aguardando" as const, label: "Aguardando", min: 0, desde: null };
   }
+
 
   // Ordem oficial congelada no servidor por empreendimento + dia operacional (limpa automaticamente às 06:00).
   const persistedOfficialOrder = emp?.fila_oficial_data === hojeOperacional && (emp.fila_oficial_ids?.length ?? 0) > 0
