@@ -147,7 +147,7 @@ export const varrerAusentes = createServerFn({ method: "POST" })
     const ids = alvos.map((a) => a.id);
     const { error } = await supabaseAdmin
       .from("plantoes")
-      .update({ status_presenca: "ausente", status: "ausente" } as any)
+      .update({ status_presenca: "ausente" } as any)
       .in("id", ids);
     if (error) throw new Error(error.message);
 
