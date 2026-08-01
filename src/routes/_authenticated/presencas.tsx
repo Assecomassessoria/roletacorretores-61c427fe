@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { MapPin, Wifi, QrCode, KeyRound, ShieldCheck, Loader2, Calendar, Users } from "lucide-react";
+import { MapPin, Wifi, QrCode, KeyRound, ShieldCheck, Loader2, Calendar, Users, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { listarPresencasDoDia } from "@/lib/presencas.functions";
+import { listarAusencias, type AusenciaItem } from "@/lib/ausencias.functions";
 
 export const Route = createFileRoute("/_authenticated/presencas")({
   component: PresencasPage,
@@ -44,12 +45,26 @@ function PresencasPage() {
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [busy, setBusy] = useState(false);
+  const fetchAusencias = useServerFn(listarAusencias);
+  const [ausencias, setAusencias] = useState<AusenciaItem[]>([]);
+  const [totalAusente, setTotalAusente] = useState(0);
 
   async function load() {
     setBusy(true);
     try {
       const r = (await fetchPresencas({ data: { data: dia } })) as { presencas: Presenca[] };
       setPresencas(r.presencas);
+      try {
+        const a = (await fetchAusencias({ data: { de: dia, ate: dia } })) as {
+          ausencias: AusenciaItem[];
+          total_minutos: number;
+        };
+        setAusencias(a.ausencias);
+        setTotalAusente(a.total_minutos);
+      } catch {
+        setAusencias([]);
+        setTotalAusente(0);
+      }
     } finally {
       setBusy(false);
     }
@@ -165,6 +180,73 @@ function PresencasPage() {
           </footer>
         </div>
       )}
+      <section className="mt-10">
+        <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-display text-lg font-bold">Histórico de ausências</h2>
+            <p className="text-xs text-muted-foreground">
+              Registro detalhado de cada saída do stand: início, retorno e duração total.
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+            <Clock className="h-3.5 w-3.5" /> {ausencias.length} ausência(s) · {fmtDur(totalAusente)} no total
+          </span>
+        </header>
+
+        {ausencias.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            Nenhuma ausência registrada nesta data.
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2 text-left">Corretor</th>
+                  <th className="px-4 py-2 text-left">Início</th>
+                  <th className="px-4 py-2 text-left">Fim</th>
+                  <th className="px-4 py-2 text-left">Duração</th>
+                  <th className="px-4 py-2 text-left">Origem</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {ausencias.map((a) => (
+                  <tr key={a.id} className="hover:bg-muted/20">
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-foreground">{a.corretor?.nome ?? "—"}</div>
+                      {a.corretor?.creci && (
+                        <div className="text-xs text-muted-foreground">CRECI {a.corretor.creci}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{fmtHora(a.inicio)}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {a.fim ? fmtHora(a.fim) : <span className="font-semibold text-amber-600">em curso</span>}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-foreground">{fmtDur(a.duracao_minutos ?? 0)}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {a.origem === "manual" ? "Manual" : "Automática"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   );
+}
+
+function fmtHora(iso: string) {
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Sao_Paulo",
+  });
+}
+
+function fmtDur(min: number) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${m}min`;
 }
