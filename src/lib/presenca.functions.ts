@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { abrirAusencia, fecharAusencia } from "./ausencias.server";
 
 function distMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371000;
@@ -47,7 +48,7 @@ export const pingPresenca = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: p, error: pe } = await supabaseAdmin
       .from("plantoes")
-      .select("id, empreendimento_id, fora_desde, status_presenca, corretor_id")
+      .select("id, empreendimento_id, fora_desde, status_presenca, corretor_id, data")
       .eq("id", data.plantao_id)
       .maybeSingle();
     if (pe) throw new Error(pe.message);
@@ -80,8 +81,10 @@ export const pingPresenca = createServerFn({ method: "POST" })
     if (dentro) {
       patch.fora_desde = null;
       if (p.status_presenca !== "ausente") patch.status_presenca = "presente";
+      await fecharAusencia(p.id, now);
     } else if (!p.fora_desde) {
       patch.fora_desde = now;
+      await abrirAusencia(p as any, now);
     }
 
     const { error } = await supabaseAdmin
@@ -117,7 +120,7 @@ export const varrerAusentes = createServerFn({ method: "POST" })
     //    Consideramos que ele saiu do stand no horário do último ping.
     const { data: semSinal } = await supabaseAdmin
       .from("plantoes")
-      .select("id, ultimo_ping_em")
+      .select("id, ultimo_ping_em, corretor_id, empreendimento_id, data")
       .eq("empreendimento_id", data.empreendimento_id)
       .eq("data", today)
       .eq("status_presenca", "presente")
@@ -130,11 +133,12 @@ export const varrerAusentes = createServerFn({ method: "POST" })
         .from("plantoes")
         .update({ fora_desde: (row as any).ultimo_ping_em } as any)
         .eq("id", row.id);
+      await abrirAusencia(row as any, (row as any).ultimo_ping_em);
     }
 
     const { data: alvos } = await supabaseAdmin
       .from("plantoes")
-      .select("id")
+      .select("id, corretor_id, empreendimento_id, data, fora_desde")
       .eq("empreendimento_id", data.empreendimento_id)
       .eq("data", today)
       .neq("status_presenca", "ausente")
@@ -143,6 +147,10 @@ export const varrerAusentes = createServerFn({ method: "POST" })
 
     if (!alvos || alvos.length === 0) return { ok: true, marcados: 0 };
 
+
+    for (const a of alvos) {
+      await abrirAusencia(a as any, (a as any).fora_desde ?? new Date().toISOString());
+    }
 
     const ids = alvos.map((a) => a.id);
     const { error } = await supabaseAdmin
@@ -163,7 +171,7 @@ export const reativarPresenca = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: p } = await supabaseAdmin
       .from("plantoes")
-      .select("empreendimento_id")
+      .select("empreendimento_id, corretor_id, data")
       .eq("id", data.plantao_id)
       .maybeSingle();
     if (!p) throw new Error("Plantão não encontrado");
@@ -180,5 +188,6 @@ export const reativarPresenca = createServerFn({ method: "POST" })
       } as any)
       .eq("id", data.plantao_id);
     if (error) throw new Error(error.message);
+    await fecharAusencia(data.plantao_id);
     return { ok: true };
   });
