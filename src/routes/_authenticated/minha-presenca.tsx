@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { pingPresenca } from "@/lib/presenca.functions";
 import { ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/minha-presenca")({
