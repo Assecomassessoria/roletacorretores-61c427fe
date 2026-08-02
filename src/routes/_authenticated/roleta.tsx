@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MapPin, UserCheck, ArrowRight, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 
-type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null; equipe_alfa_nome?: string | null; equipe_beta_nome?: string | null };
+type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null; equipe_alfa_nome?: string | null; equipe_beta_nome?: string | null; roleta_automatica?: boolean | null; roleta_auto_horarios?: string[] | null };
 type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean; equipe: string | null };
 type Plantao = { id: string; corretor_id: string; empreendimento_id: string; data: string; hora_inicio: string; hora_fim: string; status: string; presenca_confirmada_em: string | null; fora_desde: string | null; ultimo_ping_em: string | null; status_presenca: "presente" | "ausente" };
 
@@ -234,42 +234,34 @@ function RoletaPage() {
       return officialOrder.map((id) => byId.get(id)).filter((c): c is Corretor => Boolean(c));
     }
 
-    const criterios: string[] = (emp?.criterios_sorteio && emp.criterios_sorteio.length)
-      ? emp.criterios_sorteio
-      : ["menor_atendimentos", "ordem_sorteio"];
-    const rand: Record<string, number> = {};
-    presentes.forEach((c) => { rand[c.id] = Math.random(); });
+    // Antes do sorteio: exibe apenas a ORDEM DE CHEGADA / PRESENÇA.
     const chegada: Record<string, number> = {};
     presentes.forEach((c) => {
       const p = plantoes.find((x) => x.corretor_id === c.id);
       chegada[c.id] = p?.presenca_confirmada_em ? new Date(p.presenca_confirmada_em).getTime() : Number.MAX_SAFE_INTEGER;
     });
-    const valor = (c: Corretor, cr: string): number => {
-      switch (cr) {
-        case "ordem_chegada": return chegada[c.id] ?? Number.MAX_SAFE_INTEGER;
-        case "ordem_sorteio": return rand[c.id] ?? 0;
-        case "menor_atendimentos": return counts[c.id] ?? 0;
-        case "participacao_semana": return 0;
-        case "menor_leads_semana": return 0;
-        default: return 0;
-      }
-    };
-    return [...presentes].sort((a, b) => {
-      for (const cr of criterios) {
-        const va = valor(a, cr), vb = valor(b, cr);
-        if (va !== vb) return va - vb;
-      }
-      return (rand[a.id] ?? 0) - (rand[b.id] ?? 0);
-    });
+    return [...presentes].sort((a, b) => (chegada[a.id] ?? 0) - (chegada[b.id] ?? 0));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [corretores, plantoes, counts, emp?.criterios_sorteio, shuffleNonce, officialOrder]);
+  }, [corretores, plantoes, officialOrder]);
 
-  const proximo = fila[0];
+  const sorteioFeito = Boolean(officialOrder && officialOrder.length);
+  const proximo = sorteioFeito ? fila[0] : undefined;
 
+  // Execução automática: só congela a fila quando a roleta automática está ligada
+  // e algum horário configurado já foi atingido. Caso contrário, aguarda "Bater Roleta".
   useEffect(() => {
     if (!empId || !emp || !isAdmin || officialOrder || autoFixando || fila.length === 0) return;
-    const hoje = hojeOperacional;
-    if (emp.fila_oficial_data === hoje) return;
+    if (emp.fila_oficial_data === hojeOperacional) return;
+    if (!emp.roleta_automatica) return;
+    const horarios = emp.roleta_auto_horarios ?? [];
+    if (horarios.length === 0) return;
+    const p = saoPauloParts();
+    const agoraMin = p.hour * 60 + new Date().getMinutes();
+    const atingiu = horarios.some((h) => {
+      const [hh, mm] = h.split(":").map(Number);
+      return Number.isFinite(hh) && agoraMin >= hh * 60 + (mm || 0);
+    });
+    if (!atingiu) return;
     setAutoFixando(true);
     baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } })
       .then((r) => {
@@ -279,7 +271,8 @@ function RoletaPage() {
       .catch(() => { /* silencioso */ })
       .finally(() => setAutoFixando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [empId, emp?.fila_oficial_data, isAdmin, officialOrder, fila.map((c) => c.id).join("|")]);
+  }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, isAdmin, officialOrder, agora, fila.map((c) => c.id).join("|")]);
+
 
   async function baterRoletaOficial() {
     if (!empId) return;
@@ -437,9 +430,14 @@ function RoletaPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            <ArrowRight className="h-4 w-4" /> Próximo da fila
+            <ArrowRight className="h-4 w-4" /> {sorteioFeito ? "Próximo da fila de atendimento" : "Aguardando sorteio"}
           </h2>
-          {proximo ? (
+          {!sorteioFeito ? (
+            <p className="text-sm text-muted-foreground">
+              A ordem de atendimento só é exibida após a <strong>execução automática</strong> ou o
+              <strong> Bater Roleta</strong> manual. Até lá, veja a ordem de chegada/presença.
+            </p>
+          ) : proximo ? (
             <div className="space-y-2">
               <div className="text-xl font-bold">{proximo.nome}</div>
               <div className="text-xs text-muted-foreground">{counts[proximo.id] ?? 0} atendimentos esta semana</div>
@@ -457,7 +455,8 @@ function RoletaPage() {
         <section className="rounded-lg border border-border bg-card p-5">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Fila de hoje {officialOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
+              {sorteioFeito ? "Fila de atendimento hoje" : "Ordem chegada/presença"}
+              {sorteioFeito && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
             </h2>
             {isAdmin && (
               officialOrder ? (
@@ -471,6 +470,7 @@ function RoletaPage() {
               )
             )}
           </div>
+
           {fila.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem presenças confirmadas.</p>
           ) : (
