@@ -271,7 +271,7 @@ function RoletaPage() {
       .catch(() => { /* silencioso */ })
       .finally(() => setAutoFixando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, isAdmin, officialOrder, tick, fila.map((c) => c.id).join("|")]);
+  }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, isAdmin, officialOrder, agora, fila.map((c) => c.id).join("|")]);
 
 
   async function baterRoletaOficial() {
