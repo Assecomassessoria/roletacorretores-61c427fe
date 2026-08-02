@@ -430,9 +430,14 @@ function RoletaPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            <ArrowRight className="h-4 w-4" /> Próximo da fila
+            <ArrowRight className="h-4 w-4" /> {sorteioFeito ? "Próximo da fila de atendimento" : "Aguardando sorteio"}
           </h2>
-          {proximo ? (
+          {!sorteioFeito ? (
+            <p className="text-sm text-muted-foreground">
+              A ordem de atendimento só é exibida após a <strong>execução automática</strong> ou o
+              <strong> Bater Roleta</strong> manual. Até lá, veja a ordem de chegada/presença.
+            </p>
+          ) : proximo ? (
             <div className="space-y-2">
               <div className="text-xl font-bold">{proximo.nome}</div>
               <div className="text-xs text-muted-foreground">{counts[proximo.id] ?? 0} atendimentos esta semana</div>
@@ -450,7 +455,8 @@ function RoletaPage() {
         <section className="rounded-lg border border-border bg-card p-5">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Fila de hoje {officialOrder && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
+              {sorteioFeito ? "Fila de atendimento hoje" : "Ordem chegada/presença"}
+              {sorteioFeito && <span className="ml-2 rounded bg-emerald-600/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">OFICIAL ✓</span>}
             </h2>
             {isAdmin && (
               officialOrder ? (
@@ -464,6 +470,7 @@ function RoletaPage() {
               )
             )}
           </div>
+
           {fila.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem presenças confirmadas.</p>
           ) : (
