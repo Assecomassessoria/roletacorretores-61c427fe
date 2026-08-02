@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MapPin, UserCheck, ArrowRight, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 
-type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null; equipe_alfa_nome?: string | null; equipe_beta_nome?: string | null };
+type Emp = { id: string; nome: string; latitude: number | null; longitude: number | null; raio_metros: number; periodo_ausencia_minutos: number; criterios_sorteio?: string[] | null; fila_oficial_data?: string | null; fila_oficial_ids?: string[] | null; equipe_alfa_nome?: string | null; equipe_beta_nome?: string | null; roleta_automatica?: boolean | null; roleta_auto_horarios?: string[] | null };
 type Corretor = { id: string; nome: string; empreendimento_id: string; ordem_roleta: number; user_id: string | null; ativo: boolean; equipe: string | null };
 type Plantao = { id: string; corretor_id: string; empreendimento_id: string; data: string; hora_inicio: string; hora_fim: string; status: string; presenca_confirmada_em: string | null; fora_desde: string | null; ultimo_ping_em: string | null; status_presenca: "presente" | "ausente" };
 
