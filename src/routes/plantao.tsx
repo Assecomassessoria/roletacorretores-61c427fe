@@ -320,7 +320,9 @@ function PlantaoPage() {
               <div className="flex gap-2">
                 <Input
                   required
+                  autoFocus
                   autoComplete="username"
+
                   placeholder="Ex.: 123456 ou seu@email.com"
                   value={form.creci}
                   onChange={(e) => {
