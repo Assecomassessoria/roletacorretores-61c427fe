@@ -299,12 +299,16 @@ function PlantaoPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-4 py-10">
-        <div className="mb-6 text-center">
-          <h1 className="font-display text-3xl font-bold text-foreground">Plantão / Presença</h1>
+        <div className="mb-6 rounded-xl border border-[#c9a227]/50 bg-gradient-to-b from-[#c9a227]/12 to-transparent p-6 text-center shadow-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c9a227]/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#8a6d0b] dark:text-[#e6c65c]">
+            <ShieldCheck className="h-3.5 w-3.5" /> Painel exclusivo de validação
+          </span>
+          <h1 className="mt-3 font-display text-3xl font-bold text-foreground">Plantão / Presença</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Confirme sua presença no stand e entre automaticamente na roleta do dia.
+            Validação rápida do corretor: biometria ou CRECI + senha. Confirmou, já entra na roleta do dia.
           </p>
         </div>
+
 
         {!result ? (
           <form
