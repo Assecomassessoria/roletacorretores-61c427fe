@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { listarPresencasDoDia } from "@/lib/presencas.functions";
 import { listarAusencias, type AusenciaItem } from "@/lib/ausencias.functions";
+import { definirPresencaManual } from "@/lib/presenca.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/presencas")({
   component: PresencasPage,
@@ -17,6 +19,8 @@ type Presenca = {
   plantao_id: string;
   confirmado_em: string | null;
   status: string;
+  status_presenca?: string | null;
+  fora_desde?: string | null;
   hora_inicio: string;
   hora_fim: string;
   lat: number | null;
@@ -48,6 +52,23 @@ function PresencasPage() {
   const fetchAusencias = useServerFn(listarAusencias);
   const [ausencias, setAusencias] = useState<AusenciaItem[]>([]);
   const [totalAusente, setTotalAusente] = useState(0);
+  const marcarManual = useServerFn(definirPresencaManual);
+  const [senha, setSenha] = useState("");
+  const [salvando, setSalvando] = useState<string | null>(null);
+
+  async function alterarPresenca(plantaoId: string, estado: "presente" | "ausente") {
+    if (!senha.trim()) return toast.error("Informe a senha de gerência.");
+    setSalvando(plantaoId + estado);
+    try {
+      await marcarManual({ data: { plantao_id: plantaoId, estado, senha: senha.trim() } });
+      toast.success(estado === "ausente" ? "Corretor marcado como ausente." : "Presença reativada.");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao alterar presença.");
+    } finally {
+      setSalvando(null);
+    }
+  }
 
   async function load() {
     setBusy(true);
@@ -96,6 +117,23 @@ function PresencasPage() {
         <Users className="h-3.5 w-3.5" /> {presencas.length} presença(s)
       </div>
 
+      <div className="mb-4 flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card p-3">
+        <div>
+          <Label className="text-xs">Senha de gerência</Label>
+          <Input
+            type="password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            placeholder="Necessária para marcar presença/ausência"
+            className="w-72"
+          />
+        </div>
+        <p className="pb-2 text-[11px] text-muted-foreground">
+          Com a senha, o gestor pode marcar manualmente um corretor como ausente (registra a saída) ou
+          reativar sua presença.
+        </p>
+      </div>
+
       {busy && presencas.length === 0 ? (
         <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando…
@@ -114,6 +152,7 @@ function PresencasPage() {
                 <th className="px-4 py-2 text-left">Confirmado</th>
                 <th className="px-4 py-2 text-left">Método aprovado</th>
                 <th className="px-4 py-2 text-left">Verificação</th>
+                <th className="px-4 py-2 text-left">Situação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -165,6 +204,39 @@ function PresencasPage() {
                       ) : (
                         <span className="text-xs text-muted-foreground">Sem registro detalhado</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col items-start gap-1.5">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                            p.status_presenca === "ausente"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          }`}
+                        >
+                          {p.status_presenca === "ausente" ? "Ausente" : "Presente"}
+                        </span>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-[11px]"
+                            disabled={salvando === p.plantao_id + "ausente"}
+                            onClick={() => alterarPresenca(p.plantao_id, "ausente")}
+                          >
+                            Marcar ausente
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-[11px]"
+                            disabled={salvando === p.plantao_id + "presente"}
+                            onClick={() => alterarPresenca(p.plantao_id, "presente")}
+                          >
+                            Marcar presente
+                          </Button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 );

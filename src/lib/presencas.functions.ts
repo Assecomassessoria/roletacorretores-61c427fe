@@ -48,7 +48,7 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
 
     let q = supabase
       .from("plantoes")
-      .select("id, data, hora_inicio, hora_fim, status, presenca_confirmada_em, presenca_lat, presenca_lng, corretor_id, empreendimento_id")
+      .select("id, data, hora_inicio, hora_fim, status, status_presenca, fora_desde, presenca_confirmada_em, presenca_lat, presenca_lng, corretor_id, empreendimento_id")
       .eq("data", dia)
       .not("presenca_confirmada_em", "is", null)
       .order("presenca_confirmada_em", { ascending: false });
@@ -105,6 +105,8 @@ export const listarPresencasDoDia = createServerFn({ method: "POST" })
         plantao_id: r.id,
         confirmado_em: r.presenca_confirmada_em,
         status: r.status,
+        status_presenca: (r as any).status_presenca ?? null,
+        fora_desde: (r as any).fora_desde ?? null,
         hora_inicio: r.hora_inicio,
         hora_fim: r.hora_fim,
         lat: r.presenca_lat,

@@ -162,6 +162,65 @@ export const varrerAusentes = createServerFn({ method: "POST" })
     return { ok: true, marcados: ids.length };
   });
 
+const ManualInput = z.object({
+  plantao_id: z.string().uuid(),
+  estado: z.enum(["presente", "ausente"]),
+  senha: z.string().min(1),
+});
+
+/** Gestor/coordenador marca manualmente presença ou ausência de um corretor,
+ *  mediante senha de gerência. */
+export const definirPresencaManual = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => ManualInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const senhaGerencia = process.env["GERENCIA_RESET_SENHA"];
+    if (!senhaGerencia) throw new Error("Senha de gerência não configurada.");
+    if (data.senha !== senhaGerencia) throw new Error("Senha de gerência incorreta.");
+
+    const { data: p } = await supabaseAdmin
+      .from("plantoes")
+      .select("id, empreendimento_id, corretor_id, data")
+      .eq("id", data.plantao_id)
+      .maybeSingle();
+    if (!p) throw new Error("Plantão não encontrado");
+
+    const ok = await userIsCoordinatorLevel(context.supabase, context.userId, p.empreendimento_id);
+    if (!ok) throw new Error("Apenas gestores/coordenadores podem alterar a presença");
+
+    const now = new Date().toISOString();
+    if (data.estado === "ausente") {
+      const { error } = await supabaseAdmin
+        .from("plantoes")
+        .update({ status_presenca: "ausente", fora_desde: now } as any)
+        .eq("id", data.plantao_id);
+      if (error) throw new Error(error.message);
+      await abrirAusencia(p as any, now, "manual");
+    } else {
+      const { error } = await supabaseAdmin
+        .from("plantoes")
+        .update({
+          status_presenca: "presente",
+          status: "em_andamento",
+          fora_desde: null,
+          ultimo_ping_em: now,
+        } as any)
+        .eq("id", data.plantao_id);
+      if (error) throw new Error(error.message);
+      await fecharAusencia(data.plantao_id, now);
+    }
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: context.userId,
+      acao: "presenca_manual",
+      recurso: `plantao:${data.plantao_id}`,
+      empreendimento_id: p.empreendimento_id,
+      detalhes: { estado: data.estado } as any,
+    } as any);
+
+    return { ok: true, estado: data.estado };
+  });
+
 const ReativarInput = z.object({ plantao_id: z.string().uuid() });
 
 /** Coordenador/admin reativa manualmente um corretor marcado como ausente. */
