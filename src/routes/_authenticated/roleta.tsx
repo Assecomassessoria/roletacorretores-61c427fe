@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pingPresenca, varrerAusentes, reativarPresenca } from "@/lib/presenca.functions";
 import { listarMeusEmpreendimentos } from "@/lib/meus-empreendimentos.functions";
-import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn } from "@/lib/plantao.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, executarRoletaAutomatica } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,6 +93,7 @@ function RoletaPage() {
   const listarEmpsFn = useServerFn(listarMeusEmpreendimentos);
   const baterRoletaServerFn = useServerFn(baterRoletaOficialFn);
   const liberarRoletaServerFn = useServerFn(liberarRoletaOficialFn);
+  const autoRoletaFn = useServerFn(executarRoletaAutomatica);
 
   async function loadEmps() {
     try {
@@ -250,28 +251,23 @@ function RoletaPage() {
   // Execução automática: só congela a fila quando a roleta automática está ligada
   // e algum horário configurado já foi atingido. Caso contrário, aguarda "Bater Roleta".
   useEffect(() => {
-    if (!empId || !emp || !isAdmin || officialOrder || autoFixando || fila.length === 0) return;
+    if (!empId || !emp || officialOrder || autoFixando) return;
     if (emp.fila_oficial_data === hojeOperacional) return;
     if (!emp.roleta_automatica) return;
-    const horarios = emp.roleta_auto_horarios ?? [];
-    if (horarios.length === 0) return;
-    const p = saoPauloParts();
-    const agoraMin = p.hour * 60 + new Date().getMinutes();
-    const atingiu = horarios.some((h) => {
-      const [hh, mm] = h.split(":").map(Number);
-      return Number.isFinite(hh) && agoraMin >= hh * 60 + (mm || 0);
-    });
-    if (!atingiu) return;
+    if ((emp.roleta_auto_horarios ?? []).length === 0) return;
     setAutoFixando(true);
-    baterRoletaServerFn({ data: { empreendimento_id: empId, ids: fila.map((c) => c.id) } })
-      .then((r) => {
-        setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
-        return loadEmps();
+    autoRoletaFn({ data: { empreendimento_id: empId } })
+      .then(async (r: any) => {
+        if (r?.ids?.length) {
+          setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
+          await loadEmps();
+          await loadAll();
+        }
       })
       .catch(() => { /* silencioso */ })
       .finally(() => setAutoFixando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, isAdmin, officialOrder, agora, fila.map((c) => c.id).join("|")]);
+  }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, officialOrder, agora]);
 
 
   async function baterRoletaOficial() {
