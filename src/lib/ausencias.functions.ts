@@ -10,6 +10,7 @@ const Input = z.object({
 
 export type AusenciaItem = {
   id: string;
+  plantao_id: string;
   data: string;
   inicio: string;
   fim: string | null;
@@ -30,7 +31,7 @@ export const listarAusencias = createServerFn({ method: "POST" })
 
     let q = supabase
       .from("ausencias" as never)
-      .select("id, data, inicio, fim, duracao_minutos, origem, corretor_id")
+      .select("id, plantao_id, data, inicio, fim, duracao_minutos, origem, corretor_id")
       .gte("data", de)
       .lte("data", ate)
       .order("inicio", { ascending: false });
@@ -39,7 +40,7 @@ export const listarAusencias = createServerFn({ method: "POST" })
     const { data: rows, error } = await q;
     if (error) throw new Error("Erro ao listar ausências.");
     const list = (rows ?? []) as unknown as Array<{
-      id: string; data: string; inicio: string; fim: string | null;
+      id: string; plantao_id: string; data: string; inicio: string; fim: string | null;
       duracao_minutos: number | null; origem: string; corretor_id: string;
     }>;
 
@@ -52,6 +53,7 @@ export const listarAusencias = createServerFn({ method: "POST" })
     const now = Date.now();
     const ausencias: AusenciaItem[] = list.map((r) => ({
       id: r.id,
+      plantao_id: r.plantao_id,
       data: r.data,
       inicio: r.inicio,
       fim: r.fim,
