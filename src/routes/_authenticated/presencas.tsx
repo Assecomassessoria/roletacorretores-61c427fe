@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { listarPresencasDoDia } from "@/lib/presencas.functions";
 import { listarAusencias, type AusenciaItem } from "@/lib/ausencias.functions";
-import { definirPresencaManual } from "@/lib/presenca.functions";
+import { definirPresencaManual, registrarVoltaAoStand } from "@/lib/presenca.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/presencas")({
@@ -55,6 +55,25 @@ function PresencasPage() {
   const marcarManual = useServerFn(definirPresencaManual);
   const [senha, setSenha] = useState("");
   const [salvando, setSalvando] = useState<string | null>(null);
+  const voltarFn = useServerFn(registrarVoltaAoStand);
+  const [retornoHora, setRetornoHora] = useState<Record<string, string>>({});
+
+  async function registrarVolta(plantaoId: string) {
+    if (!senha.trim()) return toast.error("Informe a senha de gerência.");
+    setSalvando(plantaoId + "volta");
+    try {
+      const hora = retornoHora[plantaoId];
+      const iso = hora ? new Date(hora).toISOString() : undefined;
+      const r = await voltarFn({ data: { plantao_id: plantaoId, senha: senha.trim(), ...(iso ? { retorno_em: iso } : {}) } });
+      toast.success(`Volta ao stand registrada às ${fmtHora(r.retorno_em)}.`);
+      setRetornoHora((m) => ({ ...m, [plantaoId]: "" }));
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao registrar a volta.");
+    } finally {
+      setSalvando(null);
+    }
+  }
 
   async function alterarPresenca(plantaoId: string, estado: "presente" | "ausente") {
     if (!senha.trim()) return toast.error("Informe a senha de gerência.");
@@ -236,6 +255,27 @@ function PresencasPage() {
                             Marcar presente
                           </Button>
                         </div>
+                        {(p.status_presenca === "ausente" || p.fora_desde) && (
+                          <div className="mt-1 flex flex-wrap items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/5 p-1.5">
+                            <Input
+                              type="datetime-local"
+                              value={retornoHora[p.plantao_id] ?? ""}
+                              onChange={(e) => setRetornoHora((m) => ({ ...m, [p.plantao_id]: e.target.value }))}
+                              className="h-7 w-44 text-[11px]"
+                            />
+                            <Button
+                              size="sm"
+                              className="h-7 bg-emerald-600 px-2 text-[11px] text-white hover:bg-emerald-600/90"
+                              disabled={salvando === p.plantao_id + "volta"}
+                              onClick={() => registrarVolta(p.plantao_id)}
+                            >
+                              {salvando === p.plantao_id + "volta" ? "..." : "Registrar volta ao stand"}
+                            </Button>
+                            <span className="w-full text-[10px] text-muted-foreground">
+                              Sem data/hora informada, usa o horário atual.
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -279,6 +319,7 @@ function PresencasPage() {
                   <th className="px-4 py-2 text-left">Fim</th>
                   <th className="px-4 py-2 text-left">Duração</th>
                   <th className="px-4 py-2 text-left">Origem</th>
+                  <th className="px-4 py-2 text-left">Ação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -297,6 +338,20 @@ function PresencasPage() {
                     <td className="px-4 py-3 font-semibold text-foreground">{fmtDur(a.duracao_minutos ?? 0)}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       {a.origem === "manual" ? "Manual" : "Automática"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.fim ? (
+                        <span className="text-[11px] text-muted-foreground">Encerrada</span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="h-7 bg-emerald-600 px-2 text-[11px] text-white hover:bg-emerald-600/90"
+                          disabled={salvando === a.plantao_id + "volta"}
+                          onClick={() => registrarVolta(a.plantao_id)}
+                        >
+                          Registrar volta
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}

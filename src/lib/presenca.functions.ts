@@ -221,7 +221,64 @@ export const definirPresencaManual = createServerFn({ method: "POST" })
     return { ok: true, estado: data.estado };
   });
 
+const VoltaInput = z.object({
+  plantao_id: z.string().uuid(),
+  senha: z.string().min(1),
+  retorno_em: z.string().datetime().optional(),
+});
+
+/** Registra a volta do corretor ao stand: encerra a ausência em curso com
+ *  data/hora informada (ou agora) e devolve o status para "presente". */
+export const registrarVoltaAoStand = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => VoltaInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const senhaGerencia = process.env["GERENCIA_RESET_SENHA"];
+    if (!senhaGerencia) throw new Error("Senha de gerência não configurada.");
+    if (data.senha !== senhaGerencia) throw new Error("Senha de gerência incorreta.");
+
+    const { data: p } = await supabaseAdmin
+      .from("plantoes")
+      .select("id, empreendimento_id, corretor_id, data, fora_desde")
+      .eq("id", data.plantao_id)
+      .maybeSingle();
+    if (!p) throw new Error("Plantão não encontrado");
+
+    const ok = await userIsCoordinatorLevel(context.supabase, context.userId, p.empreendimento_id);
+    if (!ok) throw new Error("Apenas gestores/coordenadores podem registrar a volta ao stand");
+
+    const retorno = data.retorno_em ?? new Date().toISOString();
+    const inicioAusencia = (p as any).fora_desde as string | null;
+    if (inicioAusencia && new Date(retorno).getTime() < new Date(inicioAusencia).getTime()) {
+      throw new Error("O horário de retorno não pode ser anterior ao início da ausência.");
+    }
+
+    await fecharAusencia(data.plantao_id, retorno);
+
+    const { error } = await supabaseAdmin
+      .from("plantoes")
+      .update({
+        status_presenca: "presente",
+        status: "em_andamento",
+        fora_desde: null,
+        ultimo_ping_em: retorno,
+      } as any)
+      .eq("id", data.plantao_id);
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: context.userId,
+      acao: "volta_ao_stand",
+      recurso: `plantao:${data.plantao_id}`,
+      empreendimento_id: p.empreendimento_id,
+      detalhes: { retorno_em: retorno, ausencia_iniciada_em: inicioAusencia } as any,
+    } as any);
+
+    return { ok: true, retorno_em: retorno };
+  });
+
 const ReativarInput = z.object({ plantao_id: z.string().uuid() });
+
 
 /** Coordenador/admin reativa manualmente um corretor marcado como ausente. */
 export const reativarPresenca = createServerFn({ method: "POST" })
