@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { TourGuiado } from "@/components/tour-guiado";
 
 import { ArrowRight, QrCode, Users, Sparkles, LayoutGrid, Tag } from "lucide-react";
 import heroImg from "@/assets/apresentacao-hero.png";
@@ -73,6 +74,7 @@ export function ApresentacaoPage() {
               >
                 Ver plantão ao vivo
               </Link>
+              <TourGuiado />
             </div>
           </div>
           <div className="relative">
@@ -231,6 +233,7 @@ export function ApresentacaoPage() {
           >
             <Tag className="h-4 w-4" /> Ver Planos & Assinar
           </Link>
+          <TourGuiado />
           <Link
             to="/"
             className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-7 py-3 text-sm font-semibold text-cream/90 transition hover:border-orange/60 hover:text-cream"
