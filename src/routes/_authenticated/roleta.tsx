@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pingPresenca, varrerAusentes, reativarPresenca } from "@/lib/presenca.functions";
 import { listarMeusEmpreendimentos } from "@/lib/meus-empreendimentos.functions";
-import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, executarRoletaAutomatica } from "@/lib/plantao.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, executarRoletaAutomatica, moverCorretorParaFimDaFila } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
