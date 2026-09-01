@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pingPresenca, varrerAusentes, reativarPresenca } from "@/lib/presenca.functions";
 import { listarMeusEmpreendimentos } from "@/lib/meus-empreendimentos.functions";
-import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, executarRoletaAutomatica } from "@/lib/plantao.functions";
+import { baterRoletaOficial as baterRoletaOficialFn, liberarRoletaOficial as liberarRoletaOficialFn, executarRoletaAutomatica, moverCorretorParaFimDaFila } from "@/lib/plantao.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,6 +93,7 @@ function RoletaPage() {
   const listarEmpsFn = useServerFn(listarMeusEmpreendimentos);
   const baterRoletaServerFn = useServerFn(baterRoletaOficialFn);
   const liberarRoletaServerFn = useServerFn(liberarRoletaOficialFn);
+  const moverFimServerFn = useServerFn(moverCorretorParaFimDaFila);
   const autoRoletaFn = useServerFn(executarRoletaAutomatica);
 
   async function loadEmps() {
@@ -355,7 +356,14 @@ function RoletaPage() {
       criado_por: user?.id,
     });
     if (error) return toast.error(error.message);
-    toast.success(`Atendimento registrado para ${atendOpen.nome}`);
+    // Move o corretor para o último lugar da fila oficial do dia.
+    try {
+      const r = await moverFimServerFn({ data: { empreendimento_id: empId, corretor_id: atendOpen.id } });
+      if (r?.reordenada && Array.isArray(r.ids) && r.ids.length > 0) {
+        setLocalOfficial({ empreendimento_id: empId, data: r.data, ids: r.ids });
+      }
+    } catch { /* fila não congelada — nada a reordenar */ }
+    toast.success(`Atendimento registrado — ${atendOpen.nome} foi para o fim da fila`);
     setAtendOpen(null);
     setAtendForm({ cliente_nome: "", cliente_telefone: "", cliente_email: "", observacoes: "" });
     loadAll();

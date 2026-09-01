@@ -667,6 +667,45 @@ export const liberarRoletaOficial = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Após um atendimento ser atribuído, move o corretor para o ÚLTIMO lugar da
+ *  fila oficial do dia (preservando o restante da ordem congelada). */
+const MoverFimInput = z.object({
+  empreendimento_id: z.string().uuid(),
+  corretor_id: z.string().uuid(),
+});
+export const moverCorretorParaFimDaFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => MoverFimInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const podeGerenciar = await Promise.all([
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "incorporadora", _empreendimento_id: data.empreendimento_id }),
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "gerente", _empreendimento_id: data.empreendimento_id }),
+      supabaseAdmin.rpc("has_role_in_empreendimento", { _user_id: context.userId, _role: "coordenador", _empreendimento_id: data.empreendimento_id }),
+    ]);
+    if (!podeGerenciar.some((r) => r.data === true)) throw new Error("Sem permissão para reordenar a fila.");
+
+    const today = roletaOperationalDateISO();
+    const { data: emp, error: empErr } = await supabaseAdmin
+      .from("empreendimentos")
+      .select("fila_oficial_data, fila_oficial_ids")
+      .eq("id", data.empreendimento_id)
+      .maybeSingle();
+    if (empErr) throw new Error(empErr.message);
+    const ids = Array.isArray((emp as any)?.fila_oficial_ids) ? ((emp as any).fila_oficial_ids as string[]) : [];
+    if ((emp as any)?.fila_oficial_data !== today || ids.length === 0) {
+      return { ok: true, data: today, ids, reordenada: false };
+    }
+    const sem = ids.filter((id) => id !== data.corretor_id);
+    if (sem.length === ids.length) return { ok: true, data: today, ids, reordenada: false };
+    const nova = [...sem, data.corretor_id];
+    const { error } = await supabaseAdmin
+      .from("empreendimentos")
+      .update({ fila_oficial_ids: nova })
+      .eq("id", data.empreendimento_id);
+    if (error) throw new Error(error.message);
+    return { ok: true, data: today, ids: nova, reordenada: true };
+  });
+
 // Lookup público: dado um CRECI **ou e-mail**, devolve a lista de
 // empreendimentos (CNPJs) em que o corretor está vinculado e ativo. Não
 // expõe nome/telefone/email.
