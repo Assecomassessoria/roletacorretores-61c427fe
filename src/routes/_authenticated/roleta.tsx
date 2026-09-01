@@ -93,6 +93,7 @@ function RoletaPage() {
   const listarEmpsFn = useServerFn(listarMeusEmpreendimentos);
   const baterRoletaServerFn = useServerFn(baterRoletaOficialFn);
   const liberarRoletaServerFn = useServerFn(liberarRoletaOficialFn);
+  const moverFimServerFn = useServerFn(moverCorretorParaFimDaFila);
   const autoRoletaFn = useServerFn(executarRoletaAutomatica);
 
   async function loadEmps() {
