@@ -202,12 +202,22 @@ function CorretoresPage() {
           <h1 className="text-2xl font-bold">Corretores</h1>
           <p className="text-sm text-muted-foreground">
             Equipe vinculada por e-mail à conta de acesso.
-            <span className="ml-2 text-xs">
+            <span className="ml-2 hidden text-xs sm:inline">
               {showInactive ? "Exibindo inativos · " : "Inativos ocultos · "}
               <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[10px]">Alt</kbd>
               +<kbd className="rounded border border-border px-1 py-0.5 font-mono text-[10px]">A</kbd> para alternar
             </span>
           </p>
+          {/* Mobile/desktop: botão equivalente ao atalho Alt+A (celular não tem tecla Alt). */}
+          <Button
+            type="button"
+            variant={showInactive ? "default" : "outline"}
+            size="sm"
+            className="mt-2"
+            onClick={() => setShowInactive((v) => !v)}
+          >
+            {showInactive ? "Ocultar inativos" : "Mostrar inativos"}
+          </Button>
         </div>
         {canEdit && (
           <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setSenha(""); setSenha2(""); } }}>
