@@ -499,7 +499,7 @@ const BaterInput = z.object({
 });
 
 /** Minutos desde a meia-noite no fuso de São Paulo. */
-function saoPauloMinutosDoDia(date = new Date()) {
+export function saoPauloMinutosDoDia(date = new Date()) {
   const fmt = new Intl.DateTimeFormat("en-GB", {
     timeZone: "America/Sao_Paulo",
     hour: "2-digit",
@@ -511,7 +511,7 @@ function saoPauloMinutosDoDia(date = new Date()) {
 }
 
 /** Congela a fila oficial do dia (idempotente). */
-async function fixarFilaOficial(empreendimentoId: string, idsPreferidos?: string[]) {
+export async function fixarFilaOficial(empreendimentoId: string, idsPreferidos?: string[]) {
   const today = roletaOperationalDateISO();
   const wkStart = weekStartISO(today);
   const [{ data: emp }, { data: cs }, { data: ps }, { data: ats }, { data: tris }] = await Promise.all([

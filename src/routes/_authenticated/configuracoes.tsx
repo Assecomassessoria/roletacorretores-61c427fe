@@ -281,7 +281,11 @@ function ConfiguracoesPage() {
             </Label>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {emp.roleta_auto_horarios.length === 0 ? (
-                <span className="text-xs text-muted-foreground">Nenhum horário definido.</span>
+                <span className={emp.roleta_automatica ? "text-xs font-medium text-destructive" : "text-xs text-muted-foreground"}>
+                  {emp.roleta_automatica
+                    ? "Roleta automática LIGADA, mas sem horário definido — o sorteio não vai acontecer. Cadastre ao menos um horário."
+                    : "Nenhum horário definido."}
+                </span>
               ) : (
                 emp.roleta_auto_horarios.map((h) => (
                   <Badge key={h} variant="outline" className="gap-1.5 py-1 text-sm">
