@@ -48,6 +48,7 @@ import { Route as AuthenticatedCoordenadorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as ApiPublicRoletaAutoRouteImport } from './routes/api/public/roleta-auto'
 import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -258,6 +259,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicRoletaAutoRoute = ApiPublicRoletaAutoRouteImport.update({
+  id: '/api/public/roleta-auto',
+  path: '/api/public/roleta-auto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLorenzaRoletaRoute = ApiPublicLorenzaRoletaRouteImport.update({
   id: '/api/public/lorenza-roleta',
   path: '/api/public/lorenza-roleta',
@@ -332,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
+  '/api/public/roleta-auto': typeof ApiPublicRoletaAutoRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -378,6 +385,7 @@ export interface FileRoutesByTo {
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
+  '/api/public/roleta-auto': typeof ApiPublicRoletaAutoRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -426,6 +434,7 @@ export interface FileRoutesById {
   '/totem/propaganda': typeof TotemPropagandaRoute
   '/api/public/lorenza': typeof ApiPublicLorenzaRoute
   '/api/public/lorenza-roleta': typeof ApiPublicLorenzaRoletaRoute
+  '/api/public/roleta-auto': typeof ApiPublicRoletaAutoRoute
   '/api/public/hooks/avisos-renovacao': typeof ApiPublicHooksAvisosRenovacaoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -474,6 +483,7 @@ export interface FileRouteTypes {
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
+    | '/api/public/roleta-auto'
     | '/api/public/hooks/avisos-renovacao'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
+    | '/api/public/roleta-auto'
     | '/api/public/hooks/avisos-renovacao'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -567,6 +578,7 @@ export interface FileRouteTypes {
     | '/totem/propaganda'
     | '/api/public/lorenza'
     | '/api/public/lorenza-roleta'
+    | '/api/public/roleta-auto'
     | '/api/public/hooks/avisos-renovacao'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -595,6 +607,7 @@ export interface RootRouteChildren {
   CorretorCadastroRoute: typeof CorretorCadastroRoute
   ApiPublicLorenzaRoute: typeof ApiPublicLorenzaRoute
   ApiPublicLorenzaRoletaRoute: typeof ApiPublicLorenzaRoletaRoute
+  ApiPublicRoletaAutoRoute: typeof ApiPublicRoletaAutoRoute
   ApiPublicHooksAvisosRenovacaoRoute: typeof ApiPublicHooksAvisosRenovacaoRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -876,6 +889,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/roleta-auto': {
+      id: '/api/public/roleta-auto'
+      path: '/api/public/roleta-auto'
+      fullPath: '/api/public/roleta-auto'
+      preLoaderRoute: typeof ApiPublicRoletaAutoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/lorenza-roleta': {
       id: '/api/public/lorenza-roleta'
       path: '/api/public/lorenza-roleta'
@@ -1001,6 +1021,7 @@ const rootRouteChildren: RootRouteChildren = {
   CorretorCadastroRoute: CorretorCadastroRoute,
   ApiPublicLorenzaRoute: ApiPublicLorenzaRoute,
   ApiPublicLorenzaRoletaRoute: ApiPublicLorenzaRoletaRoute,
+  ApiPublicRoletaAutoRoute: ApiPublicRoletaAutoRoute,
   ApiPublicHooksAvisosRenovacaoRoute: ApiPublicHooksAvisosRenovacaoRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
