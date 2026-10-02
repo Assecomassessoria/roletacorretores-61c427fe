@@ -649,8 +649,13 @@ export const executarRoletaAutomatica = createServerFn({ method: "POST" })
     try {
       const r = await fixarFilaOficial(data.empreendimento_id);
       return { ok: true, executada: !r.reused, data: r.data, ids: r.ids, motivo: r.reused ? "ja_fixada" : "executada" };
-    } catch {
-      return { ok: true, executada: false, motivo: "sem_presentes" };
+    } catch (error) {
+      const motivo = error instanceof Error ? error.message : "Erro desconhecido ao executar a roleta";
+      console.error("[roleta-automatica] Falha ao fixar a fila oficial", {
+        empreendimentoId: data.empreendimento_id,
+        motivo,
+      });
+      return { ok: false, executada: false, motivo };
     }
   });
 
