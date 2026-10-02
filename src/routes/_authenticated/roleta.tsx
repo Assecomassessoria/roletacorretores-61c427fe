@@ -265,7 +265,9 @@ function RoletaPage() {
           await loadAll();
         }
       })
-      .catch(() => { /* silencioso */ })
+      .catch((error) => {
+        console.error("[roleta-automatica] Falha ao executar pelo painel", error);
+      })
       .finally(() => setAutoFixando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [empId, emp?.fila_oficial_data, emp?.roleta_automatica, officialOrder, agora]);
