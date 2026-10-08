@@ -342,52 +342,79 @@ export type Database = {
       corretores: {
         Row: {
           ativo: boolean
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
           cpf: string | null
           created_at: string
           creci: string | null
+          data_nascimento: string | null
           email: string | null
           empreendimento_id: string
           equipe: string | null
           foto_url: string | null
           id: string
+          logradouro: string | null
           nome: string
+          numero: string | null
           ordem_roleta: number
           status_habilitacao: string
           telefone: string | null
+          tipo_logradouro: string | null
+          uf: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
           cpf?: string | null
           created_at?: string
           creci?: string | null
+          data_nascimento?: string | null
           email?: string | null
           empreendimento_id: string
           equipe?: string | null
           foto_url?: string | null
           id?: string
+          logradouro?: string | null
           nome: string
+          numero?: string | null
           ordem_roleta?: number
           status_habilitacao?: string
           telefone?: string | null
+          tipo_logradouro?: string | null
+          uf?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
           cpf?: string | null
           created_at?: string
           creci?: string | null
+          data_nascimento?: string | null
           email?: string | null
           empreendimento_id?: string
           equipe?: string | null
           foto_url?: string | null
           id?: string
+          logradouro?: string | null
           nome?: string
+          numero?: string | null
           ordem_roleta?: number
           status_habilitacao?: string
           telefone?: string | null
+          tipo_logradouro?: string | null
+          uf?: string | null
           updated_at?: string
           user_id?: string | null
         }
