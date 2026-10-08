@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,10 @@ export const Route = createFileRoute("/corretor_/cadastro")({
   head: () => ({
     meta: [
       { title: "Cadastro do Corretor — Roleta Corretor" },
+      { property: "og:title", content: "Cadastro do Corretor — Roleta Corretor" },
+      { property: "og:description", content: "Cadastre seus dados pessoais e endereço para solicitar acesso ao empreendimento." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         name: "description",
         content:
@@ -52,6 +56,19 @@ function CadastroCorretor() {
 
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [inicio, setInicio] = useState("");
+  const [tipoLogradouro, setTipoLogradouro] = useState<"Rua" | "Avenida">("Rua");
+  const [logradouro, setLogradouro] = useState("");
+  const [numero, setNumero] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cep, setCep] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [uf, setUf] = useState("");
+  useEffect(() => {
+    setInicio(new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo" }).format(new Date()));
+  }, []);
   const [creci, setCreci] = useState("");
   const [creciTipo, setCreciTipo] = useState<"F" | "J" | "">("");
   const [creciUf, setCreciUf] = useState("");
@@ -151,6 +168,15 @@ function CadastroCorretor() {
         data: {
           nome,
           cpf: cpf || null,
+          data_nascimento: dataNascimento || null,
+          tipo_logradouro: tipoLogradouro,
+          logradouro: logradouro || null,
+          numero: numero || null,
+          complemento: complemento || null,
+          bairro: bairro || null,
+          cep: cep || null,
+          cidade: cidade || null,
+          uf: uf || null,
           creci: creci || null,
           creci_tipo: creciTipo || null,
           creci_uf: creciUf ? creciUf.toUpperCase() : null,
@@ -310,8 +336,16 @@ function CadastroCorretor() {
               <Field label="Nome completo">
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
               </Field>
-              <Field label="CPF">
-                <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="CPF">
+                  <Input aria-label="CPF" inputMode="numeric" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+                </Field>
+                <Field label="Data de nascimento">
+                  <Input aria-label="Data de nascimento" type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
+                </Field>
+              </div>
+              <Field label="Início (data do cadastro automática)">
+                <Input aria-label="Início" value={inicio} readOnly className="bg-muted text-muted-foreground" />
               </Field>
               <div className="grid grid-cols-[1fr_90px_90px] gap-3">
                 <Field label="CRECI (nº)">
@@ -345,6 +379,44 @@ function CadastroCorretor() {
                   <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
               </div>
+              <section className="space-y-3 border-t border-border pt-4">
+                <h2 className="text-sm font-semibold">Endereço</h2>
+                <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3">
+                  <Field label="Rua / Avenida">
+                    <select aria-label="Rua / Avenida" value={tipoLogradouro} onChange={(e) => setTipoLogradouro(e.target.value as "Rua" | "Avenida")} className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                      <option value="Rua">Rua</option>
+                      <option value="Avenida">Avenida</option>
+                    </select>
+                  </Field>
+                  <Field label="Logradouro">
+                    <Input aria-label="Logradouro" autoComplete="address-line1" maxLength={200} value={logradouro} onChange={(e) => setLogradouro(e.target.value)} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-[100px_minmax(0,1fr)] gap-3">
+                  <Field label="Número">
+                    <Input aria-label="Número" maxLength={20} value={numero} onChange={(e) => setNumero(e.target.value)} />
+                  </Field>
+                  <Field label="Complemento">
+                    <Input aria-label="Complemento" autoComplete="address-line2" maxLength={100} value={complemento} onChange={(e) => setComplemento(e.target.value)} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Bairro">
+                    <Input aria-label="Bairro" maxLength={100} value={bairro} onChange={(e) => setBairro(e.target.value)} />
+                  </Field>
+                  <Field label="CEP">
+                    <Input aria-label="CEP" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" pattern="[0-9]{5}-[0-9]{3}" value={cep} onChange={(e) => setCep(e.target.value.replace(/\D/g, "").slice(0, 8).replace(/^(\d{5})(\d)/, "$1-$2"))} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-[minmax(0,1fr)_80px] gap-3">
+                  <Field label="Cidade">
+                    <Input aria-label="Cidade" autoComplete="address-level2" maxLength={100} value={cidade} onChange={(e) => setCidade(e.target.value)} />
+                  </Field>
+                  <Field label="UF">
+                    <Input aria-label="UF" autoComplete="address-level1" placeholder="UF" maxLength={2} value={uf} onChange={(e) => setUf(e.target.value.replace(/[^a-z]/gi, "").toUpperCase())} />
+                  </Field>
+                </div>
+              </section>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Senha (mín. 8 caracteres)">
                   <PasswordInput required minLength={8} value={senha} onChange={(e) => setSenha(e.target.value)} />
@@ -527,7 +599,7 @@ function CadastroCorretor() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 space-y-1.5">
       <Label className="text-xs">{label}</Label>
       {children}
     </div>

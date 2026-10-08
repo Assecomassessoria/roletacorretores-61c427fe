@@ -9,126 +9,60 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TotemRouteImport } from './routes/totem'
-import { Route as TermosRouteImport } from './routes/termos'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SistemaRouteImport } from './routes/sistema'
-import { Route as SetupRouteImport } from './routes/setup'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PlantaoRouteImport } from './routes/plantao'
-import { Route as PlanosRouteImport } from './routes/planos'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LgpdRouteImport } from './routes/lgpd'
-import { Route as GerenciaRouteImport } from './routes/gerencia'
-import { Route as ExclusaoRouteImport } from './routes/exclusao'
-import { Route as DadosRouteImport } from './routes/dados'
-import { Route as CorretorRouteImport } from './routes/corretor'
-import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
-import { Route as CorretorCadastroRouteImport } from './routes/corretor_.cadastro'
-import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
-import { Route as AuthenticatedSimulacaoRouteImport } from './routes/_authenticated/simulacao'
-import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
-import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
-import { Route as AuthenticatedPresencasRouteImport } from './routes/_authenticated/presencas'
-import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
-import { Route as AuthenticatedMinhaPresencaRouteImport } from './routes/_authenticated/minha-presenca'
-import { Route as AuthenticatedMinhaEscalaRouteImport } from './routes/_authenticated/minha-escala'
-import { Route as AuthenticatedMeuQrcodeRouteImport } from './routes/_authenticated/meu-qrcode'
-import { Route as AuthenticatedMeuCadastroRouteImport } from './routes/_authenticated/meu-cadastro'
-import { Route as AuthenticatedMeuAgendamentoRouteImport } from './routes/_authenticated/meu-agendamento'
-import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
-import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
-import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
-import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
-import { Route as AuthenticatedCoordenadorRouteImport } from './routes/_authenticated/coordenador'
-import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
-import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
+import { Route as CorretorRouteImport } from './routes/corretor'
+import { Route as DadosRouteImport } from './routes/dados'
+import { Route as ExclusaoRouteImport } from './routes/exclusao'
+import { Route as GerenciaRouteImport } from './routes/gerencia'
+import { Route as LgpdRouteImport } from './routes/lgpd'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PlanosRouteImport } from './routes/planos'
+import { Route as PlantaoRouteImport } from './routes/plantao'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SistemaRouteImport } from './routes/sistema'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermosRouteImport } from './routes/termos'
+import { Route as TotemRouteImport } from './routes/totem'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as ApiPublicRoletaAutoRouteImport } from './routes/api/public/roleta-auto'
-import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
+import { Route as AuthenticatedAtendimentosRouteImport } from './routes/_authenticated/atendimentos'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedCoordenadorRouteImport } from './routes/_authenticated/coordenador'
+import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authenticated/corretores'
+import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
+import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
+import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
+import { Route as AuthenticatedMeuAgendamentoRouteImport } from './routes/_authenticated/meu-agendamento'
+import { Route as AuthenticatedMeuCadastroRouteImport } from './routes/_authenticated/meu-cadastro'
+import { Route as AuthenticatedMeuQrcodeRouteImport } from './routes/_authenticated/meu-qrcode'
+import { Route as AuthenticatedMinhaEscalaRouteImport } from './routes/_authenticated/minha-escala'
+import { Route as AuthenticatedMinhaPresencaRouteImport } from './routes/_authenticated/minha-presenca'
+import { Route as AuthenticatedPlantoesRouteImport } from './routes/_authenticated/plantoes'
+import { Route as AuthenticatedPresencasRouteImport } from './routes/_authenticated/presencas'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedRoletaRouteImport } from './routes/_authenticated/roleta'
+import { Route as AuthenticatedSimulacaoRouteImport } from './routes/_authenticated/simulacao'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as CorretorCadastroRouteImport } from './routes/corretor_.cadastro'
+import { Route as TotemPropagandaRouteImport } from './routes/totem.propaganda'
 import { Route as ApiPublicLorenzaRouteImport } from './routes/api/public/lorenza'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicLorenzaRoletaRouteImport } from './routes/api/public/lorenza-roleta'
+import { Route as ApiPublicRoletaAutoRouteImport } from './routes/api/public/roleta-auto'
 import { Route as ApiPublicHooksAvisosRenovacaoRouteImport } from './routes/api/public/hooks/avisos-renovacao'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
-const TotemRoute = TotemRouteImport.update({
-  id: '/totem',
-  path: '/totem',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermosRoute = TermosRouteImport.update({
-  id: '/termos',
-  path: '/termos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SistemaRoute = SistemaRouteImport.update({
-  id: '/sistema',
-  path: '/sistema',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SetupRoute = SetupRouteImport.update({
-  id: '/setup',
-  path: '/setup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlantaoRoute = PlantaoRouteImport.update({
-  id: '/plantao',
-  path: '/plantao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanosRoute = PlanosRouteImport.update({
-  id: '/planos',
-  path: '/planos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LgpdRoute = LgpdRouteImport.update({
-  id: '/lgpd',
-  path: '/lgpd',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GerenciaRoute = GerenciaRouteImport.update({
-  id: '/gerencia',
-  path: '/gerencia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExclusaoRoute = ExclusaoRouteImport.update({
-  id: '/exclusao',
-  path: '/exclusao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DadosRoute = DadosRouteImport.update({
-  id: '/dados',
-  path: '/dados',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CorretorRoute = CorretorRouteImport.update({
-  id: '/corretor',
-  path: '/corretor',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApresentacaoRoute = ApresentacaoRouteImport.update({
@@ -136,110 +70,90 @@ const ApresentacaoRoute = ApresentacaoRouteImport.update({
   path: '/apresentacao',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const CorretorRoute = CorretorRouteImport.update({
+  id: '/corretor',
+  path: '/corretor',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DadosRoute = DadosRouteImport.update({
+  id: '/dados',
+  path: '/dados',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TotemPropagandaRoute = TotemPropagandaRouteImport.update({
-  id: '/propaganda',
-  path: '/propaganda',
-  getParentRoute: () => TotemRoute,
-} as any)
-const CorretorCadastroRoute = CorretorCadastroRouteImport.update({
-  id: '/corretor_/cadastro',
-  path: '/corretor/cadastro',
+const ExclusaoRoute = ExclusaoRouteImport.update({
+  id: '/exclusao',
+  path: '/exclusao',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
+const GerenciaRoute = GerenciaRouteImport.update({
+  id: '/gerencia',
+  path: '/gerencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LgpdRoute = LgpdRouteImport.update({
+  id: '/lgpd',
+  path: '/lgpd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlantaoRoute = PlantaoRouteImport.update({
+  id: '/plantao',
+  path: '/plantao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SistemaRoute = SistemaRouteImport.update({
+  id: '/sistema',
+  path: '/sistema',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TotemRoute = TotemRouteImport.update({
+  id: '/totem',
+  path: '/totem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedSimulacaoRoute = AuthenticatedSimulacaoRouteImport.update({
-  id: '/simulacao',
-  path: '/simulacao',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
-  id: '/roleta',
-  path: '/roleta',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedPresencasRoute = AuthenticatedPresencasRouteImport.update({
-  id: '/presencas',
-  path: '/presencas',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
-  id: '/plantoes',
-  path: '/plantoes',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedMinhaPresencaRoute =
-  AuthenticatedMinhaPresencaRouteImport.update({
-    id: '/minha-presenca',
-    path: '/minha-presenca',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMinhaEscalaRoute =
-  AuthenticatedMinhaEscalaRouteImport.update({
-    id: '/minha-escala',
-    path: '/minha-escala',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMeuQrcodeRoute = AuthenticatedMeuQrcodeRouteImport.update({
-  id: '/meu-qrcode',
-  path: '/meu-qrcode',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedMeuCadastroRoute =
-  AuthenticatedMeuCadastroRouteImport.update({
-    id: '/meu-cadastro',
-    path: '/meu-cadastro',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMeuAgendamentoRoute =
-  AuthenticatedMeuAgendamentoRouteImport.update({
-    id: '/meu-agendamento',
-    path: '/meu-agendamento',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
-  id: '/mensagens',
-  path: '/mensagens',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedIntegracoesRoute =
-  AuthenticatedIntegracoesRouteImport.update({
-    id: '/integracoes',
-    path: '/integracoes',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedEmpreendimentosRoute =
-  AuthenticatedEmpreendimentosRouteImport.update({
-    id: '/empreendimentos',
-    path: '/empreendimentos',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
-  id: '/corretores',
-  path: '/corretores',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCoordenadorRoute =
-  AuthenticatedCoordenadorRouteImport.update({
-    id: '/coordenador',
-    path: '/coordenador',
+const AuthenticatedAtendimentosRoute =
+  AuthenticatedAtendimentosRouteImport.update({
+    id: '/atendimentos',
+    path: '/atendimentos',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedConfiguracoesRoute =
@@ -248,20 +162,106 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAtendimentosRoute =
-  AuthenticatedAtendimentosRouteImport.update({
-    id: '/atendimentos',
-    path: '/atendimentos',
+const AuthenticatedCoordenadorRoute =
+  AuthenticatedCoordenadorRouteImport.update({
+    id: '/coordenador',
+    path: '/coordenador',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthenticatedCorretoresRoute = AuthenticatedCorretoresRouteImport.update({
+  id: '/corretores',
+  path: '/corretores',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiPublicRoletaAutoRoute = ApiPublicRoletaAutoRouteImport.update({
-  id: '/api/public/roleta-auto',
-  path: '/api/public/roleta-auto',
+const AuthenticatedEmpreendimentosRoute =
+  AuthenticatedEmpreendimentosRouteImport.update({
+    id: '/empreendimentos',
+    path: '/empreendimentos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedIntegracoesRoute =
+  AuthenticatedIntegracoesRouteImport.update({
+    id: '/integracoes',
+    path: '/integracoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMeuAgendamentoRoute =
+  AuthenticatedMeuAgendamentoRouteImport.update({
+    id: '/meu-agendamento',
+    path: '/meu-agendamento',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeuCadastroRoute =
+  AuthenticatedMeuCadastroRouteImport.update({
+    id: '/meu-cadastro',
+    path: '/meu-cadastro',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeuQrcodeRoute = AuthenticatedMeuQrcodeRouteImport.update({
+  id: '/meu-qrcode',
+  path: '/meu-qrcode',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMinhaEscalaRoute =
+  AuthenticatedMinhaEscalaRouteImport.update({
+    id: '/minha-escala',
+    path: '/minha-escala',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMinhaPresencaRoute =
+  AuthenticatedMinhaPresencaRouteImport.update({
+    id: '/minha-presenca',
+    path: '/minha-presenca',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPlantoesRoute = AuthenticatedPlantoesRouteImport.update({
+  id: '/plantoes',
+  path: '/plantoes',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPresencasRoute = AuthenticatedPresencasRouteImport.update({
+  id: '/presencas',
+  path: '/presencas',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRoletaRoute = AuthenticatedRoletaRouteImport.update({
+  id: '/roleta',
+  path: '/roleta',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSimulacaoRoute = AuthenticatedSimulacaoRouteImport.update({
+  id: '/simulacao',
+  path: '/simulacao',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const CorretorCadastroRoute = CorretorCadastroRouteImport.update({
+  id: '/corretor_/cadastro',
+  path: '/corretor/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TotemPropagandaRoute = TotemPropagandaRouteImport.update({
+  id: '/propaganda',
+  path: '/propaganda',
+  getParentRoute: () => TotemRoute,
+} as any)
+const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
+  id: '/api/public/lorenza',
+  path: '/api/public/lorenza',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicLorenzaRoletaRoute = ApiPublicLorenzaRoletaRouteImport.update({
@@ -269,31 +269,31 @@ const ApiPublicLorenzaRoletaRoute = ApiPublicLorenzaRoletaRouteImport.update({
   path: '/api/public/lorenza-roleta',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicLorenzaRoute = ApiPublicLorenzaRouteImport.update({
-  id: '/api/public/lorenza',
-  path: '/api/public/lorenza',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
+const ApiPublicRoletaAutoRoute = ApiPublicRoletaAutoRouteImport.update({
+  id: '/api/public/roleta-auto',
+  path: '/api/public/roleta-auto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksAvisosRenovacaoRoute =
   ApiPublicHooksAvisosRenovacaoRouteImport.update({
     id: '/api/public/hooks/avisos-renovacao',
     path: '/api/public/hooks/avisos-renovacao',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -616,116 +616,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/totem': {
-      id: '/totem'
-      path: '/totem'
-      fullPath: '/totem'
-      preLoaderRoute: typeof TotemRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/termos': {
-      id: '/termos'
-      path: '/termos'
-      fullPath: '/termos'
-      preLoaderRoute: typeof TermosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sistema': {
-      id: '/sistema'
-      path: '/sistema'
-      fullPath: '/sistema'
-      preLoaderRoute: typeof SistemaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/setup': {
-      id: '/setup'
-      path: '/setup'
-      fullPath: '/setup'
-      preLoaderRoute: typeof SetupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plantao': {
-      id: '/plantao'
-      path: '/plantao'
-      fullPath: '/plantao'
-      preLoaderRoute: typeof PlantaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planos': {
-      id: '/planos'
-      path: '/planos'
-      fullPath: '/planos'
-      preLoaderRoute: typeof PlanosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lgpd': {
-      id: '/lgpd'
-      path: '/lgpd'
-      fullPath: '/lgpd'
-      preLoaderRoute: typeof LgpdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gerencia': {
-      id: '/gerencia'
-      path: '/gerencia'
-      fullPath: '/gerencia'
-      preLoaderRoute: typeof GerenciaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/exclusao': {
-      id: '/exclusao'
-      path: '/exclusao'
-      fullPath: '/exclusao'
-      preLoaderRoute: typeof ExclusaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dados': {
-      id: '/dados'
-      path: '/dados'
-      fullPath: '/dados'
-      preLoaderRoute: typeof DadosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/corretor': {
-      id: '/corretor'
-      path: '/corretor'
-      fullPath: '/corretor'
-      preLoaderRoute: typeof CorretorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/apresentacao': {
-      id: '/apresentacao'
-      path: '/apresentacao'
-      fullPath: '/apresentacao'
-      preLoaderRoute: typeof ApresentacaoRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -735,144 +630,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/apresentacao': {
+      id: '/apresentacao'
+      path: '/apresentacao'
+      fullPath: '/apresentacao'
+      preLoaderRoute: typeof ApresentacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/totem/propaganda': {
-      id: '/totem/propaganda'
-      path: '/propaganda'
-      fullPath: '/totem/propaganda'
-      preLoaderRoute: typeof TotemPropagandaRouteImport
-      parentRoute: typeof TotemRoute
-    }
-    '/corretor_/cadastro': {
-      id: '/corretor_/cadastro'
-      path: '/corretor/cadastro'
-      fullPath: '/corretor/cadastro'
-      preLoaderRoute: typeof CorretorCadastroRouteImport
+    '/corretor': {
+      id: '/corretor'
+      path: '/corretor'
+      fullPath: '/corretor'
+      preLoaderRoute: typeof CorretorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/usuarios': {
-      id: '/_authenticated/usuarios'
-      path: '/usuarios'
-      fullPath: '/usuarios'
-      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/dados': {
+      id: '/dados'
+      path: '/dados'
+      fullPath: '/dados'
+      preLoaderRoute: typeof DadosRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/simulacao': {
-      id: '/_authenticated/simulacao'
-      path: '/simulacao'
-      fullPath: '/simulacao'
-      preLoaderRoute: typeof AuthenticatedSimulacaoRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/exclusao': {
+      id: '/exclusao'
+      path: '/exclusao'
+      fullPath: '/exclusao'
+      preLoaderRoute: typeof ExclusaoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/roleta': {
-      id: '/_authenticated/roleta'
-      path: '/roleta'
-      fullPath: '/roleta'
-      preLoaderRoute: typeof AuthenticatedRoletaRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/gerencia': {
+      id: '/gerencia'
+      path: '/gerencia'
+      fullPath: '/gerencia'
+      preLoaderRoute: typeof GerenciaRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/relatorios': {
-      id: '/_authenticated/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/lgpd': {
+      id: '/lgpd'
+      path: '/lgpd'
+      fullPath: '/lgpd'
+      preLoaderRoute: typeof LgpdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/presencas': {
-      id: '/_authenticated/presencas'
-      path: '/presencas'
-      fullPath: '/presencas'
-      preLoaderRoute: typeof AuthenticatedPresencasRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/plantoes': {
-      id: '/_authenticated/plantoes'
-      path: '/plantoes'
-      fullPath: '/plantoes'
-      preLoaderRoute: typeof AuthenticatedPlantoesRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/minha-presenca': {
-      id: '/_authenticated/minha-presenca'
-      path: '/minha-presenca'
-      fullPath: '/minha-presenca'
-      preLoaderRoute: typeof AuthenticatedMinhaPresencaRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/plantao': {
+      id: '/plantao'
+      path: '/plantao'
+      fullPath: '/plantao'
+      preLoaderRoute: typeof PlantaoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/minha-escala': {
-      id: '/_authenticated/minha-escala'
-      path: '/minha-escala'
-      fullPath: '/minha-escala'
-      preLoaderRoute: typeof AuthenticatedMinhaEscalaRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/meu-qrcode': {
-      id: '/_authenticated/meu-qrcode'
-      path: '/meu-qrcode'
-      fullPath: '/meu-qrcode'
-      preLoaderRoute: typeof AuthenticatedMeuQrcodeRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/meu-cadastro': {
-      id: '/_authenticated/meu-cadastro'
-      path: '/meu-cadastro'
-      fullPath: '/meu-cadastro'
-      preLoaderRoute: typeof AuthenticatedMeuCadastroRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/meu-agendamento': {
-      id: '/_authenticated/meu-agendamento'
-      path: '/meu-agendamento'
-      fullPath: '/meu-agendamento'
-      preLoaderRoute: typeof AuthenticatedMeuAgendamentoRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/sistema': {
+      id: '/sistema'
+      path: '/sistema'
+      fullPath: '/sistema'
+      preLoaderRoute: typeof SistemaRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/mensagens': {
-      id: '/_authenticated/mensagens'
-      path: '/mensagens'
-      fullPath: '/mensagens'
-      preLoaderRoute: typeof AuthenticatedMensagensRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/integracoes': {
-      id: '/_authenticated/integracoes'
-      path: '/integracoes'
-      fullPath: '/integracoes'
-      preLoaderRoute: typeof AuthenticatedIntegracoesRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/empreendimentos': {
-      id: '/_authenticated/empreendimentos'
-      path: '/empreendimentos'
-      fullPath: '/empreendimentos'
-      preLoaderRoute: typeof AuthenticatedEmpreendimentosRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/totem': {
+      id: '/totem'
+      path: '/totem'
+      fullPath: '/totem'
+      preLoaderRoute: typeof TotemRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/corretores': {
-      id: '/_authenticated/corretores'
-      path: '/corretores'
-      fullPath: '/corretores'
-      preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/coordenador': {
-      id: '/_authenticated/coordenador'
-      path: '/coordenador'
-      fullPath: '/coordenador'
-      preLoaderRoute: typeof AuthenticatedCoordenadorRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/configuracoes': {
-      id: '/_authenticated/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/atendimentos': {
@@ -882,18 +756,144 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAtendimentosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/app': {
-      id: '/_authenticated/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AuthenticatedAppRouteImport
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/roleta-auto': {
-      id: '/api/public/roleta-auto'
-      path: '/api/public/roleta-auto'
-      fullPath: '/api/public/roleta-auto'
-      preLoaderRoute: typeof ApiPublicRoletaAutoRouteImport
+    '/_authenticated/coordenador': {
+      id: '/_authenticated/coordenador'
+      path: '/coordenador'
+      fullPath: '/coordenador'
+      preLoaderRoute: typeof AuthenticatedCoordenadorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/corretores': {
+      id: '/_authenticated/corretores'
+      path: '/corretores'
+      fullPath: '/corretores'
+      preLoaderRoute: typeof AuthenticatedCorretoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/empreendimentos': {
+      id: '/_authenticated/empreendimentos'
+      path: '/empreendimentos'
+      fullPath: '/empreendimentos'
+      preLoaderRoute: typeof AuthenticatedEmpreendimentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/integracoes': {
+      id: '/_authenticated/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof AuthenticatedIntegracoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/mensagens': {
+      id: '/_authenticated/mensagens'
+      path: '/mensagens'
+      fullPath: '/mensagens'
+      preLoaderRoute: typeof AuthenticatedMensagensRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meu-agendamento': {
+      id: '/_authenticated/meu-agendamento'
+      path: '/meu-agendamento'
+      fullPath: '/meu-agendamento'
+      preLoaderRoute: typeof AuthenticatedMeuAgendamentoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meu-cadastro': {
+      id: '/_authenticated/meu-cadastro'
+      path: '/meu-cadastro'
+      fullPath: '/meu-cadastro'
+      preLoaderRoute: typeof AuthenticatedMeuCadastroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meu-qrcode': {
+      id: '/_authenticated/meu-qrcode'
+      path: '/meu-qrcode'
+      fullPath: '/meu-qrcode'
+      preLoaderRoute: typeof AuthenticatedMeuQrcodeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/minha-escala': {
+      id: '/_authenticated/minha-escala'
+      path: '/minha-escala'
+      fullPath: '/minha-escala'
+      preLoaderRoute: typeof AuthenticatedMinhaEscalaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/minha-presenca': {
+      id: '/_authenticated/minha-presenca'
+      path: '/minha-presenca'
+      fullPath: '/minha-presenca'
+      preLoaderRoute: typeof AuthenticatedMinhaPresencaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/plantoes': {
+      id: '/_authenticated/plantoes'
+      path: '/plantoes'
+      fullPath: '/plantoes'
+      preLoaderRoute: typeof AuthenticatedPlantoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/presencas': {
+      id: '/_authenticated/presencas'
+      path: '/presencas'
+      fullPath: '/presencas'
+      preLoaderRoute: typeof AuthenticatedPresencasRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roleta': {
+      id: '/_authenticated/roleta'
+      path: '/roleta'
+      fullPath: '/roleta'
+      preLoaderRoute: typeof AuthenticatedRoletaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/simulacao': {
+      id: '/_authenticated/simulacao'
+      path: '/simulacao'
+      fullPath: '/simulacao'
+      preLoaderRoute: typeof AuthenticatedSimulacaoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/corretor_/cadastro': {
+      id: '/corretor_/cadastro'
+      path: '/corretor/cadastro'
+      fullPath: '/corretor/cadastro'
+      preLoaderRoute: typeof CorretorCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/totem/propaganda': {
+      id: '/totem/propaganda'
+      path: '/propaganda'
+      fullPath: '/totem/propaganda'
+      preLoaderRoute: typeof TotemPropagandaRouteImport
+      parentRoute: typeof TotemRoute
+    }
+    '/api/public/lorenza': {
+      id: '/api/public/lorenza'
+      path: '/api/public/lorenza'
+      fullPath: '/api/public/lorenza'
+      preLoaderRoute: typeof ApiPublicLorenzaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/lorenza-roleta': {
@@ -903,25 +903,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLorenzaRoletaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/lorenza': {
-      id: '/api/public/lorenza'
-      path: '/api/public/lorenza'
-      fullPath: '/api/public/lorenza'
-      preLoaderRoute: typeof ApiPublicLorenzaRouteImport
+    '/api/public/roleta-auto': {
+      id: '/api/public/roleta-auto'
+      path: '/api/public/roleta-auto'
+      fullPath: '/api/public/roleta-auto'
+      preLoaderRoute: typeof ApiPublicRoletaAutoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+    '/api/public/hooks/avisos-renovacao': {
+      id: '/api/public/hooks/avisos-renovacao'
+      path: '/api/public/hooks/avisos-renovacao'
+      fullPath: '/api/public/hooks/avisos-renovacao'
+      preLoaderRoute: typeof ApiPublicHooksAvisosRenovacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -931,11 +924,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/avisos-renovacao': {
-      id: '/api/public/hooks/avisos-renovacao'
-      path: '/api/public/hooks/avisos-renovacao'
-      fullPath: '/api/public/hooks/avisos-renovacao'
-      preLoaderRoute: typeof ApiPublicHooksAvisosRenovacaoRouteImport
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

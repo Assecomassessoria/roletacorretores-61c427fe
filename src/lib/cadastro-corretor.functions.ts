@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { dadosPessoaisCorretor, dadosPessoaisCorretorSchema } from "./cadastro-corretor-dados";
 
 // Autocadastro PÚBLICO do corretor (não requer auth).
 // Fluxo: digita CNPJ → backend localiza o empreendimento → cria conta auth,
@@ -20,7 +20,7 @@ const Input = z.object({
   equipe: z.enum(["alfa", "beta"]),
   foto_base64: z.string().max(8_000_000).optional().nullable(),
   foto_mime: z.string().max(80).optional().nullable(),
-});
+}).merge(dadosPessoaisCorretorSchema);
 
 type EmpInfo = {
   id: string;
@@ -34,6 +34,7 @@ type EmpInfo = {
 export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ cnpj: z.string().trim().max(32) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const digits = (data.cnpj ?? "").replace(/\D/g, "");
     if (digits.length < 11) return { empreendimento: null as EmpInfo | null };
 
@@ -52,6 +53,7 @@ export const buscarEmpreendimentoPorCnpj = createServerFn({ method: "POST" })
 export const cadastroCorretorPublico = createServerFn({ method: "POST" })
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const cnpjDigits = data.cnpj_empreendimento.replace(/\D/g, "");
 
     // 1) Localiza o empreendimento pelo CNPJ
@@ -124,6 +126,7 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
     }
 
     const corretorPayload = {
+      ...dadosPessoaisCorretor(data),
       nome: data.nome,
       cpf: (data.cpf ?? "").replace(/\D/g, "") || null,
       creci: creciFmt,
@@ -138,7 +141,8 @@ export const cadastroCorretorPublico = createServerFn({ method: "POST" })
     };
 
     if (existingCorretor) {
-      await supabaseAdmin.from("corretores").update(corretorPayload).eq("id", existingCorretor.id);
+      const { error: updErr } = await supabaseAdmin.from("corretores").update(corretorPayload).eq("id", existingCorretor.id);
+      if (updErr) throw new Error(updErr.message);
     } else {
       const { error: insErr } = await supabaseAdmin.from("corretores").insert(corretorPayload);
       if (insErr) throw new Error(insErr.message);
