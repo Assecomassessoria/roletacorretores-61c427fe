@@ -4,5 +4,6 @@
 - [x] Validar normalização e início automático em testes; compilação aprovada.
 
 # Ciclo operacional comercial
-- [ ] Exibir e permitir definir o período comercial da Roleta Única usando a mesma configuração comercial.
-- [ ] Preservar horários programados do sorteio automático e verificar o ajuste.
+- [x] Exibir e permitir definir o período comercial da Roleta Única usando a mesma configuração comercial.
+- [x] Preservar horários programados do sorteio automático; compilação aprovada.
+- [ ] Confirmar visualmente a configuração com conta de gestor — aguarda login do usuário na prévia.
