@@ -86,6 +86,10 @@ export const Route = createFileRoute("/_authenticated/coordenador")({
     meta: [
       { title: "Painel do Coordenador — Roleta Corretor" },
       { name: "description", content: "Configuração de roletas, equipes, protocolos de presença e corretores." },
+      { property: "og:title", content: "Painel do Coordenador — Roleta Corretor" },
+      { property: "og:description", content: "Gerencie o ciclo comercial, os horários do sorteio e a presença dos corretores." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
@@ -446,7 +450,11 @@ function CoordenadorPage() {
 
   function ciclSubtitle(c: "unica" | "manha" | "tarde") {
     if (!emp) return "";
-    if (c === "unica") return "Período comercial corrido";
+    if (c === "unica") {
+      const inicio = emp.horario_comercial_inicio?.slice(0, 5);
+      const fim = emp.horario_comercial_fim?.slice(0, 5);
+      return `Período comercial corrido: ${inicio && fim ? `${inicio}–${fim}` : "horário não definido"}`;
+    }
     if (c === "manha") return `Matutino${emp.horario_matutino_inicio ? ` ${emp.horario_matutino_inicio.slice(0,5)}–${(emp.horario_matutino_fim ?? "").slice(0,5)}` : ""}`;
     return `Vespertino${emp.horario_vespertino_inicio ? ` ${emp.horario_vespertino_inicio.slice(0,5)}–${(emp.horario_vespertino_fim ?? "").slice(0,5)}` : ""}`;
   }
@@ -583,11 +591,13 @@ function CoordenadorPage() {
               {(["unica","manha","tarde"] as const).map((c) => {
                 const active = emp.ciclo_roleta === c;
                 return (
-                  <button
+                  <Button
                     key={c}
+                    variant="outline"
+                    aria-pressed={active}
                     onClick={() => patch("ciclo_roleta", c)}
-                    className={`rounded-lg border-2 p-4 text-left transition ${
-                      active ? "border-primary bg-primary/5 shadow-[0_0_0_2px_hsl(var(--primary)/0.15)]" : "border-border hover:border-primary/40"
+                    className={`h-auto min-w-0 flex-col items-start whitespace-normal rounded-lg border-2 p-4 text-left transition ${
+                      active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                     }`}
                   >
                     <div className="text-sm font-bold uppercase tracking-wider">
@@ -596,10 +606,45 @@ function CoordenadorPage() {
                     <div className={`mt-1 text-xs ${active ? "text-primary font-medium" : "text-muted-foreground"}`}>
                       {ciclSubtitle(c)}
                     </div>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
+            {emp.ciclo_roleta === "unica" && (
+              <div className="mt-4 space-y-3 border-t border-border pt-4">
+                <div className="text-sm font-semibold">Período comercial corrido</div>
+                <div className="grid max-w-md grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="ciclo-comercial-inicio">Início comercial</Label>
+                    <Input
+                      id="ciclo-comercial-inicio"
+                      type="time"
+                      value={emp.horario_comercial_inicio?.slice(0, 5) ?? ""}
+                      onChange={(e) => patch("horario_comercial_inicio", e.target.value || null)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ciclo-comercial-fim">Fim comercial</Label>
+                    <Input
+                      id="ciclo-comercial-fim"
+                      type="time"
+                      value={emp.horario_comercial_fim?.slice(0, 5) ?? ""}
+                      onChange={(e) => patch("horario_comercial_fim", e.target.value || null)}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <Badge variant={emp.roleta_automatica ? "default" : "outline"}>
+                    {emp.roleta_automatica ? "Sorteio automático ativo" : "Sorteio manual"}
+                  </Badge>
+                  <span className={emp.roleta_automatica && emp.roleta_auto_horarios.length === 0 ? "text-destructive" : "text-muted-foreground"}>
+                    {emp.roleta_auto_horarios.length > 0
+                      ? `Sorteio programado: ${emp.roleta_auto_horarios.join(" · ")} (São Paulo)`
+                      : "Nenhum horário de sorteio programado"}
+                  </span>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Auditoria do Sorteio — critérios da roleta */}
